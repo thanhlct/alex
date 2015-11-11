@@ -1,2 +1,3 @@
 class Database(object):
-    pass
+    def __init__(self):
+        pass
