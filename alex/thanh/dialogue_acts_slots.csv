@@ -1,0 +1,21 @@
+deny,repeat,help,apology,confirm,canthearyou,affirm,request,ack,inform,thankyou,silence,reqalts,negate,bye,hello,restart,notunderstood
+,via_stop,in_city,duration,alternative,num_transfers,current_time,from,time_rel,arrival_time_rel,to_city,to,departure_time_rel,from_city,None,city,to_stop,vehicle,stop,arrival_time,via_city,departure_time,task,from_stop,ampm,date_rel,time
+
+deny, to_stop, city, from_city, departure_time, time_rel, to_city, from_stop, ampm, time, departure_time_rel, in_city, vehicle, stop
+repeat, None
+help, None
+apology, None
+confirm, ampm, to_stop, from_city, time_rel, vehicle, departure_time, from_stop
+canthearyou, None
+affirm, None
+request, current_time, arrival_time, num_transfers, departure_time, arrival_time_rel, duration, to_stop, departure_time_rel, from_stop
+ack, None
+inform, vehicle, task, to_stop, from_stop, , from_city, stop, to, to_city, city, in_city, alternative, via_city, time, date_rel, departure_time, ampm, departure_time_rel, time_rel, from, via_stop, num_transfers, arrival_time
+thankyou, None
+silence, None
+reqalts, None
+negate, None
+bye, None
+hello, None
+restart, None
+notunderstood, None
