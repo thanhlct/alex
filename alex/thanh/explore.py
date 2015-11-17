@@ -8,6 +8,8 @@ from alex.utils.config import Config
 from alex.components.slu.base import CategoryLabelDatabase, SLUInterface
 from alex.components.slu.common import slu_factory
 
+from alex.utils.sample_distribution import sample_from_list
+
 cfg = None
 
 def export_dict_to_csv(d):
@@ -74,10 +76,74 @@ def get_slu_dialogue_acts():
             f.write('%s, %s\n'%(k, ', '.join(das[k])))
     pdb.set_trace()
 
+def write_list_textfile(lst, fname):
+    with open(fname, 'w') as f:
+        for i in lst:
+            f.write(i + '\n')
+
+def generate_time():
+    lst = ['now', 'next hour', 'morning', 'noon', 'afternoon', 'night']
+    for h in range(24):
+        for m in range(0, 60, 5):
+            if h<12:
+                lst.append(str(h) + ':' + str(m) + ' AM')
+            else:
+                if h==12:
+                    lst.append(str(h) + ':' + str(m) + ' PM')
+                else:
+                    lst.append(str(h%12) + ':' + str(m) + ' PM')
+    write_list_textfile(lst, 'time.txt')
+
+def generate_date():
+    lst = ['today', 'tomorrow', 'the day after tomorrow']
+    day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    lst.extend(day)
+    for d in day:
+        lst.append('next ' + d)
+    for d in day:
+        lst.append(d + ' next week')
+    months = 'January,February,March,April,May,June,July,August,Septemper,October,November,December'.split(',')
+    month_len = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    i = -1
+    for m in months:
+        i +=1
+        for d in range(1, month_len[i] +1):
+            lst.append(m + ' ' + str(d))
+    write_list_textfile(lst, 'date.txt') 
+
+def file_to_list(fname):
+    with codecs.open('./thanh/%s.txt'%fname, 'r', 'UTF-8') as f:
+        f.readline()
+        lst = []
+        for line in f.readlines():
+            lst.append(line.strip())
+    return lst
+
+def list_to_file(lst, fname):
+    with codecs.open('./thanh/%s.txt'%fname, 'w', 'UTF-8') as f:
+        for line in lst:
+            f.write('%s\n'%line)
+
+def generate_places():
+    streets = file_to_list('street')
+    cities = file_to_list('city')
+    cities.extend(file_to_list('borough'))
+    states = file_to_list('state')
+    
+    num = len(streets)
+    city_num = sample_from_list(cities, num, True)
+    state_num = sample_from_list(states, num, True)
+    final = [s + '\t' + c + '\t'+ st for s, c, st in zip(streets, city_num, state_num)]
+    pdb.set_trace()
+    list_to_file(final, 'places.txt')
+
 def main():
     get_config()
-    get_data()
+    #get_data()
     #get_slu_dialogue_acts()
+    #generate_time()
+    #generate_date()
+    generate_places()
 
 if __name__ == '__main__':
 	main();

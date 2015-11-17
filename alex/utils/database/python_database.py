@@ -41,19 +41,35 @@ class PythonDatabase(object):
         pass
     def get_random_row(self, table):
         '''Returns a random row from given table'''
-        pass
+        row_id = random.randint(0, len(self._tables[table]['rows'])-1)
+        row = self._tables[table]['rows'][row_id]
+        #if len(row)==1: row = row[0]
+        return row
+
     def get_hit_number(sefl, query):
         '''Return number of hit in database for the given query'''
         pass
     def get_field_size(self, table, field):
         '''Return number of distinct values in given table and field'''
         pass
+    def get_field_index(self, table, field):
+        '''Return column index of given field in the given table, index starts from 0'''
+        pass
+    def get_row_field_value(self, table, row, field):
+        '''Return the value of the field given in the given row in the given table'''
+        fid = self._tables[table]['fields'].index(field)
+        return row[fid]
+
+    def get_row_number(self, table):
+        '''Rereturn the number of row in the given table'''
+        return len(self._tables[table]['rows'])
     def get_field_values(self, table, field):
         '''Return set of distinct values in given table and field'''
         pass
-    def row_iterator(self, table):
+    def get_row_iterator(self, table):
         '''Return iterator over all rows in given table'''
-        pass
+        for row in self._tables[table]['rows']:
+            yield row
     def get_random_element(self, lst):
         '''Return an random element from given list'''
         return lst[random.randint(0, len(lst))]

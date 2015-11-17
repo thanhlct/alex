@@ -4,6 +4,7 @@ Sampling a value from given distribution
 
 import random
 from numpy.random.mtrand import dirichlet
+import pdb
 
 def sample_from_dict(dt):
     '''
@@ -46,4 +47,5 @@ def sample_from_list(lst, num=1, repeat=False):
         if element not in ret or repeat:
             ret.append(str(element))
             i = i + 1
+    if num==1: return ret[0]
     return ret
