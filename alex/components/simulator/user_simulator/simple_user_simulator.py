@@ -2,8 +2,24 @@
 if __name__ == '__main__':
     import autopath
 #-------define for specific app--------------
+#import alex.utils.matlab_functions as matlab
+
 def goal_post_process(user, goal):
-    #hand the sematic relation between departure and arrival slots
+    #handle the sematic relation between departure and arrival slots
+    if 'arrival_time' in goal.keys():
+        if goal['arrival_time'] == 'now':
+            goal['arrival_time'] = 'as soon as possible'
+            goal['arrival_time_relative']= 'at'
+    if 'departure_time' in goal.keys():
+        if goal['departure_time']=='now':
+            if goal['departure_date']!='today':
+                goal['departure_time'] = 'as soon as possible'    
+            goal['departure_time_relative'] = 'at'
+    if matlab.is_subset(['arrival_time', 'departure_time'], goal.keys()):
+        ad = user.db.get_row_position('date', (goal['arrival_date'],))
+        dd = user.db.get_row_position('date', (goal['departure_date'],))
+        if ad<dd:
+            goal['arrival_date']= user.db.get_random_row('date', dd)
     return goal
 
 import random
@@ -64,7 +80,7 @@ class SimpleUserSimulator(UserSimulator):
                 sampled_slots.extend(key)
 
         sampled_slots.extend(goal_des['sys_unaskable_slots'])
-        remain_slots = matlab.sub(goal_des['changeable_slots'], sampled_slots)
+        remain_slots = matlab.subtract(goal_des['changeable_slots'], sampled_slots)
         for slot in remain_slots:#changeable slots
             goal[slot] = self._get_random_slot_value(slot)
         
@@ -156,8 +172,8 @@ class SimpleUserSimulator(UserSimulator):
                             ],
                     'one_of_slot_set':[
                         {('arrival_time', 'arrival_time_relative', 'arrival_date'):0.5,#choose only one of these set
-                        ('departure_time', 'departure_time_relative', 'departure_date'):0.4,
-                        ('arrival_time', 'arrival_time_relative', 'arrival_date', 'departure_time','departure_time_relative', 'departure_date'):0.1,
+                        ('departure_time', 'departure_time_relative', 'departure_date'):0.3,
+                        ('arrival_time', 'arrival_time_relative', 'arrival_date', 'departure_time','departure_time_relative', 'departure_date'):0.2,
                         },
                     ],
                     'sys_unaskable_slots':['number_transfers', 'duration', 'distance'],
@@ -225,7 +241,7 @@ class SimpleUserSimulator(UserSimulator):
             },
             'data_observation_probability':{
                 'time':{
-                    ('now',):0.7,#key is row in the table, if table has only one field, need add comma before the end of tuple
+                    ('now',):0.5,#key is row in the table, if table has only one field, need add comma before the end of tuple
                     ('next hour',):0.02,
                     ('morning',):0.02,
                     ('noon',):0.02,
@@ -270,6 +286,7 @@ if __name__ == '__main__':
     import autopath
 import pdb
 from alex.utils.config import Config
+import pprint
 
 cfg = None
 
@@ -280,16 +297,18 @@ def get_config():
     cfg['Logging']['system_logger'].info("Voip Hub\n" + "=" * 120)
 
 def test_user_goal(user, n):
+    pp = pprint.PrettyPrinter()
     for i in range(n):
         user.new_dialogue()
-        print user.goal
-        raw_input()
+        print '-------------------------Goal %d (type=%d)---------------------'%(i+1, user.goal_id+1)
+        pp.pprint(user.goal)
+        #raw_input()
         #break
 
 def run1():
     db = PythonDatabase(cfg)
     user = SimpleUserSimulator(cfg, db)
-    test_user_goal(user, 30)
+    test_user_goal(user, 100)
 
 def main():
     get_config()

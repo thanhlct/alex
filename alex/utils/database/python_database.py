@@ -1,6 +1,7 @@
 import codecs
 import os
 import random
+import pdb
 
 class PythonDatabase(object):
     '''In this project, this database class is also working as a ways of finding out the good interface, prototype of database for SDS apps'''
@@ -39,12 +40,13 @@ class PythonDatabase(object):
     def execute_reader(self, query):
         '''Executes an SQL statment which return records such as SELECT'''
         pass
-    def get_random_row(self, table):
+    def get_random_row(self, table, after_row=0):
         '''Returns a random row from given table'''
-        row_id = random.randint(0, len(self._tables[table]['rows'])-1)
+        row_id = random.randint(after_row, len(self._tables[table]['rows'])-1)
         row = self._tables[table]['rows'][row_id]
-        #if len(row)==1: row = row[0]
         return row
+    def get_row_position(self, table, row):
+        return self._tables[table]['rows'].index(row)
 
     def get_hit_number(sefl, query):
         '''Return number of hit in database for the given query'''
@@ -70,9 +72,9 @@ class PythonDatabase(object):
         '''Return iterator over all rows in given table'''
         for row in self._tables[table]['rows']:
             yield row
-    def get_random_element(self, lst):
+    def get_random_element(self, lst, after=0):
         '''Return an random element from given list'''
-        return lst[random.randint(0, len(lst))]
+        return lst[random.randint(after, len(lst))]
     def read_table_from_file(self, files):
         '''Read each text file in standard format and save them in dict(fileName, fields, list of tupe which  each tuple is a record in the table)'''
         if isinstance(files, str):#load only one file, can be used when complement a table to current database

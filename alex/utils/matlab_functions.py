@@ -2,6 +2,7 @@
 Support Functions similar to Matlab
 '''
 import numpy as np
+import pdb
 
 def ismember(a, b):
     '''Return a mask of 1s for elements in a which also occurs in b'''
@@ -25,6 +26,13 @@ def find_indexes(a, b):
         ids.append(b.index(val))
     return ids
 
-def sub(a, b):
+def subtract(a, b):
     '''a - b, list subtraction'''
-    return [v for v in a if v not in b] 
+    return [v for v in a if v not in b]
+
+def is_subset(a, b):
+    '''check a is subset of b'''
+    if 0 in ismember(a, b):
+        return False
+    else:
+        return True
