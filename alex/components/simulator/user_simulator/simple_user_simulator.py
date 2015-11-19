@@ -249,7 +249,7 @@ class SimpleUserSimulator(UserSimulator):
                     ('night',):0.02,
                 },
                 'date':{
-                    ('today',):0.6,
+                    ('today',):0.5,
                     ('tomorrow',):0.025,
                     ('the day after tomorrow',):0.025,
                     ('Monday',):0.01,
