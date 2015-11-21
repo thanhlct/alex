@@ -1,4 +1,12 @@
 relative
-at
-before
-after
+now
+next hour
+today
+tomorrow
+the day after tomorrow
+morning
+noon
+afternoon
+night
+midnight
+early morning

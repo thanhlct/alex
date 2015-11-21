@@ -6,6 +6,7 @@ if __name__ == '__main__':
 
 def goal_post_process(user, goal):
     #handle the sematic relation between departure and arrival slots
+    '''
     if 'arrival_time' in goal.keys():
         if goal['arrival_time'] == 'now':
             goal['arrival_time'] = 'as soon as possible'
@@ -20,6 +21,7 @@ def goal_post_process(user, goal):
         dd = user.db.get_row_position('date', (goal['departure_date'],))
         if ad<dd:
             goal['arrival_date']= user.db.get_random_row('date', dd)
+    '''
     return goal
 
 import random
@@ -160,26 +162,35 @@ class SimpleUserSimulator(UserSimulator):
     #-----------define for specific app-----------------
     def get_metadata(self, cfg):#This metadata is for user simulator, and the content is for specific apps
         metadata = {
-            'slots': ['departure_from', 'go_to', 'departure_time', 'departure_date', 'arrival_time', 'arrival_date',
-                    'vihecle', 'arrival_time_relative', 'depature_time_relative', 'number_transfers', 'duration',' distance',
-                    'street', 'city', 'state',#three last slot only for clarifying when there is an ambiguitous in departure/arrival places
+            'slots': ['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'departure_date', 'arrival_time', 'arrival_date',
+                    'vihecle', 'arrival_time_rel', 'depature_time_rel', 'number_transfers', 'duration',' distance',
+                    'street', 'city', 'state',
+                    'alternative', 'date_rel'#How to push it in to the simulator
                 ],#only for easy seeing and imagining, not being used in coding
             'goals': [
                     {'fixed_slots':[('task','find_connection'),],
-                    'changeable_slots':['departure_from', 'go_to', 'departure_time', 'arrival_time',
-                                    'departure_date', 'arrival_date', 'vehicle', 'arrival_time_relative', 'departure_time_relative',
-                                    'number_transfers', 'duration', 'distance',
+                    'changeable_slots':['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street',
+                                        'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel',
+                                        'vehicle',
+                                        'number_transfers', 'duration', 'distance',#users dont know these slot
                             ],
                     'one_of_slot_set':[
-                        {('arrival_time', 'arrival_time_relative', 'arrival_date'):0.5,#choose only one of these set
-                        ('departure_time', 'departure_time_relative', 'departure_date'):0.3,
-                        ('arrival_time', 'arrival_time_relative', 'arrival_date', 'departure_time','departure_time_relative', 'departure_date'):0.2,
-                        },
-                    ],
+                            {('from_stop', 'to_stop'):0.3,#choose only one of these set
+                            ('from_city', 'to_city'):0.2,
+                            ('from_street', 'to_street'):0.3,
+                            ('from_stop', 'to_street'):0.2,
+                            },#end of the fist defination of one_of_slot_set
+                            {():0.3,
+                            ('arrival_time',):0.1,
+                            ('departure_time',):0.1,
+                            ('arrival_time_rel',):0.25,
+                            ('departure_time_rel',):0.25,
+                            },
+                        ],
                     'sys_unaskable_slots':['number_transfers', 'duration', 'distance'],
                     'prob':0.8,#probability of observing the task being active
                     'same_table_slot_keys':[],#defining when serveral slots connected to a row in a table and we would like to get them linked together
-                    'goal_post_process_fun': goal_post_process,#post process function to refine the sampled goal, which will be defined for specific semantic relations
+                    'goal_post_process_fun': None,#post process function to refine the sampled goal, which will be defined for specific semantic relations
                     'goal_slot_relax_fun': None,#support function, relax the value of a slot given curretn goal, e.g. more late arrival, departure sooner    
                     },
                     {'fixed_slots':[('task','find_platform'),],
@@ -201,14 +212,16 @@ class SimpleUserSimulator(UserSimulator):
                     'goal_slot_relax_fun': None,
                     },
                 ],
-            'slot_table_field_mapping':{'departure_from':[('stops','stop'), ('streets','street')],
-                                        'go_to':[('stops', 'stop'),('streets','street')],
+            'slot_table_field_mapping':{'from_stop':[('stops','stop')],
+                                        'to_stop':[('stops', 'stop')],
+                                        'from_city':[('cities', 'city')],
+                                        'to_city':[('cities', 'city')],
+                                        'from_street':[('streets', 'street')],
+                                        'to_street':[('streets', 'street')],
                                         'departure_time':[('time', 'time')],
-                                        'departure_date':[('date', 'date')],
-                                        'departure_time_relative':[('time_relative', 'relative')],
+                                        'departure_time_rel':[('time_relative', 'relative')],
                                         'arrival_time': [('time', 'time')],
-                                        'arrival_date': [('date', 'date')],
-                                        'arrival_time_relative': [('time_relative', 'relative')],
+                                        'arrival_time_rel': [('time_relative', 'relative')],
                                         'vehicle': [('vehicles', 'vehicle')],
                                         'street':[('streets', 'street'), ('places', 'street')],
                                         'city':[('cities', 'city'), ('places', 'city')],
@@ -240,13 +253,18 @@ class SimpleUserSimulator(UserSimulator):
                 },
             },
             'data_observation_probability':{
-                'time':{
-                    ('now',):0.5,#key is row in the table, if table has only one field, need add comma before the end of tuple
-                    ('next hour',):0.02,
-                    ('morning',):0.02,
-                    ('noon',):0.02,
-                    ('afternoon',):0.02,
-                    ('night',):0.02,
+                'tiime_relative':{
+                    ('now',):0.2,#key is row in the table, if table has only one field, need add comma before the end of the tuple
+                    ('next hour',):0.1,
+                    ('morning',):0.1,
+                    ('noon',):0.1,
+                    ('afternoon',):0.1,
+                    ('night',):0.1,
+                    ('midnight',):0.05,
+                    ('early morning',):0.05,
+                    ('today',):0.1,
+                    ('tomorrow',):0.05,
+                    ('the day after tomorrow',):0.05,
                 },
                 'date':{
                     ('today',):0.5,

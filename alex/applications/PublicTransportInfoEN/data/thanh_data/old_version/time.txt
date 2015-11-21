@@ -1,4 +1,10 @@
 time
+now
+next hour
+morning
+noon
+afternoon
+night
 0:0 AM
 0:5 AM
 0:10 AM
