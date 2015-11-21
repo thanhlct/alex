@@ -45,7 +45,8 @@ def sample_from_list(lst, num=1, repeat=False):
         id = random.randint(0, len(lst)-1)
         element = lst[id]
         if element not in ret or repeat:
-            ret.append(str(element))
+            #ret.append(str(element))
+            ret.append(element)
             i = i + 1
     if num==1: return ret[0]
     return ret

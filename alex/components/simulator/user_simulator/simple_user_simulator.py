@@ -3,6 +3,10 @@ if __name__ == '__main__':
     import autopath
 #-------define for specific app--------------
 #import alex.utils.matlab_functions as matlab
+def values_generator1(goal, slot):
+    return [1,2,3]
+def values_generator2(goal, slot):
+    return [7,8,9]
 
 def goal_post_process(user, goal):
     #handle the sematic relation between departure and arrival slots
@@ -32,6 +36,7 @@ from alex.components.slu.da import DialogueActItem, DialogueActConfusionNetwork,
 
 from alex.utils.sample_distribution import sample_from_list, sample_from_dict
 import alex.utils.matlab_functions as matlab
+from alex.utils.support_functions import get_dict_value, iscallable
 
 class SimpleUserSimulator(UserSimulator):
     '''Simple user simulator'''
@@ -56,12 +61,15 @@ class SimpleUserSimulator(UserSimulator):
         Sample a new user goal. Reset everything for simulating a new dialogue
         '''
         self.goal = self._get_random_goal()
+        #self.dialog_turns = [] make the full history in somewhere else, not the task of user simulator
+        self.unprocessed_das = []
 
     def _get_random_goal(self):
         '''Return a random final goal of user'''
         self.goal_id = sample_from_dict(self._goal_dist)
         goal_des = self.metadata['goals'][self.goal_id]
         goal = {}
+        self.goal = goal
         sampled_slots = []
 
         for s, v in goal_des['fixed_slots']:#fixed slots
@@ -71,8 +79,9 @@ class SimpleUserSimulator(UserSimulator):
         for key in goal_des['same_table_slot_keys']:#same table slots NOTE same_table_slot was coded without testing since data hadn't faked yet
             slots_values = self._get_random_same_table_slots_values(key)
             for slot in slots_values.keys():
-                sampled_slots.append(slot)
-                goal[slot] = slots_values[slot]
+                if slot in goal_des['changeable_slots']:
+                    sampled_slots.append(slot)
+                    goal[slot] = slots_values[slot]
 
         for one_set in goal_des['one_of_slot_set']:#get value for  one slot set and ignore other slots
             slot_set = sample_from_dict(one_set)
@@ -85,8 +94,12 @@ class SimpleUserSimulator(UserSimulator):
         remain_slots = matlab.subtract(goal_des['changeable_slots'], sampled_slots)
         for slot in remain_slots:#changeable slots
             goal[slot] = self._get_random_slot_value(slot)
-        
-        fun = goal_des['goal_post_process_fun']
+
+        for slot, value in goal_des['default_slots_values']:#fill the default slot which was not being filled
+            if slot not in goal.keys():
+                goal[slot] = value
+    
+        fun = get_dict_value(goal_des,'goal_post_process_fun')
         if fun is not None:
             goal = fun(self, goal)
         return goal
@@ -104,9 +117,14 @@ class SimpleUserSimulator(UserSimulator):
     def _get_random_slot_value(self, slot):
         values = []
         tables_fields = self._get_slot_mapping(slot)
-        for tb, f in tables_fields:#sample a value of each table which the slot is connected
-            row = self._get_random_row(tb)
-            values.append(self.db.get_row_field_value(tb, row, f))
+        for tbf in tables_fields:#sample a value of each table which the slot is connected
+            if iscallable(tbf):#slot have values generated dynamic from one or several funs
+                v = sample_from_list(tbf(self.goal, slot))
+                values.append(v)
+            else:  
+                tb, f = tbf
+                row = self._get_random_row(tb)
+                values.append(self.db.get_row_field_value(tb, row, f))
         return sample_from_list(values)#take one in the sampled values
         
     def _get_random_row(self, table):
@@ -145,19 +163,25 @@ class SimpleUserSimulator(UserSimulator):
 
     def da_in(self, da):
         '''Recieve a system dialogue act'''
-        pass
+        self.unprocessed_das.append(da)
+
     def da_out(self):
         '''Samples and returns a user dialogue act based on user's current state and given system dialogue act'''
         pass
+
     def reward_last_da(self):
         '''Rewards the last system dialgoue act'''
-        pass
-    def reward_final_goal(self):
+        return self.metadata[self.goal_id]['reward_last_da_fun'](self.last_da)
+
+    def reward_final_goal(self, sys_predict):
         '''Return final reward for the current dialouge'''
-        pass
+        return self.metadata[self.goal_id]['reward_final_goal_fun'](self.goal, sys_predict)
+        
     def end_dialogue(self):
         '''end dialgoue and post-processing'''
-        pass
+        fun = get_dict_value(self.metadata['goals'][self.goal_id], 'end_dialogue_post_process_fun')
+        if fun is not None:
+            fun(self)
 
     #-----------define for specific app-----------------
     def get_metadata(self, cfg):#This metadata is for user simulator, and the content is for specific apps
@@ -165,7 +189,8 @@ class SimpleUserSimulator(UserSimulator):
             'slots': ['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'departure_date', 'arrival_time', 'arrival_date',
                     'vihecle', 'arrival_time_rel', 'depature_time_rel', 'number_transfers', 'duration',' distance',
                     'street', 'city', 'state',
-                    'alternative', 'date_rel'#How to push it in to the simulator
+                    'alternative', 'date_rel',#How to push it in to the simulator
+                    'slot_fun',#only for test slots have value list generating dyanmically from fun
                 ],#only for easy seeing and imagining, not being used in coding
             'goals': [
                     {'fixed_slots':[('task','find_connection'),],
@@ -187,16 +212,21 @@ class SimpleUserSimulator(UserSimulator):
                             ('departure_time_rel',):0.25,
                             },
                         ],
-                    'sys_unaskable_slots':['number_transfers', 'duration', 'distance'],
+                    'sys_unaskable_slots':['number_transfers', 'duration', 'distance',],
+                    'default_slots_values':[('departure_time', 'as soon as possible'),],
                     'prob':0.8,#probability of observing the task being active
                     'same_table_slot_keys':[],#defining when serveral slots connected to a row in a table and we would like to get them linked together
                     'goal_post_process_fun': None,#post process function to refine the sampled goal, which will be defined for specific semantic relations
                     'goal_slot_relax_fun': None,#support function, relax the value of a slot given curretn goal, e.g. more late arrival, departure sooner    
+                    'reward_last_da_fun': None,
+                    'reward_final_goal_fun': None,
+                    'end_dialogue_post_process_fun': None,
                     },
                     {'fixed_slots':[('task','find_platform'),],
                     'changeable_slots':['street', 'city', 'state'],
                     'one_of_slot_set':[],
                     'sys_unaskable_slots':[],
+                    'default_slots_values':[],
                     'prob':0.15,
                     'same_table_slot_keys': ['place'],
                     'goal_post_process_fun': None,
@@ -206,6 +236,7 @@ class SimpleUserSimulator(UserSimulator):
                     'changeable_slots':['city', 'state'],
                     'one_of_slot_set':[],
                     'sys_unaskable_slots':[],
+                    'default_slots_values':[],
                     'prob':0.05,
                     'same_table_slot_keys':['place'],
                     'goal_post_process_fun': None,
@@ -225,7 +256,8 @@ class SimpleUserSimulator(UserSimulator):
                                         'vehicle': [('vehicles', 'vehicle')],
                                         'street':[('streets', 'street'), ('places', 'street')],
                                         'city':[('cities', 'city'), ('places', 'city')],
-                                        'state':[('states', 'state'), ('places', 'city')],
+                                        'state':[('states', 'state'), ('places', 'state')],
+                                        'slot_fun':[values_generator1, values_generator2]#slot has the list of values being generated dynamically from functions, each function has to return a list of values, the list could includes only one element.
                                     },
             'same_table_slots':{'place':{'table': 'places',
                                         'slots': ['street', 'city', 'state'],
@@ -294,7 +326,6 @@ class SimpleUserSimulator(UserSimulator):
                 },
             },
             #TODO some of value in a slot can only be combined with a specific values of other slot, It shoud be push in a table but .... sometime exception
-            #TODO values for a slot can be generate dynamically from a function
         }#end of metadata
         return metadata
     #-------------definetion for specific apps
@@ -320,6 +351,7 @@ def test_user_goal(user, n):
         user.new_dialogue()
         print '-------------------------Goal %d (type=%d)---------------------'%(i+1, user.goal_id+1)
         pp.pprint(user.goal)
+        user.end_dialogue()
         #raw_input()
         #break
 
