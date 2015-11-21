@@ -53,7 +53,7 @@ class SimpleUserSimulator(UserSimulator):
         goals = self.metadata['goals']
         d = {}
         for i in range(len(goals)):
-            d[i] = goals[i]['prob']
+            d[i] = goals[i]['active_prob']
         return d
 
     def new_dialogue(self):
@@ -197,7 +197,7 @@ class SimpleUserSimulator(UserSimulator):
                     'changeable_slots':['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street',
                                         'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel',
                                         'vehicle',
-                                        'number_transfers', 'duration', 'distance',#users dont know these slot
+                                        'number_transfer', 'duration', 'distance',#users dont know these slot
                             ],
                     'one_of_slot_set':[
                             {('from_stop', 'to_stop'):0.3,#choose only one of these set
@@ -212,9 +212,9 @@ class SimpleUserSimulator(UserSimulator):
                             ('departure_time_rel',):0.25,
                             },
                         ],
-                    'sys_unaskable_slots':['number_transfers', 'duration', 'distance',],
+                    'sys_unaskable_slots':['number_transfer', 'duration', 'distance',],
                     'default_slots_values':[('departure_time', 'as soon as possible'),],
-                    'prob':0.8,#probability of observing the task being active
+                    'active_prob':0.8,#probability of observing the task being active
                     'same_table_slot_keys':[],#defining when serveral slots connected to a row in a table and we would like to get them linked together
                     'goal_post_process_fun': None,#post process function to refine the sampled goal, which will be defined for specific semantic relations
                     'goal_slot_relax_fun': None,#support function, relax the value of a slot given curretn goal, e.g. more late arrival, departure sooner    
@@ -227,7 +227,7 @@ class SimpleUserSimulator(UserSimulator):
                     'one_of_slot_set':[],
                     'sys_unaskable_slots':[],
                     'default_slots_values':[],
-                    'prob':0.15,
+                    'active_prob':0.15,
                     'same_table_slot_keys': ['place'],
                     'goal_post_process_fun': None,
                     'goal_slot_relax_fun': None,
@@ -237,7 +237,7 @@ class SimpleUserSimulator(UserSimulator):
                     'one_of_slot_set':[],
                     'sys_unaskable_slots':[],
                     'default_slots_values':[],
-                    'prob':0.05,
+                    'actvie_prob':0.05,
                     'same_table_slot_keys':['place'],
                     'goal_post_process_fun': None,
                     'goal_slot_relax_fun': None,
@@ -269,20 +269,120 @@ class SimpleUserSimulator(UserSimulator):
                                         'slots': ['to_stop', 'to_street', 'to_city', 'to_state'],
                                 }
                             },
-            'dialogue_acts': {
-                'request':[],
-                'inform':[],
-            },
-            'reply_system_acts':{
-                'request':{'inform':0.8, 'silence': 0.1, 'oog': 0.1},
-            },
-            'probability':{
+
+            'status_included': ['correct', 'incorect', 'pending', 'filled', 'all'],# only for imagining
+            'slot_value_from':['goal', 'sys_da'],#only for imagining
+            'answer_types':['direct_answer', 'over_answer', 'complete_answer'],#only for easy seeing and imagining
+
+            'dialogue_acts': {#dialogue acts which user simulator used for answering
                 'request':{
-                    'inform':{
-                        'over_answer':0.6,
-                        #something else here for ASR simulator etc.
-                    },
+                    'slot_included': True,
+                    'value_included': False,
+                    'combineable_slots': ['number_transfer', 'duration', 'distance']
                 },
+                'inform':{
+                    'slot_included': True,
+                    'value_included': True,
+                    'slot_from': 'sys_da', #in normal case, list of slots will be informed is taken from system dialogue request act, or from goal
+                    'value_from': 'goal', #in normal case, where to get values for selected slots
+                    'limited_slots': [], #list of slot cant combine
+                },
+                'deny':{
+                    'slot_included': True,
+                    'value_included': True,
+                    'slot_from': 'sys_da',
+                    'value_from': 'sys_da',
+                    'status_included': 'incorrect',
+                },
+                'repeat':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'help':{
+                    'slot_included': False,
+                    'value_included': False,
+                }
+                'apology':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'confirm':{#make a question to clarify something, ?User may also make this action?? How to make it? only at the end?, since simulator always know exactly what is going on
+                    'slot_included': True,
+                    'value_included': True,
+                    'status_included': 'filled',
+                },
+                'canthearyou, notunderstood':{#only available for system, not for user
+                },
+                'affirm':{#simply YES #something interesting here,  doesn't include slot/value, but slots consider from sys_da and they are correct
+                    'slot_included': False,
+                    'value_included': False,
+                    'slot_from': 'sys_da',
+                    'status_included': 'correct',
+                },
+                'ack':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'thankyou':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+               'silence':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+               'reqalts':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'negate':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'bye':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'hello':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'restart':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+            },
+            'act_formats':{
+                'slot_value_correct':{
+                    'slot_included': True,
+                    'value_included': True,
+                    'correct_slot_included': False,
+                    'incorrect_slot_included': False,
+                    'value_from': 'goal', #or from sys_da
+                }
+            },
+            'answer_types':['direct_answer', 'over_answer', 'complete_answer'],#only for easy seeing and imagining
+            'reply_system_acts':{
+                'request':[{'return_acts':['inform'],
+                            'inform_answer_types':{
+                                'direct_answer':0.7,
+                                'over_answer':0.2
+                                'complete_answer':0.1
+                                },
+                            'active_prob':0.8,
+                            }
+                            {'return_acts':['silence'],
+                            'active_prob':0.1,
+                            }
+                            {'return_acts':['oog'],
+                            'active_prob':0.1,
+                            }
+                 ]
+                'confirm':[{'return_acts':[],
+                            'active_prob':0.1,
+                            }
+                ]
+                
             },
             'data_observation_probability':{
                 'tiime_relative':{
