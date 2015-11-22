@@ -50,3 +50,12 @@ def sample_from_list(lst, num=1, repeat=False):
             i = i + 1
     if num==1: return ret[0]
     return ret
+
+def random_filter_list(lst, keep_prob=0.5):
+    '''Filter randomly the given list with keeping probablity given'''
+    lst_out = []
+    for s in lst:
+        if random.random()<keep_prob:
+            lst_out.append(s)
+    return lst_out
+
