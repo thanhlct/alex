@@ -96,9 +96,11 @@ class SimpleUserSimulator(UserSimulator):
         for slot in remain_slots:#changeable slots
             goal[slot] = self._get_random_slot_value(slot)
 
+        '''Don't fill default slots, only return when system ask
         for slot, value in goal_des['default_slots_values']:#fill the default slot which was not being filled
             if slot not in goal.keys():
                 goal[slot] = value
+        '''
     
         fun = get_dict_value(goal_des,'goal_post_process_fun')
         if fun is not None:
@@ -220,25 +222,69 @@ class SimpleUserSimulator(UserSimulator):
         return d
                 
     def _build_dialogue_act_items(self, act_in, act_out, answer_type):
+        print act_in
+        print act_out
+        print answer_type
         act_out_des = self.metadata['dialogue_act_definitions'][act_out]
         da_items = []
-        for slot in self._get_combine_slots(act_in, act_out_des, answer_type):
+        combined_slots = self._get_combined_slots(act_in, act_out_des, answer_type)
+        for slot in combined_slots:
             item = DialogueActItem()
             item.dat = act_out
             if act_out_des['slot_included']:
                 item.name = slot
             if act_out_des['value_included']:
                 if act_out_des['value_from']=='goal':
-                    item.value=self.goal[slot]
+                    if slot not in self.goal.keys():#required slot not in goal
+                        eq_slots = self._get_equivalent_slots(slot)
+                        for s in eq_slots:#gen value from a equivalent slot
+                            if s in self.goal.keys():
+                                slot = s
+                                break
+                    if slot not in self.goal.keys():#dont have compatible slots, get from default values
+                        value = self._get_default_slot_value(slot)
+                        if value is not None:
+                            item.value = value
+                        else:
+                            for s in eq_slots:#get default of equivalent slots
+                                value = self._get_default_slot_value(s)
+                                if value is not None:
+                                    item.value = value
+                                    item.name = s
+                            if item.value is None:
+                                raise RuntimeError('Cant find value for slot %s and its equivalents slot from goal and default slots'%slot)
+                    else:
+                        item.value=self.goal[slot]
+                        item.name = slot
                 elif act_out_des['value_from']=='sys_da':
                     item.value = act_in['slot_value']['slot']
                 else:
                     raise NotImplementedError('value_from=%s unhandled yet'%act_out_des['value_from'])
             if item not in da_items:
-                da_items.append(item) 
+                da_items.append(item)
+        if len(combined_slots)==0:
+            if len(act_out_des.keys())==2 and act_out_des['slot_included']==False and act_out_des['value_included']==False:#act_out desnt need slot at all
+                da_items.append(DialogueActItem(act_out))
+            else:
+                raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
         return da_items
 
-    def _get_combine_slots(self, act_in, act_out_des, answer_type):
+    def _get_default_slot_value(self, slot):
+        goal_des = self.metadata['goals'][self.goal_id]
+        for s , v in goal_des['default_slots_values']:
+            if s==slot:
+                return v
+        return None
+
+    def _get_equivalent_slots(self, slot):
+        goal_des = self.metadata['goals'][self.goal_id]
+        if 'equivalent_slots' in goal_des:
+            for eq_slots in goal_des['equivalent_slots']:
+                if slot in eq_slots:
+                    return eq_slots
+        return ()
+
+    def _get_combined_slots(self, act_in, act_out_des, answer_type):
         lst = []
 
         if 'combineable_slots' in act_out_des.keys():#figured out list of combineable slot in the config file, but still have to filter at status slot
@@ -255,6 +301,7 @@ class SimpleUserSimulator(UserSimulator):
         if answer_type=='direct_answer':
             pass#every slot in sys_da already included
         elif answer_type=='over_answer':
+            #TODO: only over or complete answer for slot not mentioned
             remain_slots = matlab.subtract(self.goal.keys(), lst)
             lst.extend(random_filter_list(remain_slots))
         elif answer_type=='complete_answer':
@@ -306,7 +353,8 @@ class SimpleUserSimulator(UserSimulator):
     #-----------define for specific app-----------------
     def get_metadata(self, cfg):#This metadata is for user simulator, and the content is for specific apps
         metadata = {
-            'slots': ['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'departure_date', 'arrival_time', 'arrival_date',
+            'slots': ['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 
+                    'departure_time', 'departure_date', 'arrival_time', 'arrival_date',
                     'vihecle', 'arrival_time_rel', 'depature_time_rel', 'number_transfers', 'duration',' distance',
                     'street', 'city', 'state',
                     'alternative', 'date_rel',#How to push it in to the simulator
@@ -331,9 +379,16 @@ class SimpleUserSimulator(UserSimulator):
                             ('arrival_time_rel',):0.25,
                             ('departure_time_rel',):0.25,
                             },
+                            {():0.5,
+                            ('vehicle',):0.5,
+                            },
                         ],
+                    'equivalent_slots':[('from_stop', 'from_city', 'from_street'), ('to_stop', 'to_city', 'to_street'),
+                                        ('arrival_time', 'arrival_time_rel'), ('departure_time', 'departure_time_rel'), 
+                                    ],
                     'sys_unaskable_slots':['number_transfer', 'duration', 'distance',],
-                    'default_slots_values':[('departure_time', 'as soon as possible'),],
+                    'default_slots_values':[('departure_time', 'as soon as possible'), ('vehicle', 'dontcare'), ('arrival_time', 'as soon as possible')],
+                    #'add_fixed_slot_to_goal': True,
                     'active_prob':0.8,#probability of observing the task being active
                     'same_table_slot_keys':[],#defining when serveral slots connected to a row in a table and we would like to get them linked together
                     'goal_post_process_fun': None,#post process function to refine the sampled goal, which will be defined for specific semantic relations
@@ -341,6 +396,10 @@ class SimpleUserSimulator(UserSimulator):
                     'reward_last_da_fun': None,
                     'reward_final_goal_fun': None,
                     'end_dialogue_post_process_fun': None,
+                    'slot_used_sequence':{#higher level is only able to used when one of slot at previous level used#TODO not used in the code yet
+                        0:('task', 'from_stop', 'from_city', 'from_street', 'to_stop', 'to_city', 'to_street'),
+                        1:('departure_time', 'arrival_time', 'departure_tiem_rel', 'arrival_time_rel', 'vehicle'),
+                        },
                     },
                     {'fixed_slots':[('task','find_platform'),],
                     'changeable_slots':['street', 'city', 'state'],
@@ -442,6 +501,8 @@ class SimpleUserSimulator(UserSimulator):
                     'value_included': False,
                     'slot_from': 'sys_da',
                     'status_included': 'correct',
+                    #TODO add cheeck all sys_da slot?
+                    #all_slot_included: True,
                 },
                 'ack':{
                     'slot_included': False,
@@ -471,9 +532,13 @@ class SimpleUserSimulator(UserSimulator):
                     'slot_included': False,
                     'value_included': False,
                 },
-                'restart':{
+                'restart':{#TODO how to user this action?
                     'slot_included': False,
                     'value_included': False,
+                },
+                'hangup':{
+                },
+                'help':{#How?
                 },
             },
             'act_formats':{#not being used
@@ -488,22 +553,29 @@ class SimpleUserSimulator(UserSimulator):
             'reply_system_acts':{#how to combine several act types to respon an actions,list like below is quite ok, but ???
                 'request':[{'return_acts':['inform'],
                             'inform_answer_types':{
-                                'direct_answer':0.7,
-                                'over_answer':0.2,
-                                'complete_answer':0.1,
+                                'direct_answer':0.8,
+                                'over_answer':0.15,
+                                'complete_answer':0.05,
                                 },
-                            'active_prob':0.8,
+                            'active_prob':0.9,
                             },
                             {'return_acts':['silence'],
-                            'active_prob':0.1,
+                            'active_prob':0.05,
                             },
                             {'return_acts':['oog'],
-                            'active_prob':0.1,
+                            'active_prob':0.05,
                             }
                  ],
-                'confirm':[{'return_acts':[],
+                'confirm':[{'return_acts':['deny', 'inform'],
                             'active_prob':0.1,
-                            }
+                            #TODO: only one action in the set or specify explicitly the apply order and stop when first appliable
+                            'ordered_return_acts':[('affirm',), ('negate', 'inform'),('deny', 'inform'),#never run deny???
+                                ],
+                            },
+                            {'return_acts':['negate','inform'],
+                            'active_prob':0.1,
+                            },
+                            {}
                 ]
                 
             },
