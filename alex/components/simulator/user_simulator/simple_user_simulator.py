@@ -566,18 +566,48 @@ class SimpleUserSimulator(UserSimulator):
                             'active_prob':0.05,
                             }
                  ],
-                'confirm':[{'return_acts':['deny', 'inform'],
-                            'active_prob':0.1,
+                'confirm':[{#explict confirm
                             #TODO: only one action in the set or specify explicitly the apply order and stop when first appliable
-                            'ordered_return_acts':[('affirm',), ('negate', 'inform'),('deny', 'inform'),#never run deny???
-                                ],
-                            },
-                            {'return_acts':['negate','inform'],
-                            'active_prob':0.1,
-                            },
-                            {}
-                ]
-                
+                            #mush be dictionary since there is much more thing, affirm but dont talk etc.
+                            #can we change to return_acts, what is different to keep booth? should maintain both for short config and clear distuiguish between two cases
+                            'ordered_return_acts':[
+                                {   'case1':{'return_acts':['affirm'],
+                                        'active_prob':0.5
+                                    },
+                                    'case2':{'return_acts':['affirm', 'inform'],
+                                        'active_prob':0.5,
+                                        'inform_answer_types':{
+                                            'over_answer':1.0
+                                        }
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'goal'#should be none - nowhere, dont take slot form any where
+                                        }
+                                    }
+                                },#end of first priority answer
+                                {   'case1':{'return_acts':['negate', 'inform'],
+                                        'active_prob':7.0,
+                                        'inform_answer_types':{
+                                            'direct_answer':1.0,
+                                        },
+                                        'inform_overrideden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                        },
+                                    },
+                                    'case2':{'return_acts':['deny'],
+                                        'active_prob':0.1,
+                                    },
+                                    'case3':{'return_acts':['deny', 'inform'],
+                                        'active_prob':0.2,
+                                    },
+                                }#end of seond priority answer
+                            ],    
+                            'active_prob':1.0
+                        },#end of the firs way of answer
+                ],
+                'implconfirm':[
+                ],
             },
             'data_observation_probability':{
                 'tiime_relative':{

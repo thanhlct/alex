@@ -7,6 +7,7 @@ if __name__ == '__main__':
 from alex.utils.config import Config
 from alex.components.slu.base import CategoryLabelDatabase, SLUInterface
 from alex.components.slu.common import slu_factory
+from alex.applications.PublicTransportInfoEN.data.ontology import ontology
 
 from alex.utils.sample_distribution import sample_from_list
 
@@ -137,13 +138,17 @@ def generate_places():
     pdb.set_trace()
     list_to_file(final, 'places.txt')
 
+def explore_ontology():
+    pdb.set_trace()
+
 def main():
     get_config()
     #get_data()
     #get_slu_dialogue_acts()
     #generate_time()
     #generate_date()
-    generate_places()
+    #generate_places()
+    explore_ontology()
 
 if __name__ == '__main__':
 	main();
