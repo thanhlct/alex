@@ -451,6 +451,7 @@ class SimpleUserSimulator(UserSimulator):
 
             'status_included': ['correct', 'incorect', 'pending', 'filled', 'all'],# only for imagining
             'slot_value_from':['goal', 'sys_da'],#only for imagining
+            'slot_from': ['sys_da', 'goal', 'none'],
             'answer_types':['direct_answer', 'over_answer', 'complete_answer'],#only for easy seeing and imagining
 
             'dialogue_act_definitions': {#dialogue acts which user simulator used for answering
@@ -501,6 +502,7 @@ class SimpleUserSimulator(UserSimulator):
                     'value_included': False,
                     'slot_from': 'sys_da',
                     'status_included': 'correct',
+                    'status_in_all_slots': True,
                     #TODO add cheeck all sys_da slot?
                     #all_slot_included: True,
                 },
@@ -537,8 +539,12 @@ class SimpleUserSimulator(UserSimulator):
                     'value_included': False,
                 },
                 'hangup':{
+                    'slot_included': False,
+                    'value_included': False,
                 },
                 'help':{#How?
+                    'slot_included': False,
+                    'value_included': False,
                 },
             },
             'act_formats':{#not being used
@@ -580,7 +586,7 @@ class SimpleUserSimulator(UserSimulator):
                                             'over_answer':1.0
                                         }
                                         'inform_overridden_properties':{
-                                            'slot_from': 'goal'#should be none - nowhere, dont take slot form any where
+                                            'slot_from': 'none'#should be none - nowhere, dont take slot form any where
                                         }
                                     }
                                 },#end of first priority answer
