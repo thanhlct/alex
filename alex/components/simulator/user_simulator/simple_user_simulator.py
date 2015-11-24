@@ -53,8 +53,12 @@ class SimpleUserSimulator(UserSimulator):
     def _get_dict_distribution(self, lst_dict):
         '''Get dict distribution for a list of dictionary, in which each dict has the key active_prob specifying the chance of it being active'''
         d = {}
-        for i in range(len(lst_dict)):
-            d[i] = lst_dict[i]['active_prob']
+        if isinstance(lst_dict, dict):
+            for key in lst_dict.keys():
+                d[key] = lst_dict[key]['active_prob']
+        else:
+            for i in range(len(lst_dict)):
+                d[i] = lst_dict[i]['active_prob']
         return d
 
     def new_dialogue(self):
@@ -64,6 +68,7 @@ class SimpleUserSimulator(UserSimulator):
         self.goal = self._get_random_goal()
         #self.dialog_turns = [] make the full history in somewhere else, not the task of user simulator
         self.unprocessed_da_queue = []
+        self.act_used_slots = {}
 
     def _get_random_goal(self):
         '''Return a random final goal of user'''
@@ -188,7 +193,17 @@ class SimpleUserSimulator(UserSimulator):
         for act_in in da_metadata.keys():
             reply = reply_sys_acts[act_in]
             answer = self._sample_element_from_list_dict(reply)
-            for act_out in answer['return_acts']:
+            if 'ordered_return_acts' in answer:#process list of answer in order, and stop for first appliable
+                for solution in answer['ordered_return_acts']:
+                    case = self._sample_element_from_list_dict(solution)
+                    da_items = self._build_one_answer(da_metadata[act_in], case)
+                    if len(da_items)>0:
+                        break
+            else:
+                da_items = self._build_one_answer(da_metadata[act_in], answer)
+                
+            ''' 
+            for act_out in answer['return_acts']:#for reply without ordered answer
                 answer_types = get_dict_value(answer, act_out + '_answer_types')
                 answer_type = None
                 if answer_types is not None:
@@ -196,7 +211,21 @@ class SimpleUserSimulator(UserSimulator):
                 da_items = self._build_dialogue_act_items(da_metadata[act_in], act_out, answer_type)
                 print '---------get da item out', da_items
                 da_out.extend(da_items)
+            '''
+            da_out.extend(da_items)
         return da_out
+
+    def _build_one_answer(self, da_metadata, answer):
+        print answer
+        da_items = []
+        for act_out in answer['return_acts']:#for reply without ordered answer
+            answer_types = get_dict_value(answer, act_out + '_answer_types')
+            answer_type = None
+            if answer_types is not None:
+                answer_type = sample_from_dict(answer_types)
+            overridden_properties = get_dict_value(answer, act_out + '_overridden_properties')
+            da_items.extend(self._build_dialogue_act_items(da_metadata, act_out, answer_type, overridden_properties))
+        return da_items
 
     def _sample_element_from_list_dict(self, lst_dict):#should be static or class function, but this way potential for future speeup with caching
         dist = self._get_dict_distribution(lst_dict)
@@ -221,13 +250,17 @@ class SimpleUserSimulator(UserSimulator):
                 }
         return d
                 
-    def _build_dialogue_act_items(self, act_in, act_out, answer_type):
+    def _build_dialogue_act_items(self, act_in, act_out, answer_type, overridden_properties):
         print act_in
         print act_out
         print answer_type
+        if act_out not in self.act_used_slots.keys():#saving this action used this slot
+            self.act_used_slots[act_out] = set()
+
         act_out_des = self.metadata['dialogue_act_definitions'][act_out]
+        act_out_des = self._override_act_descriptions(overridden_properties, act_out_des)
         da_items = []
-        combined_slots = self._get_combined_slots(act_in, act_out_des, answer_type)
+        combined_slots = self._get_combined_slots(act_in, act_out_des, answer_type, self.act_used_slots[act_out])
         for slot in combined_slots:
             item = DialogueActItem()
             item.dat = act_out
@@ -260,14 +293,30 @@ class SimpleUserSimulator(UserSimulator):
                     item.value = act_in['slot_value']['slot']
                 else:
                     raise NotImplementedError('value_from=%s unhandled yet'%act_out_des['value_from'])
+
+            self.act_used_slots[act_out].add(slot)#save to the list of used slot for this act_out
+                
             if item not in da_items:
                 da_items.append(item)
+
+        if len(combined_slots)==0 and len(da_imtes)==0:
+            raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
+        '''
         if len(combined_slots)==0:
             if len(act_out_des.keys())==2 and act_out_des['slot_included']==False and act_out_des['value_included']==False:#act_out desnt need slot at all
                 da_items.append(DialogueActItem(act_out))
             else:
-                raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
+                print 'cant build %s since not satisfy required slot combined'%act_out
+                #raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
+        '''
         return da_items
+
+    def _override_act_descriptions(self, new_des, original_des):
+        if new_des is None:
+            return original_des
+        for key in new_des.keys():
+            original_des[key] = new_des[key]
+        return original_des
 
     def _get_default_slot_value(self, slot):
         goal_des = self.metadata['goals'][self.goal_id]
@@ -284,16 +333,24 @@ class SimpleUserSimulator(UserSimulator):
                     return eq_slots
         return ()
 
-    def _get_combined_slots(self, act_in, act_out_des, answer_type):
+    def _get_combined_slots(self, act_in, act_out_des, answer_type, used_slots):
         lst = []
+
+        remain_slots = self.goal.keys()
 
         if 'combineable_slots' in act_out_des.keys():#figured out list of combineable slot in the config file, but still have to filter at status slot
             lst.extend(act_out_des['combineable_slots'])
             #return act_out_des['combineable_slots']
+            remain_slots = act_out_des['combineable_slots']
+            
+        if 'accept_used_slot' in act_out_des.keys() and act_out_des['accept_used_slot']==False:#filter used slot
+            remain_slots = matlab.subtract(remain_slots, used_slots)
 
         if 'slot_from' in act_out_des.keys():#take all slot in the type figured in slot_from
             if act_out_des['slot_from']=='sys_da':
                 lst.extend(act_in['slots'])
+            elif act_out_des['slot_from']=='none':
+                pass#dont take slot from sys_da
             else:
                 raise NotImplementedError('slot_from=%s unhandled yet'%act_out_des['slot_from'])
             
@@ -302,10 +359,10 @@ class SimpleUserSimulator(UserSimulator):
             pass#every slot in sys_da already included
         elif answer_type=='over_answer':
             #TODO: only over or complete answer for slot not mentioned
-            remain_slots = matlab.subtract(self.goal.keys(), lst)
+            remain_slots = matlab.subtract(remain_slots, lst)
             lst.extend(random_filter_list(remain_slots))
         elif answer_type=='complete_answer':
-            remain_slots = matlab.subtract(self.goal.keys(), lst)
+            remain_slots = matlab.subtract(remain_slots, lst)
             lst.extend(remain_slots)
         elif answer_type is None:
             pass
@@ -320,7 +377,10 @@ class SimpleUserSimulator(UserSimulator):
         if 'status_included' in act_out_des.keys():
             status_included = act_out_des['status_included']
             lst = self._filter_slot_status(act_in, lst, status_included)
-
+        
+        if 'status_in_all_slots' in act_out_des.keys() and act_out_des['status_in_all_slots']:
+            if len(lst)!= len(act_in['slots']):
+                lst = []#this action require all of requested slot must satisfy the given status
         return lst
     
     def _filter_slot_status(self, act_in, slots, status):
@@ -333,7 +393,7 @@ class SimpleUserSimulator(UserSimulator):
             elif status=='incorrect' and self.goal[s]!= act_in['slot_value'][s]:
                 lst.append(s)
             else:
-                raise NotImplementedError('status_included=$s unhandled yet'%status)
+                raise NotImplementedError('status_included=%s unhandled yet'%status)
         return lst
 
     def reward_last_da(self):
@@ -466,6 +526,7 @@ class SimpleUserSimulator(UserSimulator):
                     'slot_from': 'sys_da', #in normal case, list of slots will be informed is taken from system dialogue request act, or from goal
                     'value_from': 'goal', #in normal case, where to get values for selected slots
                     'limited_slots': [], #list of slot cant combine
+                    'accept_used_slots': False,
                 },
                 'oog':{
                     'slot_included': False,
@@ -557,10 +618,10 @@ class SimpleUserSimulator(UserSimulator):
                 }
             },
             'reply_system_acts':{#how to combine several act types to respon an actions,list like below is quite ok, but ???
-                'request':[{'return_acts':['inform'],
+                'request':[{'return_acts':['inform'],#return acts canbe multiple act
                             'inform_answer_types':{
-                                'direct_answer':0.8,
-                                'over_answer':0.15,
+                                'direct_answer':0.7,
+                                'over_answer':0.25,
                                 'complete_answer':0.05,
                                 },
                             'active_prob':0.9,
@@ -584,11 +645,11 @@ class SimpleUserSimulator(UserSimulator):
                                         'active_prob':0.5,
                                         'inform_answer_types':{
                                             'over_answer':1.0
-                                        }
+                                        },
                                         'inform_overridden_properties':{
-                                            'slot_from': 'none'#should be none - nowhere, dont take slot form any where
-                                        }
-                                    }
+                                            'slot_from': 'none',#should be none - nowhere, dont take slot form any where
+                                        },
+                                    },
                                 },#end of first priority answer
                                 {   'case1':{'return_acts':['negate', 'inform'],
                                         'active_prob':7.0,
@@ -689,12 +750,20 @@ def test_user_goal(user, n):
 def test_reply(user):
     user.new_dialogue()
     print 'GOAL', user.goal
-    act_type = 'request'
-    act_slot = 'from_stop'
+    act_type = 'confirm'
+    slots = ['from_stop', 'from_street', 'from_city']
+    act_slot = None
     act_value = None
+    for slot in slots:
+        if slot in user.goal.keys():
+            act_slot = slot
+            act_value = user.goal[slot]
+            break
+    #act_value='abc'
     da = DialogueAct()
-    item = DialogueActItem(act_type, act_slot)
+    item = DialogueActItem(act_type, act_slot, act_value)
     da.append(item)
+    print da
     user.da_in(da)
     dao = user.da_out()
     print dao[0]
