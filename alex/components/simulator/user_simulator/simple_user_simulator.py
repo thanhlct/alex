@@ -66,9 +66,21 @@ class SimpleUserSimulator(UserSimulator):
         Sample a new user goal. Reset everything for simulating a new dialogue
         '''
         self.goal = self._get_random_goal()
+        self.slot_level = self._build_slot_level()
         #self.dialog_turns = [] make the full history in somewhere else, not the task of user simulator
         self.unprocessed_da_queue = []
         self.act_used_slots = {}
+        self.slot_level_used = 1
+
+    def _build_slot_level(self):
+        d = {}
+        goal_des = self.metadata['goals'][self.goal_id]
+        if 'slot_used_sequence' in goal_des.keys():
+            slot_used_sequence = goal_des['slot_used_sequence']
+            for key in slot_used_sequence.keys():
+                for slot in slot_used_sequence[key]:
+                    d[slot] = key
+        return d           
 
     def _get_random_goal(self):
         '''Return a random final goal of user'''
@@ -216,7 +228,7 @@ class SimpleUserSimulator(UserSimulator):
         return da_out
 
     def _build_one_answer(self, da_metadata, answer):
-        print answer
+        #print answer
         da_items = []
         for act_out in answer['return_acts']:#for reply without ordered answer
             answer_types = get_dict_value(answer, act_out + '_answer_types')
@@ -251,9 +263,9 @@ class SimpleUserSimulator(UserSimulator):
         return d
                 
     def _build_dialogue_act_items(self, act_in, act_out, answer_type, overridden_properties):
-        print act_in
-        print act_out
-        print answer_type
+        #print act_in
+        #print act_out
+        #print answer_type
         if act_out not in self.act_used_slots.keys():#saving this action used this slot
             self.act_used_slots[act_out] = set()
 
@@ -299,8 +311,9 @@ class SimpleUserSimulator(UserSimulator):
             if item not in da_items:
                 da_items.append(item)
 
-        if len(combined_slots)==0 and len(da_imtes)==0:
-            raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
+        if len(combined_slots)==0 and len(da_items)==0:
+            print 'Not building act=%s since cant find any slot, value or randomly filter remove all of them'%act_out
+            #raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
         '''
         if len(combined_slots)==0:
             if len(act_out_des.keys())==2 and act_out_des['slot_included']==False and act_out_des['value_included']==False:#act_out desnt need slot at all
@@ -367,7 +380,7 @@ class SimpleUserSimulator(UserSimulator):
         elif answer_type is None:
             pass
         else:
-            raise NotImplementedError('answer_type=%s unhandled yet'%answer_type)
+            raise NotImplementedError('answer_type=%s unhandled yet'%answer_type)            
 
         #process litmited slots
         if 'limited_slots' in act_out_des.keys():
@@ -378,11 +391,42 @@ class SimpleUserSimulator(UserSimulator):
             status_included = act_out_des['status_included']
             lst = self._filter_slot_status(act_in, lst, status_included)
         
+        # the act required all its slot need to be have the same status
         if 'status_in_all_slots' in act_out_des.keys() and act_out_des['status_in_all_slots']:
-            if len(lst)!= len(act_in['slots']):
+            if len(lst)!= len(act_in['slots']):#TODO this way of testing may give trouble in some cases in future, but currently it works.
                 lst = []#this action require all of requested slot must satisfy the given status
+
+        #process slot_used_sequence
+        goal_des = self.metadata['goals'][self.goal_id]
+        if 'slot_used_sequence' in goal_des.keys():
+            use_sequence = get_dict_value(act_out_des, 'use_slot_sequence')
+            if use_sequence is None or use_sequence:#default using slot sequence 
+                lst = self._filter_slot_used_sequence(goal_des['slot_used_sequence'], lst)
+        #pdb.set_trace()
         return lst
-    
+
+    def _filter_slot_used_sequence(self, sequence, lst_slots):
+        #finding the higtest level can reach for the give lost
+        old_level = self.slot_level_used
+        while(True):
+            if self.slot_level_used not in sequence.keys():
+                break
+            for slot in sequence[self.slot_level_used]:
+                if slot in lst_slots:
+                    self.slot_level_used+=1
+                    break
+            if old_level == self.slot_level_used:
+                break
+            old_level = self.slot_level_used
+
+        #--filtering
+        lst = []
+        for slot in lst_slots:
+            if slot in self.slot_level.keys() and self.slot_level[slot]>self.slot_level_used:
+                continue
+            lst.append(slot)
+        return lst
+                
     def _filter_slot_status(self, act_in, slots, status):
         if status=='all':
             return slots
@@ -457,8 +501,10 @@ class SimpleUserSimulator(UserSimulator):
                     'reward_final_goal_fun': None,
                     'end_dialogue_post_process_fun': None,
                     'slot_used_sequence':{#higher level is only able to used when one of slot at previous level used#TODO not used in the code yet
-                        0:('task', 'from_stop', 'from_city', 'from_street', 'to_stop', 'to_city', 'to_street'),
-                        1:('departure_time', 'arrival_time', 'departure_tiem_rel', 'arrival_time_rel', 'vehicle'),
+                        0:('task',),
+                        1:('from_stop', 'from_city', 'from_street', 'to_stop', 'to_city', 'to_street'),
+                        2:('departure_time', 'arrival_time', 'departure_tiem_rel', 'arrival_time_rel', 'vehicle'),
+                        #only need one of slot in each level informed to get next level
                         },
                     },
                     {'fixed_slots':[('task','find_platform'),],
@@ -527,6 +573,7 @@ class SimpleUserSimulator(UserSimulator):
                     'value_from': 'goal', #in normal case, where to get values for selected slots
                     'limited_slots': [], #list of slot cant combine
                     'accept_used_slots': False,
+                    'use_slot_sequence': True,
                 },
                 'oog':{
                     'slot_included': False,
@@ -566,6 +613,7 @@ class SimpleUserSimulator(UserSimulator):
                     'status_in_all_slots': True,
                     #TODO add cheeck all sys_da slot?
                     #all_slot_included: True,
+                    'use_slot_sequence': True,
                 },
                 'ack':{
                     'slot_included': False,
@@ -763,10 +811,10 @@ def test_reply(user):
     da = DialogueAct()
     item = DialogueActItem(act_type, act_slot, act_value)
     da.append(item)
-    print da
+    print 'sys_da:', da
     user.da_in(da)
     dao = user.da_out()
-    print dao[0]
+    print 'user_da:', dao[0]
 
 def run1():
     db = PythonDatabase(cfg)
