@@ -59,3 +59,5 @@ def random_filter_list(lst, keep_prob=0.5):
             lst_out.append(s)
     return lst_out
 
+def sample_a_prob(accept_prob):
+    return random.random()<accept_prob

@@ -34,9 +34,9 @@ from alex.components.simulator.base import UserSimulator
 from alex.utils.database.python_database import PythonDatabase
 from alex.components.slu.da import DialogueActItem, DialogueActConfusionNetwork, DialogueAct
 
-from alex.utils.sample_distribution import sample_from_list, sample_from_dict, random_filter_list
+from alex.utils.sample_distribution import sample_from_list, sample_from_dict, random_filter_list, sample_a_prob
 import alex.utils.matlab_functions as matlab
-from alex.utils.support_functions import get_dict_value, iscallable
+from alex.utils.support_functions import get_dict_value, iscallable, iprint, deep_copy
 
 class SimpleUserSimulator(UserSimulator):
     '''Simple user simulator'''
@@ -203,33 +203,41 @@ class SimpleUserSimulator(UserSimulator):
         reply_sys_acts = self.metadata['reply_system_acts']
         da_metadata = self._get_dialogue_act_metadata(da_in)
         for act_in in da_metadata.keys():
+            print '------Handling the sys_act', act_in
             reply = reply_sys_acts[act_in]
             answer = self._sample_element_from_list_dict(reply)
             if 'ordered_return_acts' in answer:#process list of answer in order, and stop for first appliable
                 for solution in answer['ordered_return_acts']:
                     case = self._sample_element_from_list_dict(solution)
-                    da_items = self._build_one_answer(da_metadata[act_in], case)
+                    da_items = self._build_one_answer(da_metadata[act_in], case, True)
                     if len(da_items)>0:
+                        answer = case# for filtering acts with add_to_da_prob propertiy
                         break
             else:
                 da_items = self._build_one_answer(da_metadata[act_in], answer)
                 
-            ''' 
-            for act_out in answer['return_acts']:#for reply without ordered answer
-                answer_types = get_dict_value(answer, act_out + '_answer_types')
-                answer_type = None
-                if answer_types is not None:
-                    answer_type = sample_from_dict(answer_types)
-                da_items = self._build_dialogue_act_items(da_metadata[act_in], act_out, answer_type)
-                print '---------get da item out', da_items
-                da_out.extend(da_items)
-            '''
-            da_out.extend(da_items)
+            for item in da_items:#process action can be whether add to da_out or not like impl_confirm
+                act_out_des = self._get_act_out_description(item.dat, answer)
+                if 'add_to_da_prob' in act_out_des.keys():
+                    if sample_a_prob(act_out_des['add_to_da_prob']) and item not in da_out:
+                        da_out.append(item)
+                else:
+                    if item not in da_out:
+                        da_out.append(item)
+            #da_out.extend(da_items)
         return da_out
 
-    def _build_one_answer(self, da_metadata, answer):
+    def _get_act_out_description(self, act_out, specific_answer):
+        act_out_des = self.metadata['dialogue_act_definitions'][act_out]
+        if act_out + '_overridden_properties' in specific_answer.keys():
+            act_out_des = self._override_act_descriptions(specific_answer[act_out + '_overridden_properties'], act_out_des)
+        return act_out_des
+        
+
+    def _build_one_answer(self, da_metadata, answer, follow_order=False):
         #print answer
         da_items = []
+        first_act = True
         for act_out in answer['return_acts']:#for reply without ordered answer
             answer_types = get_dict_value(answer, act_out + '_answer_types')
             answer_type = None
@@ -237,6 +245,10 @@ class SimpleUserSimulator(UserSimulator):
                 answer_type = sample_from_dict(answer_types)
             overridden_properties = get_dict_value(answer, act_out + '_overridden_properties')
             da_items.extend(self._build_dialogue_act_items(da_metadata, act_out, answer_type, overridden_properties))
+            if first_act and follow_order:#if the first action in a return actions which follows the order not successful, that case not satisfy, give up
+                first_act=False
+                if len(da_items)==0:
+                    break
         return da_items
 
     def _sample_element_from_list_dict(self, lst_dict):#should be static or class function, but this way potential for future speeup with caching
@@ -264,13 +276,15 @@ class SimpleUserSimulator(UserSimulator):
                 
     def _build_dialogue_act_items(self, act_in, act_out, answer_type, overridden_properties):
         #print act_in
-        #print act_out
+        print '---building', act_out
         #print answer_type
         if act_out not in self.act_used_slots.keys():#saving this action used this slot
             self.act_used_slots[act_out] = set()
 
         act_out_des = self.metadata['dialogue_act_definitions'][act_out]
         act_out_des = self._override_act_descriptions(overridden_properties, act_out_des)
+        #print 'act_out_des_override'
+        #iprint(act_out_des)
         da_items = []
         combined_slots = self._get_combined_slots(act_in, act_out_des, answer_type, self.act_used_slots[act_out])
         for slot in combined_slots:
@@ -302,7 +316,7 @@ class SimpleUserSimulator(UserSimulator):
                         item.value=self.goal[slot]
                         item.name = slot
                 elif act_out_des['value_from']=='sys_da':
-                    item.value = act_in['slot_value']['slot']
+                    item.value = act_in['slot_value'][slot]
                 else:
                     raise NotImplementedError('value_from=%s unhandled yet'%act_out_des['value_from'])
 
@@ -311,20 +325,18 @@ class SimpleUserSimulator(UserSimulator):
             if item not in da_items:
                 da_items.append(item)
 
-        if len(combined_slots)==0 and len(da_items)==0:
-            print 'Not building act=%s since cant find any slot, value or randomly filter remove all of them'%act_out
+        act_without_slot = False
+        if 'act_without_slot' in act_out_des.keys() and act_out_des['act_without_slot']:
+            act_without_slot = True
+            da_items.append(DialogueActItem(act_out))
+        
+        if len(combined_slots)==0 and len(da_items)==0 and not act_without_slot:
+            print 'Not building act=%s since it requires slots and values but we cant find any slot, value for it'%act_out
             #raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
-        '''
-        if len(combined_slots)==0:
-            if len(act_out_des.keys())==2 and act_out_des['slot_included']==False and act_out_des['value_included']==False:#act_out desnt need slot at all
-                da_items.append(DialogueActItem(act_out))
-            else:
-                print 'cant build %s since not satisfy required slot combined'%act_out
-                #raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
-        '''
         return da_items
 
     def _override_act_descriptions(self, new_des, original_des):
+        original_des = deep_copy(original_des)
         if new_des is None:
             return original_des
         for key in new_des.keys():
@@ -347,6 +359,7 @@ class SimpleUserSimulator(UserSimulator):
         return ()
 
     def _get_combined_slots(self, act_in, act_out_des, answer_type, used_slots):
+        #print 'get_combined_slot, act_in=', act_in, ' act_out_des=', act_out_des
         lst = []
 
         remain_slots = self.goal.keys()
@@ -437,7 +450,8 @@ class SimpleUserSimulator(UserSimulator):
             elif status=='incorrect' and self.goal[s]!= act_in['slot_value'][s]:
                 lst.append(s)
             else:
-                raise NotImplementedError('status_included=%s unhandled yet'%status)
+                if status not in ['correct', 'incorrect']:
+                    raise NotImplementedError('status_included=%s unhandled yet'%status)
         return lst
 
     def reward_last_da(self):
@@ -578,6 +592,7 @@ class SimpleUserSimulator(UserSimulator):
                 'oog':{
                     'slot_included': False,
                     'value_included': False,
+                    'act_without_slot': True,
                 },
                 'deny':{
                     'slot_included': True,
@@ -626,6 +641,7 @@ class SimpleUserSimulator(UserSimulator):
                'silence':{
                     'slot_included': False,
                     'value_included': False,
+                    'act_without_slot': True,
                 },
                'reqalts':{
                     'slot_included': False,
@@ -634,6 +650,8 @@ class SimpleUserSimulator(UserSimulator):
                 'negate':{
                     'slot_included': False,
                     'value_included': False,
+                    'slot_from': 'sys_da',
+                    'status_included': 'incorrect',
                 },
                 'bye':{
                     'slot_included': False,
@@ -672,18 +690,17 @@ class SimpleUserSimulator(UserSimulator):
                                 'over_answer':0.25,
                                 'complete_answer':0.05,
                                 },
-                            'active_prob':0.9,
+                            'active_prob':0.85,
                             },
                             {'return_acts':['silence'],
                             'active_prob':0.05,
                             },
                             {'return_acts':['oog'],
-                            'active_prob':0.05,
+                            'active_prob':0.1,
                             }
                  ],
                 'confirm':[{#explict confirm
-                            #TODO: only one action in the set or specify explicitly the apply order and stop when first appliable
-                            #mush be dictionary since there is much more thing, affirm but dont talk etc.
+                            #only one action in the set or specify explicitly the apply order and stop when first appliable
                             #can we change to return_acts, what is different to keep booth? should maintain both for short config and clear distuiguish between two cases
                             'ordered_return_acts':[
                                 {   'case1':{'return_acts':['affirm'],
@@ -700,28 +717,63 @@ class SimpleUserSimulator(UserSimulator):
                                     },
                                 },#end of first priority answer
                                 {   'case1':{'return_acts':['negate', 'inform'],
-                                        'active_prob':7.0,
+                                        'active_prob':0.4,
                                         'inform_answer_types':{
                                             'direct_answer':1.0,
                                         },
-                                        'inform_overrideden_properties':{
+                                        'inform_overridden_properties':{
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
                                         },
                                     },
                                     'case2':{'return_acts':['deny'],
-                                        'active_prob':0.1,
+                                        'active_prob':0.2,
                                     },
                                     'case3':{'return_acts':['deny', 'inform'],
-                                        'active_prob':0.2,
+                                        'active_prob':0.4,
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                        },
                                     },
                                 }#end of seond priority answer
                             ],    
                             'active_prob':1.0
                         },#end of the firs way of answer
                 ],
-                'implconfirm':[
+                'implconfirm':[{'active_prob': 1.0,
+                         'ordered_return_acts':[
+                            {   'case1':{'return_acts':['affirm'],
+                                    'active_prob':1.0,
+                                    'affirm_overridden_properties':{
+                                        'add_to_da_prob':0.5,
+                                    }
+                                },#end of first way in the firs priority answer
+                            },#end of first priority answer
+                            {   'case1':{'return_acts':['negate', 'inform'],
+                                        'active_prob':0.7,
+                                        'inform_answer_types':{
+                                            'direct_answer':1.0,
+                                        },
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                        },
+                                },
+                                'case2':{'return_acts':['deny', 'inform'],
+                                        'active_prob':0.3,
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                        },
+                                },
+                            }#end of seond priority answer
+                         ],
+                        },#end of the first way of answer
                 ],
             },
             'data_observation_probability':{
@@ -798,7 +850,7 @@ def test_user_goal(user, n):
 def test_reply(user):
     user.new_dialogue()
     print 'GOAL', user.goal
-    act_type = 'confirm'
+    act_type = 'implconfirm'
     slots = ['from_stop', 'from_street', 'from_city']
     act_slot = None
     act_value = None
@@ -807,10 +859,13 @@ def test_reply(user):
             act_slot = slot
             act_value = user.goal[slot]
             break
-    #act_value='abc'
+    act_value='abc'
     da = DialogueAct()
     item = DialogueActItem(act_type, act_slot, act_value)
     da.append(item)
+    item = DialogueActItem('request', 'to_stop')
+    da.append(item)
+    #pdb.set_trace()
     print 'sys_da:', da
     user.da_in(da)
     dao = user.da_out()
