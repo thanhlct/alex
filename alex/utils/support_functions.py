@@ -20,3 +20,7 @@ def iprint(s):
 
 def deep_copy(o):
     return copy.deepcopy(o)
+
+def debug_print(s, mode=0, debug_mode=100):
+    if mode<=debug_mode:
+        print s

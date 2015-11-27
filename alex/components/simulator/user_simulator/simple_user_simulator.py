@@ -8,6 +8,10 @@ def values_generator1(goal, slot):
 def values_generator2(goal, slot):
     return [7,8,9]
 
+def alternative_value_fun():
+    a = ['next', 'previous', 'next hour']
+    return sample_from_list(a)
+
 def goal_post_process(user, goal):
     #handle the sematic relation between departure and arrival slots
     '''
@@ -36,17 +40,17 @@ from alex.components.slu.da import DialogueActItem, DialogueActConfusionNetwork,
 
 from alex.utils.sample_distribution import sample_from_list, sample_from_dict, random_filter_list, sample_a_prob
 import alex.utils.matlab_functions as matlab
-from alex.utils.support_functions import get_dict_value, iscallable, iprint, deep_copy
+from alex.utils.support_functions import get_dict_value, iscallable, iprint, deep_copy, debug_print
 
 class SimpleUserSimulator(UserSimulator):
     '''Simple user simulator'''
 
     def __init__(self, cfg, db):
         '''Initilise'''
-        self._config = cfg.config['user_simulator']
+        self.config = cfg.config['user_simulator']
         self.db = db
         self.goal = None
-        self.metadata = self.get_metadata(self._config)
+        self.metadata = self.get_metadata(self.config)
         #self._goal_dist = self._get_goal_distribution()
         self._goal_dist = self._get_dict_distribution(self.metadata['goals'])
 
@@ -70,7 +74,7 @@ class SimpleUserSimulator(UserSimulator):
         #self.dialog_turns = [] make the full history in somewhere else, not the task of user simulator
         self.unprocessed_da_queue = []
         self.act_used_slots = {}
-        self.slot_level_used = 1
+        self.slot_level_used = 0
 
     def _build_slot_level(self):
         d = {}
@@ -122,6 +126,10 @@ class SimpleUserSimulator(UserSimulator):
         fun = get_dict_value(goal_des,'goal_post_process_fun')
         if fun is not None:
             goal = fun(self, goal)
+
+        #for debug:
+        #self.goal_id = 0
+        #goal = {'to_city': u'Allerton', 'task': 'find_connection', 'from_city': u'North Massapequa',}
         return goal
 
     def _get_random_same_table_slots_values(self, same_table_key):
@@ -194,6 +202,8 @@ class SimpleUserSimulator(UserSimulator):
             das.append(self._get_answer_da(da))
         #if len(das)==1:
         #    das = das[0]
+        #print das[0]
+        #pdb.set_trace()
         return das
 
     
@@ -203,8 +213,11 @@ class SimpleUserSimulator(UserSimulator):
         reply_sys_acts = self.metadata['reply_system_acts']
         da_metadata = self._get_dialogue_act_metadata(da_in)
         for act_in in da_metadata.keys():
-            print '------Handling the sys_act', act_in
+            #debug_print('------Handling the sys_act' +  act_in)
+            #print '------Handling the sys_act', act_in
             reply = reply_sys_acts[act_in]
+            if isinstance(reply, dict):#this action has different definition for different goal
+                reply = reply[self.goal_id]
             answer = self._sample_element_from_list_dict(reply)
             if 'ordered_return_acts' in answer:#process list of answer in order, and stop for first appliable
                 for solution in answer['ordered_return_acts']:
@@ -276,7 +289,7 @@ class SimpleUserSimulator(UserSimulator):
                 
     def _build_dialogue_act_items(self, act_in, act_out, answer_type, overridden_properties):
         #print act_in
-        print '---building', act_out
+        #print '---building', act_out
         #print answer_type
         if act_out not in self.act_used_slots.keys():#saving this action used this slot
             self.act_used_slots[act_out] = set()
@@ -310,6 +323,7 @@ class SimpleUserSimulator(UserSimulator):
                                 if value is not None:
                                     item.value = value
                                     item.name = s
+                                    break
                             if item.value is None:
                                 raise RuntimeError('Cant find value for slot %s and its equivalents slot from goal and default slots'%slot)
                     else:
@@ -317,6 +331,8 @@ class SimpleUserSimulator(UserSimulator):
                         item.name = slot
                 elif act_out_des['value_from']=='sys_da':
                     item.value = act_in['slot_value'][slot]
+                elif act_out_des['value_from']=='function':
+                    item.value = act_out_des['value_fun']()
                 else:
                     raise NotImplementedError('value_from=%s unhandled yet'%act_out_des['value_from'])
 
@@ -331,7 +347,8 @@ class SimpleUserSimulator(UserSimulator):
             da_items.append(DialogueActItem(act_out))
         
         if len(combined_slots)==0 and len(da_items)==0 and not act_without_slot:
-            print 'Not building act=%s since it requires slots and values but we cant find any slot, value for it'%act_out
+            pass
+            #print 'Not building act=%s since it requires slots and values but we cant find any slot, value for it'%act_out
             #raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
         return da_items
 
@@ -368,10 +385,12 @@ class SimpleUserSimulator(UserSimulator):
             lst.extend(act_out_des['combineable_slots'])
             #return act_out_des['combineable_slots']
             remain_slots = act_out_des['combineable_slots']
-            
-        if 'accept_used_slot' in act_out_des.keys() and act_out_des['accept_used_slot']==False:#filter used slot
+
+        #print '--combined slots1', lst
+        if 'accept_used_slots' in act_out_des.keys() and act_out_des['accept_used_slots']==False:#filter used slot
             remain_slots = matlab.subtract(remain_slots, used_slots)
 
+        #print '--combined slots2', lst
         if 'slot_from' in act_out_des.keys():#take all slot in the type figured in slot_from
             if act_out_des['slot_from']=='sys_da':
                 lst.extend(act_in['slots'])
@@ -380,11 +399,12 @@ class SimpleUserSimulator(UserSimulator):
             else:
                 raise NotImplementedError('slot_from=%s unhandled yet'%act_out_des['slot_from'])
             
+        #print '--combined slots3', lst
         #process answer_type
         if answer_type=='direct_answer':
             pass#every slot in sys_da already included
         elif answer_type=='over_answer':
-            #TODO: only over or complete answer for slot not mentioned
+            #only over or complete answer for slot not mentioned
             remain_slots = matlab.subtract(remain_slots, lst)
             lst.extend(random_filter_list(remain_slots))
         elif answer_type=='complete_answer':
@@ -395,6 +415,8 @@ class SimpleUserSimulator(UserSimulator):
         else:
             raise NotImplementedError('answer_type=%s unhandled yet'%answer_type)            
 
+
+        #print '--combined slots4', lst
         #process litmited slots
         if 'limited_slots' in act_out_des.keys():
             lst = matlab.subtract(lst, act_out_des['limited_slots'])
@@ -404,18 +426,26 @@ class SimpleUserSimulator(UserSimulator):
             status_included = act_out_des['status_included']
             lst = self._filter_slot_status(act_in, lst, status_included)
         
+        #print '--combined slots5', lst
         # the act required all its slot need to be have the same status
         if 'status_in_all_slots' in act_out_des.keys() and act_out_des['status_in_all_slots']:
             if len(lst)!= len(act_in['slots']):#TODO this way of testing may give trouble in some cases in future, but currently it works.
                 lst = []#this action require all of requested slot must satisfy the given status
 
+        #add atlesat slots
+        if 'atleast_slots' in act_out_des.keys():
+            for slot in act_out_des['atleast_slots']:
+                if slot not in lst:
+                    lst.append(slot)
+
         #process slot_used_sequence
         goal_des = self.metadata['goals'][self.goal_id]
         if 'slot_used_sequence' in goal_des.keys():
             use_sequence = get_dict_value(act_out_des, 'use_slot_sequence')
-            if use_sequence is None or use_sequence:#default using slot sequence 
+            if use_sequence is not None and use_sequence:#default dont using slot sequence 
                 lst = self._filter_slot_used_sequence(goal_des['slot_used_sequence'], lst)
-        #pdb.set_trace()
+
+        #print '--combined slots', lst
         return lst
 
     def _filter_slot_used_sequence(self, sequence, lst_slots):
@@ -445,14 +475,41 @@ class SimpleUserSimulator(UserSimulator):
             return slots
         lst = []
         for s in slots: 
-            if status=='correct' and self.goal[s]== act_in['slot_value'][s]:
+            if status=='correct' and self._get_slot_value(s)== act_in['slot_value'][s]:
                 lst.append(s)
-            elif status=='incorrect' and self.goal[s]!= act_in['slot_value'][s]:
+            elif status=='incorrect' and self._get_slot_value(s)!= act_in['slot_value'][s]:
                 lst.append(s)
             else:
                 if status not in ['correct', 'incorrect']:
                     raise NotImplementedError('status_included=%s unhandled yet'%status)
         return lst
+
+    def _get_slot_value(self, slot):
+        item = DialogueActItem()
+        if slot in self.goal.keys():
+            return self.goal[slot]
+        if slot not in self.goal.keys():#required slot not in goal
+            eq_slots = self._get_equivalent_slots(slot)
+            for s in eq_slots:#gen value from a equivalent slot
+                if s in self.goal.keys():
+                    slot = s
+                    break
+            if slot not in self.goal.keys():#dont have compatible slots, get from default values
+                value = self._get_default_slot_value(slot)
+                if value is not None:
+                    item.value = value
+                else:
+                    for s in eq_slots:#get default of equivalent slots
+                        value = self._get_default_slot_value(s)
+                        if value is not None:
+                            item.value = value
+                            item.name = s
+                    if item.value is None:
+                        raise RuntimeError('Cant find value for slot %s and its equivalents slot from goal and default slots'%slot)
+            else:
+                item.value=self.goal[slot]
+                item.name = slot
+        return item.value 
 
     def reward_last_da(self):
         '''Rewards the last system dialgoue act'''
@@ -517,6 +574,7 @@ class SimpleUserSimulator(UserSimulator):
                     'slot_used_sequence':{#higher level is only able to used when one of slot at previous level used#TODO not used in the code yet
                         0:('task',),
                         1:('from_stop', 'from_city', 'from_street', 'to_stop', 'to_city', 'to_street'),
+                        #1:('from_stop', 'from_city', 'from_street', 'to_stop', 'to_city', 'to_street', 'departure_time', 'arrival_time', 'departure_tiem_rel', 'arrival_time_rel', 'vehicle'),
                         2:('departure_time', 'arrival_time', 'departure_tiem_rel', 'arrival_time_rel', 'vehicle'),
                         #only need one of slot in each level informed to get next level
                         },
@@ -628,7 +686,6 @@ class SimpleUserSimulator(UserSimulator):
                     'status_in_all_slots': True,
                     #TODO add cheeck all sys_da slot?
                     #all_slot_included: True,
-                    'use_slot_sequence': True,
                 },
                 'ack':{
                     'slot_included': False,
@@ -637,6 +694,7 @@ class SimpleUserSimulator(UserSimulator):
                 'thankyou':{
                     'slot_included': False,
                     'value_included': False,
+                    'act_without_slot': True,
                 },
                'silence':{
                     'slot_included': False,
@@ -644,8 +702,12 @@ class SimpleUserSimulator(UserSimulator):
                     'act_without_slot': True,
                 },
                'reqalts':{
-                    'slot_included': False,
-                    'value_included': False,
+                    'slot_included': True,
+                    'value_included': True,
+                    'combineable_slots': ['alternative'],
+                    'slot_from': 'none',
+                    'value_from': 'function',
+                    'value_fun': alternative_value_fun,
                 },
                 'negate':{
                     'slot_included': False,
@@ -656,10 +718,13 @@ class SimpleUserSimulator(UserSimulator):
                 'bye':{
                     'slot_included': False,
                     'value_included': False,
+                    'act_without_slot': True,
                 },
                 'hello':{
                     'slot_included': False,
                     'value_included': False,
+                    'act_without_slot': True,
+                    #'add_to_da_prob':0.5,
                 },
                 'restart':{#TODO how to user this action?
                     'slot_included': False,
@@ -668,6 +733,7 @@ class SimpleUserSimulator(UserSimulator):
                 'hangup':{
                     'slot_included': False,
                     'value_included': False,
+                    'act_without_slot': True,
                 },
                 'help':{#How?
                     'slot_included': False,
@@ -690,6 +756,9 @@ class SimpleUserSimulator(UserSimulator):
                                 'over_answer':0.25,
                                 'complete_answer':0.05,
                                 },
+                            'inform_overridden_properties':{
+                                'use_slot_sequence': False,
+                            },
                             'active_prob':0.85,
                             },
                             {'return_acts':['silence'],
@@ -725,6 +794,7 @@ class SimpleUserSimulator(UserSimulator):
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
+                                            'use_slot_sequence': False,
                                         },
                                     },
                                     'case2':{'return_acts':['deny'],
@@ -736,6 +806,7 @@ class SimpleUserSimulator(UserSimulator):
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
+                                            'use_slot_sequence': False
                                         },
                                     },
                                 }#end of seond priority answer
@@ -761,6 +832,7 @@ class SimpleUserSimulator(UserSimulator):
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
+                                            'use_slot_sequence': False
                                         },
                                 },
                                 'case2':{'return_acts':['deny', 'inform'],
@@ -769,12 +841,64 @@ class SimpleUserSimulator(UserSimulator):
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
+                                            'use_slot_sequence': False
                                         },
                                 },
                             }#end of seond priority answer
                          ],
                         },#end of the first way of answer
                 ],
+                'hello':[{'return_acts':['hello'],
+                        'active_prob':0.3,
+                        },
+                        {'return_acts':['hello', 'inform'],
+                        'active_prob':0.7,
+                        'inform_answer_types':{
+                                'over_answer': 0.8,
+                                'complete_answer': 0.2,
+                            },
+                        'inform_overridden_properties':{
+                                'slot_from': 'none',
+                                'atleast_slots': ['task'],
+                            },
+                        'hello_overridden_properties':{
+                                'add_to_da_prob':0.5,
+                            }
+                        },
+                ],
+                'offer':{
+                    0:[{'return_acts':['bye'],#definition for goal_id=0
+                        'active_prob':0.2,
+                        },
+                        {'return_acts':['request'],
+                        'active_prob':0.2,
+                        },
+                        {'return_acts':['reqalts'],
+                        'active_prob':0.2,
+                        },
+                        {'return_acts':['thankyou'],
+                        'active_prob':0.4,
+                        },
+                    ],
+                    1:[{'return_acts':['bye'],
+                        'active_prob':0.5,
+                        },
+                        {'return_acts':['thankyou'],
+                        'active_prob':0.5,
+                        },
+                    ],
+                    2:[{'return_acts':['bye'],
+                        'active_prob':0.5,
+                        },
+                        {'return_acts':['thankyou'],
+                        'active_prob':0.5,
+                        },
+                    ],
+                },
+                'bye':[{'return_acts':['hangup'],
+                        'active_prob':1.0,
+                    }
+                ]
             },
             'data_observation_probability':{
                 'tiime_relative':{
@@ -871,11 +995,109 @@ def test_reply(user):
     dao = user.da_out()
     print 'user_da:', dao[0]
 
+
+def get_metadata():
+    metadata = {
+        'goals':{
+            'find_connection':{
+                'slots': ['task', 'from_stop', 'to_stop', 'arrival_time', 'vehicle'],
+                'acts': ['hello', 'request', 'confirm', 'request', 'implconfirm&request', 'request', 'confirm', 'offer', 'bye',],
+                'equivalent_slots':[('from_stop', 'from_city', 'from_street'), ('to_stop', 'to_city', 'to_street'),
+                                        ('arrival_time', 'arrival_time_rel'), ('departure_time', 'departure_time_rel'),
+                                ],
+            },
+            'find_platform':{
+                'slots': ['task', 'street', 'city', 'state'],
+                'acts': ['hello', 'request', 'confirm', 'request', 'offer', 'bye'],
+            },
+            'weather':{
+                'slots': ['task', 'city', 'state'],
+                'acts': ['hello', 'request', 'implconfirm&request', 'offer', 'bye'],
+            }
+        },
+        'act_definitions':{
+            'hello':{
+                'slot_included': False,
+                'value_included': False,
+            },
+            'request':{
+                'slot_included': True,
+                'value_included': False,
+            },
+            'confirm':{
+                'slot_included': True,
+                'value_included': True,
+            },
+            'implconfirm':{
+                'slot_included': True,
+                'value_included': True,
+            },
+            'offer':{
+                'slot_included': True,
+                'value_included': True,
+            },
+            'bye':{
+                'slot_included': False,
+                'value_included': False,
+            },
+        },
+    }
+    return metadata
+
+def get_equivalent_slots(goal_des, slot,):
+    if 'equivalent_slots' in goal_des:
+        for eq_slots in goal_des['equivalent_slots']:
+            if slot in eq_slots:
+                return eq_slots
+    return ()
+
+def make_dialogues(user):
+    metadata = get_metadata()
+    for i in range(100):
+        print '=======================Dialogue %i============================'%(i+1)
+        user.new_dialogue()
+        print 'Goal:', user.goal
+        print '-'*60
+        goal_des = metadata['goals'][user.goal['task']]
+        ordered_acts = goal_des['acts']
+        slots = goal_des['slots']
+        for acts in ordered_acts:
+            da = DialogueAct()
+            for act in acts.split('&'):
+                act_des = metadata['act_definitions'][act]
+                slot = None
+                if act_des['slot_included']:
+                    slot = sample_from_list(slots)
+                value = None
+                if act_des['value_included']:
+                    if slot not in user.goal.keys():
+                        for s in get_equivalent_slots(goal_des, slot):
+                            if s in user.goal.keys():
+                                slot = s
+                                break
+                    if slot in user.goal.keys():
+                        if sample_a_prob(0.5):
+                            value = user.goal[slot]
+                        else:
+                            value = 'lct'
+                    else:
+                        value = 'lct'
+
+                item = DialogueActItem(act, slot, value)
+                da.append(item)
+            print 'sys_da:\t\t', da
+            user.da_in(da)
+            da = user.da_out()
+            print 'user_da:\t', da[0]
+            if len(da[0])==0:
+                pdb.set_trace()
+    
 def run1():
     db = PythonDatabase(cfg)
     user = SimpleUserSimulator(cfg, db)
     #test_user_goal(user, 100)
-    test_reply(user)
+    #test_reply(user)
+    make_dialogues(user)
 
 def main():
     get_config()
