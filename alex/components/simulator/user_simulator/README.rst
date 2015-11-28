@@ -41,7 +41,7 @@ A domain metadata may includes the following sections (each section is a key in 
 - reply_system_acts: A dict defining how to answer a system act.
 - data_observation_probabilitygoals : A dict presenting the data occurring distribution.
 
-.. _goals:
+.. _id1:
 goals
 -----------------
 abc
