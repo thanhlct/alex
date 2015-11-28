@@ -1,4 +1,4 @@
-.. image:: alex/doc/alex-logo.png
+.. image:: ../../../../alex/doc/alex-logo.png
     :alt: Alex logo
 
 Domain independent user simulator for slot-filling spoken dialogue systems
@@ -33,6 +33,7 @@ Metadata
 Apart from domain data, defining a metadata configuring the user simulator is the only thing you need to do for deloying a user simulating conversations withyour SDS.
 
 A domain metadata may includes the following sections (each section is a key in the python dict):
+
 - goals: A list of final goal description which the user may have.
 - slot_table_field_mapping: A dict mapping each slot to its data sources.
 - same_table_slot: A dict specifying slots which must be fetched data from the same row in the same table.
@@ -43,6 +44,7 @@ A domain metadata may includes the following sections (each section is a key in 
 goals
 -----------------
 abc
+
 slot_table_field_mapping:
 -------
 
