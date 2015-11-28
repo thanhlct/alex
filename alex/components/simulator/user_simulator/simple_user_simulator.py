@@ -378,7 +378,7 @@ class SimpleUserSimulator(UserSimulator):
         '''Return metadata describe the dialogue act given.
             
         Returns:
-            A dict presenting statistical info about  all slots, values used in each action in the given da.
+            A dict presenting statistical info about all slots, values used for each action in the given da.
         '''
         d = {}
         for item in da:
@@ -398,6 +398,21 @@ class SimpleUserSimulator(UserSimulator):
         return d
                 
     def _build_dialogue_act_items(self, act_in, act_out, answer_type, overridden_properties):
+        '''Build return acts for a type of answer act.
+
+        Args:
+            act_in: The metadata presenting the system act such as slots-values
+            act_out: A string figure out the type of answer act such as inform or affirm
+            answer_type: A string describe answer type which can be whether direct answer, over answer or complete answer.
+            overridden_properties: A dict of properties which will used to override the default setting of return act.
+
+        Returns:
+            A list of DialogueActItem object.
+
+        Raises:
+            RuntiemError: Cant find value for a slot which requires, in setting, a value must be filled.
+            NotImplementedError: The source providing value for a slot was not implemented.
+        '''
         #print act_in
         #print '---building', act_out
         #print answer_type
@@ -463,6 +478,15 @@ class SimpleUserSimulator(UserSimulator):
         return da_items
 
     def _override_act_descriptions(self, new_des, original_des):
+        '''Merge and override properties of two dicts.
+
+        Args:
+            new_des: A dict presenting new properties for overriding
+            origianl_des: A dict which will be intergrated and overridden
+
+        Returns:
+            A dict of combining properties from two dict.
+        '''
         original_des = deep_copy(original_des)
         if new_des is None:
             return original_des
@@ -471,6 +495,7 @@ class SimpleUserSimulator(UserSimulator):
         return original_des
 
     def _get_default_slot_value(self, slot):
+        '''Get default value for the given slot.'''
         goal_des = self.metadata['goals'][self.goal_id]
         for s , v in goal_des['default_slots_values']:
             if s==slot:
@@ -478,6 +503,7 @@ class SimpleUserSimulator(UserSimulator):
         return None
 
     def _get_equivalent_slots(self, slot):
+        '''Get equivalent slots fro given slot.'''
         goal_des = self.metadata['goals'][self.goal_id]
         if 'equivalent_slots' in goal_des:
             for eq_slots in goal_des['equivalent_slots']:
@@ -486,6 +512,20 @@ class SimpleUserSimulator(UserSimulator):
         return ()
 
     def _get_combined_slots(self, act_in, act_out_des, answer_type, used_slots):
+        '''Find combineable slots for 
+
+        Args:
+            act_in: A dict presenting the metadata of system act.
+            act_out_des: A dict describing the setting of answer act.
+            answer_type: A string showing the type of answer such as direct_answer, over_answer
+            used_slots: A list of slots which the act already used in previous turns.
+        Returns:
+            A list of combineable slots.
+
+        Raises:
+            NotImplementedError:    The source providing slots for the action was not implemented.
+                                    Or the answer_type used was not implemented.
+        '''
         #print 'get_combined_slot, act_in=', act_in, ' act_out_des=', act_out_des
         lst = []
 
@@ -559,6 +599,17 @@ class SimpleUserSimulator(UserSimulator):
         return lst
 
     def _filter_slot_used_sequence(self, sequence, lst_slots):
+        '''Filter out slots which conflict with slot used sequence.
+
+        Remove slots which is not appliable, which requires others slot have to be used in previous turns.
+
+        Args:
+            sequence: A dict presenting the sequence of using slot.
+            lst_slots: A list of slots for filtering.
+
+        Returns:
+            A list of slots.
+        '''
         #finding the higtest level can reach for the give lost
         old_level = self.slot_level_used
         while(True):
@@ -581,6 +632,21 @@ class SimpleUserSimulator(UserSimulator):
         return lst
                 
     def _filter_slot_status(self, act_in, slots, status):
+        '''Filter slots based on it status.
+        
+        Status of a slot can be correct or incorrect regarding user final goal.
+
+        Args:
+            act_in: A dict showing the metadata description of system dialogue act.
+            slots: A list of slot for filtering.
+            status: A string describing the slot status which will be kept.
+
+        Returns:
+            A list of slots.
+
+        Raises:
+            NotImplementedError: Status used was not implemented.
+        '''
         if status=='all':
             return slots
         lst = []
@@ -595,6 +661,11 @@ class SimpleUserSimulator(UserSimulator):
         return lst
 
     def _get_slot_value(self, slot):
+        '''Get value describing user intention for the given slot.
+        
+        Raises:
+            RuntimeError: Cant find value for the given slot.
+        '''
         item = DialogueActItem()
         if slot in self.goal.keys():
             return self.goal[slot]
