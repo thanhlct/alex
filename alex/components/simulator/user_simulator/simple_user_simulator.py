@@ -1,19 +1,23 @@
 #----------for testing---------------
+import autopath
 if __name__ == '__main__':
     import autopath
 #-------define for specific app--------------
 #import alex.utils.matlab_functions as matlab
 def values_generator1(goal, slot):
+    '''Generate all values for a slot'''
     return [1,2,3]
 def values_generator2(goal, slot):
     return [7,8,9]
 
 def alternative_value_fun():
+    '''A generator for a slot during conversation'''
     a = ['next', 'previous', 'next hour']
     return sample_from_list(a)
 
 def goal_post_process(user, goal):
     #handle the sematic relation between departure and arrival slots
+
     '''
     if 'arrival_time' in goal.keys():
         if goal['arrival_time'] == 'now':
@@ -43,10 +47,33 @@ import alex.utils.matlab_functions as matlab
 from alex.utils.support_functions import get_dict_value, iscallable, iprint, deep_copy, debug_print
 
 class SimpleUserSimulator(UserSimulator):
-    '''Simple user simulator'''
+    '''Simulate an user in a slot-filled spoken dialogue system.
+    
+    Based on a domain definitions, a database and other configurations,
+    the user simulator chooses randomly a final goal and make conversation
+    reponsing to system acts suitablely with the current goal picked out.
+   
+    The domain definitons and the database are figured out by the Config module,
+    It is also included in the framework.    
+
+    Attributes:
+        metadata: A dictionary describes a domain which user make conversations.
+        goal_id: An interger indicating the index of the current goal chosen.
+        goal: A dictionary present the current goal with slots filled.
+        db: The object connects to database.
+        config: The Config object save all configurations.
+        logger: The logger of the class.
+
+    More details are available at htt://github.com/thanhlct/alex
+    '''
 
     def __init__(self, cfg, db):
-        '''Initilise'''
+        '''Create a new SimpleUserSimulator object and init core elements.
+
+        Args:
+            cfg: A config object contains domain definitions and other configurations.
+            db: A object connects to database.
+        '''
         self.config = cfg.config['user_simulator']
         self.db = db
         self.goal = None
@@ -55,7 +82,11 @@ class SimpleUserSimulator(UserSimulator):
         self._goal_dist = self._get_dict_distribution(self.metadata['goals'])
 
     def _get_dict_distribution(self, lst_dict):
-        '''Get dict distribution for a list of dictionary, in which each dict has the key active_prob specifying the chance of it being active'''
+        '''Get dict distribution for a list of dictionary or a dictionary of dictionary
+        
+        Args:
+            lst_dict: A list or dict of dictionary, in which each dictionary contains the key active_Prob specifying the change cof it being active
+        '''
         d = {}
         if isinstance(lst_dict, dict):
             for key in lst_dict.keys():
@@ -66,8 +97,9 @@ class SimpleUserSimulator(UserSimulator):
         return d
 
     def new_dialogue(self):
-        '''Start a new dialogue
-        Sample a new user goal. Reset everything for simulating a new dialogue
+        '''Start a new dialogue.
+
+        Sample a new user goal and reset everything for simulating a new dialogue.
         '''
         self.goal = self._get_random_goal()
         self.slot_level = self._build_slot_level()
@@ -77,6 +109,14 @@ class SimpleUserSimulator(UserSimulator):
         self.slot_level_used = 0
 
     def _build_slot_level(self):
+        '''Return dict of slot level.
+
+        Build mapping between slot and its used sequence level
+        from slot_used_sequence defined in self.metadata
+
+        Returns:
+            A dict mapping slots to the coreponding slot level.
+        '''
         d = {}
         goal_des = self.metadata['goals'][self.goal_id]
         if 'slot_used_sequence' in goal_des.keys():
@@ -87,7 +127,11 @@ class SimpleUserSimulator(UserSimulator):
         return d           
 
     def _get_random_goal(self):
-        '''Return a random final goal of user'''
+        '''Sample a final goal of user.
+
+        Returns:
+            A dict represent slots and their values sampled.
+        '''
         self.goal_id = sample_from_dict(self._goal_dist)
         goal_des = self.metadata['goals'][self.goal_id]
         goal = {}
@@ -133,6 +177,14 @@ class SimpleUserSimulator(UserSimulator):
         return goal
 
     def _get_random_same_table_slots_values(self, same_table_key):
+        '''Find randomly values from the same row for a set of slots.
+
+        Args:
+            same_table_key: The key refers to same table definitions.
+
+        Returns:
+            A dict mapping slots and values
+        '''
         same = self.metadata['same_table_slots'][same_table_key]
         table = same['table']
         row = self._get_random_row(table)
@@ -143,6 +195,7 @@ class SimpleUserSimulator(UserSimulator):
         return sv
 
     def _get_random_slot_value(self, slot):
+        '''Get a random value for the given slot.'''
         values = []
         tables_fields = self._get_slot_mapping(slot)
         for tbf in tables_fields:#sample a value of each table which the slot is connected
@@ -156,6 +209,7 @@ class SimpleUserSimulator(UserSimulator):
         return sample_from_list(values)#take one in the sampled values
         
     def _get_random_row(self, table):
+        '''Get a random row for the given table.'''
         if table in self.metadata['data_observation_probability'].keys():
             data_dist = self._get_data_distribution(table)
             return sample_from_dict(data_dist)
@@ -163,6 +217,17 @@ class SimpleUserSimulator(UserSimulator):
             return self.db.get_random_row(table)
 
     def _get_data_distribution(self, table):
+        '''Build dict presenting data observation distribution for a table.
+
+        The observation distribution can be defined in the metadata or
+        keep as default - all row has the same probability of ocurring.
+
+        Args:
+            table: The name of a table
+
+        Returns:
+            A dict mapping each row in the table with a observation probability
+        '''
         dist = {}
         tb_dist = self.metadata['data_observation_probability'][table]
         predifined_mass = 0.0
@@ -180,22 +245,32 @@ class SimpleUserSimulator(UserSimulator):
         return dist
         
     def _get_field_name(self, slot, table):
+        '''Return field in the table which mapped to values for the given slot.'''
         mapping = self._get_slot_mapping(slot)
         for tb, f in mapping:
             if tb==table:
                 return f
         assert False, "There is no table=%s in the slot_table_field_mapping definition of the slot=%s"%(table, slot)
     def _get_slot_mapping(self, slot):
+        '''Return a full set of table field mapping for the given slot.'''
         assert slot in self.metadata['slot_table_field_mapping'].keys(), "Have not defined the slot_table_field_mapping for the slot=%s"%(slot)
         return self.metadata['slot_table_field_mapping'][slot]  
 
     def da_in(self, da):
-        '''Recieve a system dialogue act'''
+        '''Recieve a system dialogue act.
+
+        Args:
+            da: A DialogueAct object presents system acts
+        '''
         assert self.goal is not None, 'user simulator has no goal, you have to call new_dialogue building goal first before make conversation'
         self.unprocessed_da_queue.append(da)
 
     def da_out(self):
-        '''Samples and returns a user dialogue act based on user's current state and given system dialogue act'''
+        '''Answer unprocessed system dialogue act so far.
+
+        Returns:
+            A list of DialogueAct presents answers of user
+        '''
         das = []
         while(len(self.unprocessed_da_queue)>0):
             da = self.unprocessed_da_queue.pop(0)
@@ -205,9 +280,9 @@ class SimpleUserSimulator(UserSimulator):
         #print das[0]
         #pdb.set_trace()
         return das
-
-    
+ 
     def _get_answer_da(self, da_in):
+        '''Answer a sytem dialogue act.'''
         da_out = DialogueAct()
 
         reply_sys_acts = self.metadata['reply_system_acts']
@@ -241,6 +316,18 @@ class SimpleUserSimulator(UserSimulator):
         return da_out
 
     def _get_act_out_description(self, act_out, specific_answer):
+        '''Get user action definitions.
+        
+        Combining the default act deifintion with a specific answer act.
+    
+        Args:
+            act_out: The name of answer act (e.g. inform, affirm)
+            specific_answer: The definition of in a specific case
+                            (e.g. includes refined setting inform_answer_types:{...}, inform_overridden_properties:{...}.
+
+        Returns:
+            A dict of descriptions for the given act_out
+        '''
         act_out_des = self.metadata['dialogue_act_definitions'][act_out]
         if act_out + '_overridden_properties' in specific_answer.keys():
             act_out_des = self._override_act_descriptions(specific_answer[act_out + '_overridden_properties'], act_out_des)
@@ -248,6 +335,16 @@ class SimpleUserSimulator(UserSimulator):
         
 
     def _build_one_answer(self, da_metadata, answer, follow_order=False):
+        '''Build a full answer to a system act.
+
+        Args:
+            da_metadata: a dict contains only description of system act such as slots-values.
+            answer: a dic full description of answer act.
+            follow_order: a boolean specifying the first return act need to be satisfied or cancel completely the answer.
+
+        Returns:
+            A list of DialogueActItem object.
+        '''
         #print answer
         da_items = []
         first_act = True
@@ -265,11 +362,24 @@ class SimpleUserSimulator(UserSimulator):
         return da_items
 
     def _sample_element_from_list_dict(self, lst_dict):#should be static or class function, but this way potential for future speeup with caching
+        '''Sample an element in a list based on its active probability.
+
+        Args:
+            lst_dict: A list of dict, in which each dict contains the key, active_prob,  presenting the observation probably.
+
+        Returns:
+            A dict from the given list.
+        '''
         dist = self._get_dict_distribution(lst_dict)
         index = sample_from_dict(dist)
         return lst_dict[index]
         
     def _get_dialogue_act_metadata(self, da):
+        '''Return metadata describe the dialogue act given.
+            
+        Returns:
+            A dict presenting statistical info about  all slots, values used in each action in the given da.
+        '''
         d = {}
         for item in da:
             act = item.dat
