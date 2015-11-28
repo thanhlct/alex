@@ -34,7 +34,7 @@ Apart from domain data, defining a metadata configuring the user simulator is th
 
 A domain metadata may includes the following sections (each section is a key in the python dict):
 
-- goals:ref:`goals`: A list of final goal description which the user may have.
+- :ref:`goals`: A list of final goal description which the user may have.
 - slot_table_field_mapping: A dict mapping each slot to its data sources.
 - same_table_slot: A dict specifying slots which must be fetched data from the same row in the same table.
 - dialogue_act_definitions: A dict definiing all acts which user may uses and how to build them.
