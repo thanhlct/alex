@@ -56,16 +56,19 @@ You can define multiple final goals as much as you want. The set of goals is pre
 - ``active_prob``: A real number in range of [0, 1] preseting the probability of this goal will be activating.
 - ``same_table_slot_keys``: A list of string listing keys/definitions in the ``same_table_slot`` section which will be used in this goal.
 - ``goal_post_process_fun``: A function doing post process for the goal, which mean after this goal being sampled the function will be called to guarantee all combination of slots and values are fit in together.
-- ``goal_slot_relax_fun``: A function relaxing a slot value when get a requiremnt from system. **Not coded yet :), but this feature may be encoded in act definition**
+- ``goal_slot_relax_fun``: A function relaxing a slot value when get a requiremnt from system. *Not coded yet :), but this feature may be encoded in act definition*
 - ``reward_last_da_fun``: A function rewarding the last system act.
 - ``reward_final_goal_fun``: A function providing the final reward after a dialouge finished.
 - ``end_dialogue_post_process_fun``: A function will be called after a dialogue completed.
 - ``slot_used_sequence``: A dict defining a sequence of slots will be used. For examples, slots at higher level can not be informed when there is no any slots at lower level have been used in previous turns.
 
+The following is an example including two goal, one is finding connection between two places and another is ask the weather of a city.
+
 ::
     
     metadata = {
         'goals': [
+                    #the first goal finding route
                     {'fixed_slots':[('task','find_connection'),],
                     'changeable_slots':['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street',
                                         'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel',
@@ -93,7 +96,6 @@ You can define multiple final goals as much as you want. The set of goals is pre
                                     ],
                     'sys_unaskable_slots':['number_transfer', 'duration', 'distance',],
                     'default_slots_values':[('departure_time', 'as soon as possible'), ('vehicle', 'dontcare'), ('arrival_time', 'as soon as possible')],
-                    #'add_fixed_slot_to_goal': True,
                     'active_prob':0.8,#probability of observing the task being active
                     'same_table_slot_keys':[],#defining when serveral slots connected to a row in a table and we would like to get them linked together
                     'goal_post_process_fun': None,#post process function to refine the sampled goal, which will be defined for specific semantic relations
@@ -101,36 +103,27 @@ You can define multiple final goals as much as you want. The set of goals is pre
                     'reward_last_da_fun': None,
                     'reward_final_goal_fun': None,
                     'end_dialogue_post_process_fun': None,
-                    'slot_used_sequence':{#higher level is only able to used when one of slot at previous level used#TODO not used in the code yet
+                    'slot_used_sequence':{#higher level is only able to used when one of slot at previous level used
                         0:('task',),
                         1:('from_stop', 'from_city', 'from_street', 'to_stop', 'to_city', 'to_street'),
                         2:('departure_time', 'arrival_time', 'departure_tiem_rel', 'arrival_time_rel', 'vehicle'),
                         #only need one of slot in each level informed to get next level
                         },
                     },
-                    {'fixed_slots':[('task','find_platform'),],
-                    'changeable_slots':['street', 'city', 'state'],
-                    'one_of_slot_set':[],
-                    'sys_unaskable_slots':[],
-                    'default_slots_values':[],
-                    'active_prob':0.15,
-                    'same_table_slot_keys': ['place'],
-                    'goal_post_process_fun': None,
-                    'goal_slot_relax_fun': None,
-                    },
+                    
+                    #The second goal, asking weather of a city
                     {'fixed_slots':[('task','weather'),],
                     'changeable_slots':['city', 'state'],
                     'one_of_slot_set':[],
                     'sys_unaskable_slots':[],
                     'default_slots_values':[],
-                    'active_prob':0.05,
+                    'active_prob':0.2,
                     'same_table_slot_keys':['place'],
                     'goal_post_process_fun': None,
                     'goal_slot_relax_fun': None,
                     },
                 ],
-
-
+    }
 
 slot_table_field_mapping
 -----------------
