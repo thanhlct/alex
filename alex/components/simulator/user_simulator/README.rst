@@ -1,4 +1,4 @@
-.. image:: /../../../../alex/doc/alex-logo.png
+.. image:: ../../../../alex/doc/alex-logo.png
     :alt: Alex logo
 
 Domain independent user simulator for slot-filling spoken dialogue systems
@@ -18,23 +18,23 @@ Domain independent user simulator for slot-filling spoken dialogue systems
 Description
 -----------------
 This module is intended to provide different user simulators which may play the role of users on testing and training spoken dialogue systems (SDS).
-For current, this module contains only a ``SimpleUserSimulator`` working on dialogue act or semantic level. Thereforce, the document was mostly used to describe the user simulator, defining a domain, how it will be used.
+For current, this module contains only a ``SimpleUserSimulator`` working on dialogue act or semantic level. Thereforce, the document is mostly using to describe the user simulator, defining a domain and how it will be used.
 
 Overview
 -----------------
-The core of user simulator is working based on a data provider and a metadata describing domain and the behaviour of users.
-The data provider, roughly speaking, is a bridge helping the simulator accessing domain data-the values for slots. The interface of data provider is enclosed in this framework. An simple implementation of the provider working with text files named PythonDatabase is also included.
+The core of user simulator is working based on a data provider and a metadata describing a domain and behaviour of users.
+The data provider, roughly speaking, is a bridge helping the simulator accessing domain data - values for slots. The interface of data provider is enclosed in this framework. An simple implementation of the provider working with text files named PythonDatabase is also included.
 The metadata is a python dict encapsulate all domain specification which will be presented in details in next sections.
 
-Addation to the code, this module is also distributing two examples of using the user simulator. One is quite trivial, appointment scheduling, where user only decides accept, delay or reject an appoinment. Another examples is the user simulator for a public transport information system, where user manage many slots (e.g. where and when to leave, destination etc.) and answer more various system acts (e.g. request, confirm, offer etc.). A short description of these examples is provided at the end of this document.
+Addation to the code, this module is also distributing two examples of using the user simulator. One is quite trivial, appointment scheduling, where user only decides accept, delay or reject an appoinment. Another examples is the user simulator for a public transport information system, where user manage many slots (e.g. where and when to leave, destination etc.) and answer more various system acts (e.g. request, confirm, offer etc.). A short description of these examples was also provided at the end of this document.
 
 Metadata
 -----------------
-Apart from domain data, defining a metadata configuring the user simulator is the only thing you need to do for deloying a user simulating conversations withyour SDS.
+Apart from domain data, defining a metadata configuring the user simulator is the only thing you need to do for deloying a user simulating conversations with your SDS. In the current code, the metadata is defined by a python dict object.
 
 A domain metadata may includes the following sections (each section is a key in the python dict):
 
-- ``goals``: A list of final goal description which the user may have. :ref:`goals`
+- ``goals``: A list of final goal descriptions which the user may have. :ref:`goals`
 - ``slot_table_field_mapping``: A dict mapping each slot to its data sources.
 - ``same_table_slot``: A dict specifying slots which must be fetched data from the same row in the same table.
 - ``dialogue_act_definitions``: A dict definiing all acts which user may uses and how to build them.
@@ -45,7 +45,7 @@ A domain metadata may includes the following sections (each section is a key in 
 
 goals
 -----------------
-You can define multiple final goals as much as you want. The set of goals is presetned by a list of dict, in which each goal is a dict. Inside a goal definition, we may have the following sections:
+You can define multiple final goals as many as you want. The set of goals is presetned by a list of dict, in which each goal is a dict. Inside a goal definition, we may have the following sections:
 
 - ``fixed_slots``: A list of tuples with two string elements, slot name and slot value.
 - ``changeable_slots``: A list of strings including all slots which has value can be changed.
@@ -62,7 +62,7 @@ You can define multiple final goals as much as you want. The set of goals is pre
 - ``end_dialogue_post_process_fun``: A function will be called after a dialogue completed.
 - ``slot_used_sequence``: A dict defining a sequence of slots will be used. For examples, slots at higher level can not be informed when there is no any slots at lower level have been used in previous turns.
 
-The following is an example including two goal, one is finding connection between two places and another is ask the weather of a city.
+The following is an example defining two goals, one is finding connection between two places and another is asking the weather of a city.
 
 ::
     
@@ -127,6 +127,7 @@ The following is an example including two goal, one is finding connection betwee
 
 slot_table_field_mapping
 -----------------
+This section is a python dict mapping all slots to corresponding data source in the provider.
 
 same_table_slot
 -----------------
