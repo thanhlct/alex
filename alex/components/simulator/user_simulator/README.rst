@@ -25,7 +25,8 @@ Overview
 The core of user simulator is working based on a data provider and a metadata describing a domain and behaviour of users.
 The data provider, roughly speaking, is a bridge helping the simulator accessing domain data - values for slots. The interface of data provider is enclosed in this framework. An simple implementation of the provider working with text files named ``PythonDatabase`` is also included.
 The metadata is a python dict encapsulate all domain specification which will be presented in details in next sections.
-    Addation to the code, this module is also distributing two examples of using the user simulator. One is quite trivial, appointment scheduling, where user only decides accept, delay or reject an appoinment. Another examples is the user simulator for a public transport information system, where user manage many slots (e.g. where and when to leave, destination etc.) and answer more various system acts (e.g. request, confirm, offer etc.). A short description of these examples was also provided at the end of this document.
+
+Addation to the code, this module is also distributing two examples of using the user simulator. One is quite trivial, appointment scheduling, where user only decides accept, delay or reject an appoinment. Another examples is the user simulator for a public transport information system, where user manage many slots (e.g. where and when to leave, destination etc.) and answer more various system acts (e.g. request, confirm, offer etc.). A short description of these examples was also provided at the end of this document.
 
 Metadata
 -----------------
@@ -127,9 +128,9 @@ The following is an example defining two goals, one is finding connection betwee
 slot_table_field_mapping
 -----------------
 This section is used for defining data source for each slot. It is encoded by a python dict with keys are strings presenting slot names, and the value of each key (slot) is a list containing diferent data sources for fetching values for this slot. The list may contain either one or many tuples and/or one or  many function. 
-    In the case of tuple, it will contains two elements corresponding the table name and the field which the slot can receive its values from. Otherwiser, in the case of function, the simulator will call the funtion generating the values for this slot. If there are many bindings in the list, a combination ofall values will be considered during sumulation.
+In the case of tuple, it will contains two elements corresponding the table name and the field which the slot can receive its values from. Otherwiser, in the case of function, the simulator will call the funtion generating the values for this slot. If there are many bindings in the list, a combination ofall values will be considered during sumulation.
 
-    In the below is an example defining data bindings for two slots, ``street`` and ``departure_time``. In which street is mapped to two data souces, one from table *cities* and another form ``places``, and the second slot, ``departure_time``, has values which will be dynamically generated from a function.
+In the below is an example defining data bindings for two slots, ``street`` and ``departure_time``. In which street is mapped to two data souces, one from table *cities* and another form ``places``, and the second slot, ``departure_time``, has values which will be dynamically generated from a function.
 
 ::
 
