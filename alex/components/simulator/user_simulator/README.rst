@@ -132,6 +132,7 @@ This section is used for defining the data source for each slot. It is encoded b
 In the below is an example defining data bindings for two slots, ``street`` and ``departure_time``. In which street is mapped to two data souces, one from table *cities* and another form ``places``, and the second slot, ``departure_time``, has values which will be dynamically generated from a function.
 
 ::
+
     'slot_table_field_mapping':{
                             'departure_time':[('time', 'time')],
                             'street':[('streets', 'street'), ('places', 'street')],
