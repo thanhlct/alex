@@ -127,7 +127,15 @@ The following is an example defining two goals, one is finding connection betwee
 
 slot_table_field_mapping
 -----------------
-This section is a python dict mapping all slots to corresponding data source in the provider.
+This section is used for defining the data source for each slot. It is encoded by a python dict with keys are string presenting slot names, and the value of each key (slot) is a list containing diferent sources for fetching values for this slot. The list may contain either one or many tuples and/or one or  many function. In the case of tuple, it will contains two elements corresponding the table name and the field which the slot can receive its values from. Otherwiser, in the case of function, the simulator will call the funtion generating the values for this slot. If there are many bindings in the list, a combination ofall values will be considered during sumulation.
+
+In the below is an example defining data bindings for two slots, ``street`` and ``departure_time``. In which street is mapped to two data souces, one from table *cities* and another form ``places``, and the second slot, ``departure_time``, has values which will be dynamically generated from a function.
+
+::
+    'slot_table_field_mapping':{
+                            'departure_time':[('time', 'time')],
+                            'street':[('streets', 'street'), ('places', 'street')],
+                        },
 
 same_table_slot
 -----------------
@@ -141,7 +149,7 @@ reply_system_acts
 -----------------
 abc
 
-data_observation)probability
+data_observation_probability
 -----------------
 abc
 
