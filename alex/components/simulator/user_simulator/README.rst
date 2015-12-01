@@ -45,11 +45,11 @@ A domain metadata may includes the following sections (each section is a key in 
 
 goals
 -----------------
-You can define multiple final goals as many as you want. The set of goals is presetned by a list of dict, in which each goal is a dict. Inside a goal definition, we may have the following sections:
+You can define multiple final goals as many as you want. The set of goals is presetned by a list of dicts, in which each goal is a dict. Inside a goal definition, we may have the following sections:
 
 - ``fixed_slots``: A list of tuples with two string elements, slot name and slot value.
 - ``changeable_slots``: A list of strings including all slots which has value can be changed.
-- ``one_of_slot_set``: A list of dict, each dict presents several sets of slots which are exclusively eliminating each other. In other words, only one of these sets will be active at a specific time.
+- ``one_of_slot_set``: A list of dicts, each dict presents several sets of slots which are exclusively eliminating each other. In other words, only one of these sets will be active at a specific time.
 - ``equivalent_slot``: A list of tuples with elementis are slots which are equivalent in meaning.
 - ``sys_unaskable_slots``: A list of strings, listing all slots which system is not allowed to task users.
 - ``default_slots_values``: A list of tuples with two elements, slot name and its default value.
@@ -125,10 +125,12 @@ The following is an example defining two goals, one is finding connection betwee
                 ],
     }
 
+Note that all sections following are also in the metadata dict but we won't write it explicitly.
+
 slot_table_field_mapping
 -----------------
 This section is used for defining data source for each slot. It is encoded by a python dict with keys are strings presenting slot names, and the value of each key (slot) is a list containing diferent data sources for fetching values for this slot. The list may contain either one or many tuples and/or one or  many functions. 
-In the case of tuple, it will contains two elements corresponding the table name and the field which the slot can receive its values from. Otherwiser, in the case of function, the simulator will call the funtion generating the values for this slot. If there are many bindings in the list, a combination ofall values will be considered during sumulation.
+In the case of tuple, it will contains two elements corresponding the table name and the field which the slot can receive its values from. Otherwiser, in the case of function, the simulator will call the funtion generating the values for this slot. If there are many bindings in the list, a combination of all values will be considered during sumulation.
 
 In the below is an example defining data bindings for two slots, ``street`` and ``departure_time``. In which street is mapped to two data souces, one from table *cities* and another form *places*, and the second slot, ``departure_time``, has values which will be dynamically generated from a function.
 
@@ -152,11 +154,11 @@ A sample of the ``same_table_slot`` defined below showing a case which all three
                 'table': 'places',
                 'slots': ['street', 'city', 'state'],
             },
-    }
+    },
 
 dialogue_act_definitions
 -----------------
-This section used for defining dialogue acts may be issued by a user simulator such as ``inform``, ``affirm`` and so on. Each action is a python dict which may includes one or many keys as listed below:
+This section used for defining dialogue acts may be issued by a user simulator such as ``inform``, ``affirm`` and so on. The name of act will be the key of this dict and the defination of an act is also a python dict which may combine one or many keys listed below:
 
 - ``slot_included``: A boolean value indicating this action will contain slot or not.
 - ``value_included``: Similarly, a boolean value indicating this action will figure out a value for each slot or not.
@@ -172,11 +174,11 @@ This section used for defining dialogue acts may be issued by a user simulator s
 - ``status_in_all_slots``: A boolean value indicating all slots combinable with this action must have the same status. This property is used in the combination with the property ``status_included``.
 - ``value_fun``: A pointer to a function, being used to combine with ``value_from=fun``.
 
-Here are one example defining three acts *silence*, *inform* and *affirm*:
+Here is one example defining three acts *silence*, *inform* and *affirm*:
 
 ::
 
-    alogue_act_definitions': {
+    dialogue_act_definitions': {
         'silence':{
                     'slot_included': False,
                     'value_included': False,
@@ -196,14 +198,46 @@ Here are one example defining three acts *silence*, *inform* and *affirm*:
                     'slot_from': 'sys_da',
                     'status_included': 'correct',
                     'status_in_all_slots': True,
-                }
-    } 
+                },
+    }, 
 
 reply_system_acts
 -----------------
-abc
+We have to define how the user may answer for every system action in this section. For that purpose, each system act will be a key in this dict and the value of each key will be a definition of the answer for that action. We used a list of dicts for listing all alternative ways for answering the given action. In each dict, we have a key ``active_prob`` presenting the chance of how likely the answer will be chosen to reply this action.
+Apart from this general definition rule, there are three different ways of defining how the user may answer a system dialogue act. For convient, let call them as ``standard_answer``, ``ordered_answer`` and ``conditional_answer``.
 
-data_observation_probability
+Let start with ``standard_answer``, the dict will includes a key, named ``return_acts``, which is a list containing one or many act names defined in the section ``dialogue_act_definitions``. All of these acts will be built and used for replying the system act received.
+Addition to this, we can refine every act in the list by complementing with two extra set of properties, (action name)``_answer_types`` and (action name)``_overridden_properties``. In the formmer refinement, we may define the distribtuion of differnt answer types like *direct_answer*, *over_answer* and *complete_answer*. 
+For the later refinement, we can set new value for any default property of the action which defined in the section ``dialogue_act_definitions``, or we may also add more properties for the action reinforcing exclusively the way of handling the system act.
+
+The below is a example showing a definition of the answer for replying *request* act.
+
+::
+    
+    'reply_system_acts':{
+                'request':[ {   'return_acts':['inform'],
+                                'inform_answer_types':{
+                                    'direct_answer':0.7,
+                                    'over_answer':0.25,
+                                    'complete_answer':0.05,
+                                },
+                                'inform_overridden_properties':{
+                                    'use_slot_sequence': False,
+                                },
+                                'active_prob':0.85,
+                            },#the first answer
+
+                            {   'return_acts':['silence'],
+                                'active_prob':0.05,
+                            },#end of the first alternative answer
+
+                            {   'return_acts':['oog'],
+                                'active_prob':0.1,
+                            },# end of the second alternative answer
+                        ],
+    },
+
+data_observation_probabilityl
 -----------------
 abc
 
