@@ -203,14 +203,14 @@ Here is one example defining three acts *silence*, *inform* and *affirm*:
 
 reply_system_acts
 -----------------
-We have to define how the user may answer for every system action in this section. For that purpose, each system act will be a key in this dict and the value of each key will be a definition of the answer for that action. We used a list of dicts for listing all alternative ways for answering the given action. In each dict, we have a key ``active_prob`` presenting the chance of how likely the answer will be chosen to reply this action.
-Apart from this general definition rule, there are three different ways of defining how the user may answer a system dialogue act. For convient, let call them as ``standard_answer``, ``ordered_answer`` and ``conditional_answer``.
+We have to define how the user may answer every system action in this section. For that purpose, each system act will be a key in this dict and the value of each key will be a definition of the answer for that action. We used a list of dicts for listing all alternative ways for answering the given action. In each dict, we have a key ``active_prob`` presenting the chance of how likely the answer will be chosen to reply this action.
+Apart from this general definition rule, there are three different ways of defining how the user may answer a system dialogue act. For convient, let call them as ``standard_answer``, ``conditional_answer`` and ``goal_based_answer``.
 
 Let start with ``standard_answer``, the dict will includes a key, named ``return_acts``, which is a list containing one or many act names defined in the section ``dialogue_act_definitions``. All of these acts will be built and used for replying the system act received.
-Addition to this, we can refine every act in the list by complementing with two extra set of properties, (action name)``_answer_types`` and (action name)``_overridden_properties``. In the formmer refinement, we may define the distribtuion of differnt answer types like *direct_answer*, *over_answer* and *complete_answer*. 
-For the later refinement, we can set new value for any default property of the action which defined in the section ``dialogue_act_definitions``, or we may also add more properties for the action reinforcing exclusively the way of handling the system act.
+Addition to this, we can refine every act in the list by complementing with two extra set of properties, the keys are combination of (action name) and ``_answer_types`` and (action name) and ``_overridden_properties``. In the formmer refinement, we may define the distribtuion of differnt answer types like *direct_answer*, *over_answer* and *complete_answer*. 
+For the later refinement, we can set new value for any default property of the action which already defined in the section ``dialogue_act_definitions``, or we may also add more properties for the action reinforcing exclusively the way of handling the system act.
 
-The below is a example showing a definition of the answer for replying *request* act.
+The below is an example showing a definition of the answer for replying *request* act.
 
 ::
     
@@ -237,7 +237,60 @@ The below is a example showing a definition of the answer for replying *request*
                         ],
     },
 
-data_observation_probabilityl
+Now we are moving to the second type of answer definition, ``conditional_answer``. In this type, intead of using the key ``return_acts``, we define the key,  ``oredered_return_acts``, which is a list of dict. Each element (a dict) represents a way of answer, but the differencd is that the user simulator will try these answer by their order. Which means the later ones are using only if all of previous ones failed to apply. For supporting many alternative ways in each answer, we must define each way in a dict which is very similar to ``standard_answer``. Let look at the example below, a definition of how the user simulator will reply the confirm act from a system.
+
+::
+
+    'reply_system_acts':{
+        'confirm':[ {
+                        'ordered_return_acts':[
+                                {   'case1':{'return_acts':['affirm'],
+                                        'active_prob':0.5
+                                    },
+                                    'case2':{'return_acts':['affirm', 'inform'],
+                                        'active_prob':0.5,
+                                        'inform_answer_types':{
+                                            'over_answer':1.0
+                                        },
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'none',
+                                        },
+                                    },
+                                },#end of first priority answer
+                                {   'case1':{'return_acts':['negate', 'inform'],
+                                        'active_prob':0.4,
+                                        'inform_answer_types':{
+                                            'direct_answer':1.0,
+                                        },
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                            'use_slot_sequence': False,
+                                        },
+                                    },
+                                    'case2':{'return_acts':['deny'],
+                                        'active_prob':0.2,
+                                    },
+                                    'case3':{'return_acts':['deny', 'inform'],
+                                        'active_prob':0.4,
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                            'use_slot_sequence': False
+                                        },
+                                    },
+                                }#end of seond priority answer
+                        ],    
+                        'active_prob':1.0
+                    },#end of the firs way of answer
+                ]
+    }
+
+
+
+data_observation_probability
 -----------------
 abc
 
