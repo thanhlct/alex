@@ -39,7 +39,7 @@ A domain metadata may includes the following sections (each section is a key in 
 - ``same_table_slot``: A dict specifying slots which must be fetched data from the same row in the same table.
 - ``dialogue_act_definitions``: A dict definiing all acts which user may uses and how to build them.
 - ``reply_system_acts``: A dict defining how to answer a system act.
-- ``data_observation_probability``: A dict presenting the data occurring distribution.
+- ``data_observation_probability``: A dict presenting the occurrence distribution of data.
 
 .. _goals:
 
@@ -156,7 +156,7 @@ A sample of the ``same_table_slot`` defined below showing a case which all three
 
 dialogue_act_definitions
 -----------------
-This section used for defining dialogue acts may be issued by user such as ``inform``, ``affirm`` and so on. Each action is a python dict which may includes one or many keys as listed below:
+This section used for defining dialogue acts may be issued by a user simulator such as ``inform``, ``affirm`` and so on. Each action is a python dict which may includes one or many keys as listed below:
 
 - ``slot_included``: A boolean value indicating this action will contain slot or not.
 - ``value_included``: Similarly, a boolean value indicating this action will figure out a value for each slot or not.
@@ -170,8 +170,34 @@ This section used for defining dialogue acts may be issued by user such as ``inf
 - ``status_included``: A string could be either *correct* or *incorrect*, this property is used for filtering status of slots. In other words, it can be only accept slots which have the same values with the goal (correct), or have a status of deffirent to the goal (incorrect).
 - ``add_to_da_prob``: A real number in [0, 1] indicating the probability of adding this action to dialogue action. Sometimes, an action can be optional for the final return dialgoue act, for examples, say *hello* to the system or say *yes* for an implicit confirm from the system.
 - ``status_in_all_slots``: A boolean value indicating all slots combinable with this action must have the same status. This property is used in the combination with the property ``status_included``.
-- ``use_slot_sequence``: A boolean value setting whether this action uses ``slot_used_sequence`` defined in the current goal or not.
-- ``use_slot_sequence``: A boolean value setting whether this action uses ``slot_used_sequence`` defined in the current goal or not.
+- ``value_fun``: A pointer to a function, being used to combine with ``value_from=fun``.
+
+Here are one example defining three acts *silence*, *inform* and *affirm*:
+
+::
+
+    alogue_act_definitions': {
+        'silence':{
+                    'slot_included': False,
+                    'value_included': False,
+                    'act_without_slot': True,
+                },
+        'inform':{
+                    'slot_included': True,
+                    'value_included': True,
+                    'slot_from': 'sys_da', 
+                    'value_from': 'goal', 
+                    'accept_used_slots': False,
+                    'use_slot_sequence': True,
+                },
+        'affirm':{
+                    'slot_included': False,
+                    'value_included': False,
+                    'slot_from': 'sys_da',
+                    'status_included': 'correct',
+                    'status_in_all_slots': True,
+                }
+    } 
 
 reply_system_acts
 -----------------
