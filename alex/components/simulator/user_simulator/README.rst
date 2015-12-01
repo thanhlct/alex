@@ -127,10 +127,10 @@ The following is an example defining two goals, one is finding connection betwee
 
 slot_table_field_mapping
 -----------------
-This section is used for defining data source for each slot. It is encoded by a python dict with keys are strings presenting slot names, and the value of each key (slot) is a list containing diferent data sources for fetching values for this slot. The list may contain either one or many tuples and/or one or  many function. 
+This section is used for defining data source for each slot. It is encoded by a python dict with keys are strings presenting slot names, and the value of each key (slot) is a list containing diferent data sources for fetching values for this slot. The list may contain either one or many tuples and/or one or  many functions. 
 In the case of tuple, it will contains two elements corresponding the table name and the field which the slot can receive its values from. Otherwiser, in the case of function, the simulator will call the funtion generating the values for this slot. If there are many bindings in the list, a combination ofall values will be considered during sumulation.
 
-In the below is an example defining data bindings for two slots, ``street`` and ``departure_time``. In which street is mapped to two data souces, one from table *cities* and another form ``places``, and the second slot, ``departure_time``, has values which will be dynamically generated from a function.
+In the below is an example defining data bindings for two slots, ``street`` and ``departure_time``. In which street is mapped to two data souces, one from table *cities* and another form *places*, and the second slot, ``departure_time``, has values which will be dynamically generated from a function.
 
 ::
 
@@ -141,7 +141,9 @@ In the below is an example defining data bindings for two slots, ``street`` and 
 
 same_table_slot
 -----------------
-For encoding values for several slots must be fetched from a row in a table, we can define the dict where each key presents a case and will be referred from ``same_table_slot_keys`` in goals definitions. The value for each key in this dict is also a python dict which comprise two keys, ``table`` and ``slots``, pointing out the table and slots.
+For encoding values for several slots must be fetched from a row in a table, we can define the dict where each key presents a case and will be referred from ``same_table_slot_keys`` in goals definitions. The value for each key in this dict is also a python dict which comprises two keys, ``table`` and ``slots``, pointing out the table and slots.
+
+A sample of the ``same_table_slot`` defined below showing a case which all three slots, *street*, *city* and *state* will be fetching their values from one row in a table named *places*.
 
 ::
 
@@ -154,7 +156,22 @@ For encoding values for several slots must be fetched from a row in a table, we 
 
 dialogue_act_definitions
 -----------------
-abc
+This section used for defining dialogue acts may be issued by user such as ``inform``, ``affirm`` and so on. Each action is a python dict which may includes one or many keys as listed below:
+
+- ``slot_included``: A boolean value indicating this action will contain slot or not.
+- ``value_included``: Similarly, a boolean value indicating this action will figure out a value for each slot or not.
+- ``slot_from``: A string could be ``sys_da`` or ``none`` indicating slots for this action will be take from system dialogue act or nowhere, respectively.
+- ``value_from``: A string could be either ``sys_da``, ``goal`` or ``function`` pointing out the source of values are respectively from system dialogue act, final goal or dynamicaly caculated by a function.
+- ``combineable_slots``: A list of slots which could be combined with this action, but these slots is probably not appear in system dialogue act or final goal.
+- ``limited_slots``: A list of slots which can't be used with this action.
+- ``accept_used_slot``: A boolean flag, set to ``false``  indicating this action will not accept slots which are already used by this action in previous turn. Of course, the ``slot_from`` key has higher priority, which means slots getting from the source indicated in ``slot_from`` will be kept.
+- ``use_slot_sequence``: A boolean value setting whether this action uses ``slot_used_sequence`` defined in the current goal or not.
+- ``act_without_slot``: A true/false value indicating this action can be built and used in a conversation even that there is no any slot combineable with it, *silence* and *oog* are some those. 
+- ``status_included``: A string could be either *correct* or *incorrect*, this property is used for filtering status of slots. In other words, it can be only accept slots which have the same values with the goal (correct), or have a status of deffirent to the goal (incorrect).
+- ``add_to_da_prob``: A real number in [0, 1] indicating the probability of adding this action to dialogue action. Sometimes, an action can be optional for the final return dialgoue act, for examples, say *hello* to the system or say *yes* for an implicit confirm from the system.
+- ``status_in_all_slots``: A boolean value indicating all slots combinable with this action must have the same status. This property is used in the combination with the property ``status_included``.
+- ``use_slot_sequence``: A boolean value setting whether this action uses ``slot_used_sequence`` defined in the current goal or not.
+- ``use_slot_sequence``: A boolean value setting whether this action uses ``slot_used_sequence`` defined in the current goal or not.
 
 reply_system_acts
 -----------------
