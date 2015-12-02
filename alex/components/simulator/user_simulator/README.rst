@@ -18,21 +18,19 @@ Domain independent user simulator for slot-filling spoken dialogue systems
 Description
 -----------------
 This module is intended to provide different user simulators which may play the role of users on testing and training spoken dialogue systems (SDS).
-For current, this module contains only a ``SimpleUserSimulator`` working on dialogue act or semantic level. Thereforce, the document is mostly using to describe the user simulator, defining a domain and how it will be used.
+For current, this module contains only a ``SimpleUserSimulator`` working on dialogue act or semantic level. Thereforce, the document is mostly using to describe the user simulator, defining a domain and making conversations.
 
 Overview
 -----------------
-The core of the user simulator is working based on a data provider and a metadata describing a domain and behaviour of users.
+The core of the user simulator is working based on a data provider and a metadata describing domain and behaviour of users.
 The data provider, roughly speaking, is a bridge helping the simulator accessing domain data - values for slots. The interface of data provider is enclosed in this framework. An simple implementation of the provider working with text files named ``PythonDatabase`` is also included.
-The metadata is a python dict encapsulate all domain specification which will be presented in details in next sections.
+The metadata is a python dict encapsulating all domain specification which will be presented very detailed in next sections.
 
-Addation to the code, this module is also distributing two examples of using the user simulator. One is quite trivial, appointment scheduling, where user only decides accept, delay or reject an appoinment. Another examples is the user simulator for a public transport information system, where user manage many slots (e.g. where and when to leave, destination etc.) and answer more various system acts (e.g. request, confirm, offer etc.). A short description of these examples was also provided at the end of this document.
+Addation to the code, this module also distributes two examples of using the user simulator. One is quite trivial, appointment scheduling, where user only decides *accept*, *delay* or *reject* an appoinment. Another example is a user simulator for public transport information system, where user manages many slots (e.g. where and when to leave, destination etc.) and answers a variety of system acts (e.g. request, confirm, offer etc.). A short description of these examples is also provided at the end of this document.
 
 Metadata
 -----------------
-Apart from domain data, defining a metadata configuring the user simulator is the only thing you need to do for deloying a user simulating conversations with your SDS. In the current code, the metadata is defined by a python dict object.
-
-A domain metadata may includes the following sections (each section is a key in the python dict):
+Apart from domain data, defining a metadata configuring the user simulator is the only thing you need to do for deloying a user simulating conversations with your SDS. In the current code, the metadata is defined by a python dict object and may includes the following sections (each section is a key in the dict):
 
 - ``goals``: A list of final goal descriptions which the user may have. :ref:`goals`
 - ``slot_table_field_mapping``: A dict mapping each slot to its data sources.
@@ -318,9 +316,9 @@ The value for each key is a list of dict as normal as two first types of answer.
 
 data_observation_probability
 -----------------
-This section is an optional using for defining probability of observing data in user random final goals. Each key of this dict will be a table name which we wish to define occurring frequency for its data rows. We use a tuple containing values in a row as keys in sub dict for pointing out this chance of taking stage. You may also provide the probability only for several rows in a table, other rows is automatically sharing the remaining mass.
+This section is an optional using for defining probability of observing data in user random final goals. Each key of this dict will be a table name which we wish to define occurring frequency for its data rows. We use a tuple containing values in a row as keys in a sub dict for pointing out its chance of taking stage. You may also provide the probability only for several rows in a table, other rows is automatically sharing the remaining mass.
 
-The following is an example showing the definition of data observation probability for two tables, *time_relative* and *places*.
+The following is an example showing a definition of data observation probability for two tables, *time_relative* and *places*.
 
 ::
 
@@ -341,6 +339,7 @@ The following is an example showing the definition of data observation probabili
                 'places':{
                     ('first stop', 'rose street', 'flower city', 'New York'):0.3,
                 },
+    },
 
 Examples
 ----------------
