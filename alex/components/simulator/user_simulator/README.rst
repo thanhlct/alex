@@ -237,7 +237,7 @@ The below is an example showing a definition of the answer for replying *request
                         ],
     },
 
-Now we are moving to the second type of answer definition, ``conditional_answer``. In this type, intead of using the key ``return_acts``, we define the key,  ``oredered_return_acts``, which is a list of dict. Each element (a dict) represents a way of answer, but the differencd is that the user simulator will try these answer by their order. Which means the later ones are using only if all of previous ones failed to apply. For supporting many alternative ways in each answer, we must define each way in a dict which is very similar to ``standard_answer``. Let look at the example below, a definition of how the user simulator will reply the confirm act from a system.
+Now we are moving to the second type of answer definition, ``conditional_answer``. In this type, intead of using the key ``return_acts``, we define the key,  ``oredered_return_acts``, which is a list of dict as normal. Each element (a dict) represents a way of answer, but the differencd is that the user simulator will try these answer by their order. Which means the later ones are using only if all of previous ones failed to apply. For supporting many alternative ways in each answer, we must define each way in a dict which is very similar to ``standard_answer``. Let look at the example below, a definition of how the user simulator will reply the confirm act from a system.
 
 ::
 
@@ -263,7 +263,6 @@ Now we are moving to the second type of answer definition, ``conditional_answer`
                                             'direct_answer':1.0,
                                         },
                                         'inform_overridden_properties':{
-                                            'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
                                             'use_slot_sequence': False,
@@ -275,7 +274,6 @@ Now we are moving to the second type of answer definition, ``conditional_answer`
                                     'case3':{'return_acts':['deny', 'inform'],
                                         'active_prob':0.4,
                                         'inform_overridden_properties':{
-                                            'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
                                             'use_slot_sequence': False
@@ -283,16 +281,48 @@ Now we are moving to the second type of answer definition, ``conditional_answer`
                                     },
                                 }#end of seond priority answer
                         ],    
-                        'active_prob':1.0
+                        'active_prob':1.0,
                     },#end of the firs way of answer
-                ]
+                ],
     }
 
+The last answer type is ``goal_based_answer``, it is conditioned on which final goal currently being actived to make the reply. At the begining it is somewhat different from two cases above, instead of defining a list of dict, it defines a dict containing keys are indexs (0, 1, etc.) presenting the answer will be used respectively with the index of the current goal (0, 1 or etc.). 
 
+::
+
+    'reply_system_acts':{
+        'offer':{
+                    0:[{'return_acts':['bye'],#definition for goal_id=0
+                        'active_prob':0.2,
+                        },
+                        {'return_acts':['request'],
+                        'active_prob':0.2,
+                        },
+                        {'return_acts':['reqalts'],
+                        'active_prob':0.2,
+                        },
+                        {'return_acts':['thankyou'],
+                        'active_prob':0.4,
+                        },
+                    ],
+                    1:[{'return_acts':['bye'],
+                        'active_prob':0.5,
+                        },
+                        {'return_acts':['thankyou'],
+                        'active_prob':0.5,
+                        },
+                    ],
+        },
+    },
 
 data_observation_probability
 -----------------
 abc
+
+
+Examples
+----------------
+There are two examples provided at the folder demos.
 
 License
 -------
