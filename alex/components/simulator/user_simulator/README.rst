@@ -318,8 +318,29 @@ The value for each key is a list of dict as normal as two first types of answer.
 
 data_observation_probability
 -----------------
-abc
+This section is an optional using for defining probability of observing data in user random final goals. Each key of this dict will be a table name which we wish to define occurring frequency for its data rows. We use a tuple containing values in a row as keys in sub dict for pointing out this chance of taking stage. You may also provide the probability only for several rows in a table, other rows is automatically sharing the remaining mass.
 
+The following is an example showing the definition of data observation probability for two tables, *time_relative* and *places*.
+
+::
+
+    'data_observation_probability':{
+                'time_relative':{
+                    ('as soon as possible',):0.2,
+                    ('next hour',):0.1,
+                    ('morning',):0.1,
+                    ('noon',):0.1,
+                    ('afternoon',):0.1,
+                    ('night',):0.1,
+                    ('midnight',):0.05,
+                    ('early morning',):0.05,
+                    ('today',):0.1,
+                    ('tomorrow',):0.05,
+                    ('the day after tomorrow',):0.05,
+                },
+                'places':{
+                    ('first stop', 'rose street', 'flower city', 'New York'):0.3,
+                },
 
 Examples
 ----------------
