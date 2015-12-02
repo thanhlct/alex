@@ -286,7 +286,8 @@ Now we are moving to the second type of answer definition, ``conditional_answer`
                 ],
     }
 
-The last answer type is ``goal_based_answer``, it is conditioned on which final goal currently being actived to make the reply. At the begining it is somewhat different from two cases above, instead of defining a list of dict, it defines a dict containing keys are indexs (0, 1, etc.) presenting the answer will be used respectively with the index of the current goal (0, 1 or etc.). 
+The last answer type is ``goal_based_answer``, it is conditioned on which final goal currently being actived to make the reply. At the begining it is somewhat different from two cases above, instead of defining a list of dict, we defines a dict containing keys are indexs (0, 1, etc.) presenting the answer will be used respectively with the index of the current goal (0, 1 or etc.). 
+The value for each key a list of dict, it could be describeed as a ``standard_answer`` or a ``conditional_answer``. Look at the code below for an example.
 
 ::
 
