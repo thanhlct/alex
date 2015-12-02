@@ -30,7 +30,7 @@ Addation to the code, this module also distributes two examples of using the use
 
 Metadata
 -----------------
-Apart from domain data, defining a metadata configuring the user simulator is the only thing you need to do for deloying a user simulating conversations with your SDS. In the current code, the metadata is defined by a python dict object and may includes the following properties (each section is a key in the dict):
+Apart from domain data, defining a metadata configuring the user simulator is the only thing you need to do for deloying a user simulating conversations with your SDS. In the current code, the metadata is defined by a python dict object and may includes the following sections (each section is a key in the dict):
 
 - ``goals``: A list of final goal descriptions which the user may have. :ref:`goals`
 - ``slot_table_field_mapping``: A dict mapping each slot to its data sources.
@@ -43,7 +43,7 @@ Apart from domain data, defining a metadata configuring the user simulator is th
 
 goals
 -----------------
-You can define multiple final goals as many as you want. The set of goals is presetned by a list of dicts, in which each goal is a dict. Inside a goal definition, we may have the following sections:
+You can define multiple final goals as many as you want. The set of goals is presetned by a list of dicts, in which each goal is a dict. Inside a goal definition, we may have the following properties:
 
 - ``fixed_slots``: A list of tuples with two string elements, slot name and slot value.
 - ``changeable_slots``: A list of strings including all slots which has value can be changed.
