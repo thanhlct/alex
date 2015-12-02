@@ -235,8 +235,12 @@ class SimpleUserSimulator(UserSimulator):
         for key in tb_dist.keys():
             predifined_mass += tb_dist[key]
             predifined_row += 1
+        
         remaining_mass = 1.0 - predifined_mass
-        default_prob = remaining_mass/(self.db.get_row_number(table)-predifined_row)
+        default_prob = 0
+        if remaining_mass>0:
+            default_prob = remaining_mass/(self.db.get_row_number(table)-predifined_row)
+
         for row in self.db.get_row_iterator(table):
             if row in tb_dist.keys():
                 dist[row] = tb_dist[row]
@@ -1082,8 +1086,8 @@ class SimpleUserSimulator(UserSimulator):
                 ]
             },
             'data_observation_probability':{
-                'tiime_relative':{
-                    ('now',):0.2,#key is row in the table, if table has only one field, need add comma before the end of the tuple
+                'time_relative':{
+                    ('as soon as possible',):0.2,#key is row in the table, if table has only one field, need add comma before the end of the tuple
                     ('next hour',):0.1,
                     ('morning',):0.1,
                     ('noon',):0.1,

@@ -22,7 +22,7 @@ For current, this module contains only a ``SimpleUserSimulator`` working on dial
 
 Overview
 -----------------
-The core of user simulator is working based on a data provider and a metadata describing a domain and behaviour of users.
+The core of the user simulator is working based on a data provider and a metadata describing a domain and behaviour of users.
 The data provider, roughly speaking, is a bridge helping the simulator accessing domain data - values for slots. The interface of data provider is enclosed in this framework. An simple implementation of the provider working with text files named ``PythonDatabase`` is also included.
 The metadata is a python dict encapsulate all domain specification which will be presented in details in next sections.
 
@@ -169,7 +169,7 @@ This section used for defining dialogue acts may be issued by a user simulator s
 - ``accept_used_slot``: A boolean flag, set to ``false``  indicating this action will not accept slots which are already used by this action in previous turn. Of course, the ``slot_from`` key has higher priority, which means slots getting from the source indicated in ``slot_from`` will be kept.
 - ``use_slot_sequence``: A boolean value setting whether this action uses ``slot_used_sequence`` defined in the current goal or not.
 - ``act_without_slot``: A true/false value indicating this action can be built and used in a conversation even that there is no any slot combineable with it, *silence* and *oog* are some those. 
-- ``status_included``: A string could be either *correct* or *incorrect*, this property is used for filtering status of slots. In other words, it can be only accept slots which have the same values with the goal (correct), or have a status of deffirent to the goal (incorrect).
+- ``status_included``: A string could be either *correct* or *incorrect*, this property is used for filtering slots by their status. In other words, it can be only accept slots which have the same values with the goal (correct), or have a status of deffirent to the goal (incorrect).
 - ``add_to_da_prob``: A real number in [0, 1] indicating the probability of adding this action to dialogue action. Sometimes, an action can be optional for the final return dialgoue act, for examples, say *hello* to the system or say *yes* for an implicit confirm from the system.
 - ``status_in_all_slots``: A boolean value indicating all slots combinable with this action must have the same status. This property is used in the combination with the property ``status_included``.
 - ``value_fun``: A pointer to a function, being used to combine with ``value_from=fun``.
@@ -203,7 +203,7 @@ Here is one example defining three acts *silence*, *inform* and *affirm*:
 
 reply_system_acts
 -----------------
-We have to define how the user may answer every system action in this section. For that purpose, each system act will be a key in this dict and the value of each key will be a definition of the answer for that action. We used a list of dicts for listing all alternative ways for answering the given action. In each dict, we have a key ``active_prob`` presenting the chance of how likely the answer will be chosen to reply this action.
+We have to define how the user may answer every system act in this section. For that purpose, each system act will be a key in this dict and the value of each key will be a definition of the answer for that action. We used a list of dicts for listing all alternative ways for answering the given action. In each dict, we have a key ``active_prob`` presenting the chance of how likely the answer will be chosen to reply this action.
 Apart from this general definition rule, there are three different ways of defining how the user may answer a system dialogue act. For convient, let call them as ``standard_answer``, ``conditional_answer`` and ``goal_based_answer``.
 
 Let start with ``standard_answer``, the dict will includes a key, named ``return_acts``, which is a list containing one or many act names defined in the section ``dialogue_act_definitions``. All of these acts will be built and used for replying the system act received.
@@ -286,14 +286,14 @@ Now we are moving to the second type of answer definition, ``conditional_answer`
                 ],
     }
 
-The last answer type is ``goal_based_answer``, it is conditioned on which final goal currently being actived to make the reply. At the begining it is somewhat different from two cases above, instead of defining a list of dict, we defines a dict containing keys are indexs (0, 1, etc.) presenting the answer will be used respectively with the index of the current goal (0, 1 or etc.). 
-The value for each key a list of dict, it could be describeed as a ``standard_answer`` or a ``conditional_answer``. Look at the code below for an example.
+The last answer type is ``goal_based_answer``, it is conditioned on which final goal currently being actived to make a reply. At the begining it is somewhat different from two cases above, instead of defining a list of dict, we defines a dict containing keys are indexs (0, 1, etc.) presenting the answer will be used respectively with the index of the current goal (0, 1 or etc.). 
+The value for each key is a list of dict as normal as two first types of answer. Which mean an answer for a specific goal could be described as a ``standard_answer`` or a ``conditional_answer``. Look at the code below for an example.
 
 ::
 
     'reply_system_acts':{
         'offer':{
-                    0:[{'return_acts':['bye'],#definition for goal_id=0
+                    0:[{'return_acts':['bye'],#definition for goal_id=0 - the first goal in the goal list
                         'active_prob':0.2,
                         },
                         {'return_acts':['request'],
