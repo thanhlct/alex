@@ -345,7 +345,26 @@ The following is an example showing a definition of data observation probability
 
 Examples
 ----------------
-There are two examples provided at the folder demos. change on tomorrow
+There are two examples provided in the folder demos. As already mentioned, one is a user simulator for appointment scheduling app (``demos/scheduler``), and another is for public transport information system (``demos/ptien``). You could run these examples by executing the file ``main.py`` which is provided in each directory.
+
+All configuration for deploying a user simulator for the first example, scheduler, is in the file ``demos/scheduler/scheduler_simulator.cfg``. This application includes one slot, *decision*, which may recieve three values (*accept*, *delay* and  *reject*) which is provided by a function. There are also three acts which the user may choose to answer system *request* act. The results of executing the example will be similar as below:
+
+::
+
+    ------------------------------------------------------------
+    Goal: {'decision': 'accept'}
+    ------------------------------------------------------------
+    sys_da:         inform(appointment="Thanh visits on Monday")&request(decision)
+    user_da:        inform(decision="accept")       [last sys_da reward=-1]
+    sys_da:         request(decision)
+    user_da:        silence()       [last sys_da reward=-1]
+    sys_da:         request(decision)
+    user_da:        inform(decision="accept")       [last sys_da reward=-1]
+    sys_da:         accept(appointment="Thanh visits on Monday")
+    user_da:        end()   [last sys_da reward=-1]
+    Final reward:   20
+    
+You may also find a similar structure for the second sample. Addition to this, in the directory ``test``, there is also a kind of random tests generating goals and dialogues for this example. When you deploy a new user simulator, you might refer to the test as a way of guaranteeing the user developed working correctly.
 
 License
 -------

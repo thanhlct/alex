@@ -1,27 +1,23 @@
-#----------for testing---------------
-if __name__ == '__main__':
-    import autopath
-import pdb
+import autopath
 from alex.utils.config import Config
-import pprint
+from alex.utils.database.python_database import PythonDatabase
+from alex.components.simulator.user_simulator.simple_user_simulator import SimpleUserSimulator
+from alex.components.slu.da import DialogueActItem, DialogueAct
+from alex.utils.sample_distribution import sample_from_list, sample_a_prob
+from alex.utils.support_functions import iprint
 
 cfg = None
 
 def get_config():
     global cfg
-    #pdb.set_trace()
-    cfg = Config.load_configs(['../../../applications/PublicTransportInfoEN/ptien.cfg', '../../../applications/PublicTransportInfoEN/simulator.cfg'])
-    cfg['Logging']['system_logger'].info("Voip Hub\n" + "=" * 120)
+    cfg = Config.load_configs(['../demos/ptien/simulator.cfg', '../demos/ptien/ptien_metadata.py'], log=False)
 
 def test_user_goal(user, n):
-    pp = pprint.PrettyPrinter()
     for i in range(n):
         user.new_dialogue()
         print '-------------------------Goal %d (type=%d)---------------------'%(i+1, user.goal_id+1)
-        pp.pprint(user.goal)
+        iprint(user.goal)
         user.end_dialogue()
-        #raw_input()
-        #break
 
 def test_reply(user):
     user.new_dialogue()
@@ -41,7 +37,6 @@ def test_reply(user):
     da.append(item)
     item = DialogueActItem('request', 'to_stop')
     da.append(item)
-    #pdb.set_trace()
     print 'sys_da:', da
     user.da_in(da)
     dao = user.da_out()
@@ -102,7 +97,7 @@ def get_equivalent_slots(goal_des, slot,):
                 return eq_slots
     return ()
 
-def make_dialogues(user):
+def test_random_dialogues(user):
     metadata = get_metadata()
     for i in range(100):
         print '=======================Dialogue %i============================'%(i+1)
@@ -141,6 +136,7 @@ def make_dialogues(user):
             da = user.da_out()
             print 'user_da:\t', da[0]
             if len(da[0])==0:
+                raise RuntimeError('User simulator doesnt reply anything!!')
                 pdb.set_trace()
 
 def run1():
@@ -148,7 +144,7 @@ def run1():
     user = SimpleUserSimulator(cfg, db)
     #test_user_goal(user, 100)
     #test_reply(user)
-    make_dialogues(user)
+    test_random_dialogues(user)
 
 def main():
     get_config()

@@ -1,5 +1,3 @@
-import pdb
-
 import autopath
 from alex.utils.config import Config
 from alex.components.simulator.user_simulator.simple_user_simulator import SimpleUserSimulator
