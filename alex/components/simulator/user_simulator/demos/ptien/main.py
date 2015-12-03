@@ -1,6 +1,9 @@
 import autopath
-if __name__=='__main__':
-    import autopath
+import pdb
+#if __name__=='__main__':
+#    import autopath
+
+pdb.set_trace()
 from alex.components.simulator.simple_user_simulator import SimpleUserSimulator
 from alex.utils.database.python_database import PythonDatabase
 from alex.components.slu.da import DialogueActItem, DialogueAct
