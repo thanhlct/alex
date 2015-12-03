@@ -74,10 +74,12 @@ class SimpleUserSimulator(UserSimulator):
             cfg: A config object contains domain definitions and other configurations.
             db: A object connects to database.
         '''
-        self.config = cfg.config['user_simulator']
+        self._config = cfg.config['user_simulator']
         self.db = db
         self.goal = None
-        self.metadata = self.get_metadata(self.config)
+        self._name = self.__class__.__name__
+        self.metadata = self._config[self._name]['metadata']
+        #self.metadata = self.get_metadata(self.config)
         #self._goal_dist = self._get_goal_distribution()
         self._goal_dist = self._get_dict_distribution(self.metadata['goals'])
 
@@ -237,9 +239,10 @@ class SimpleUserSimulator(UserSimulator):
             predifined_row += 1
         
         remaining_mass = 1.0 - predifined_mass
+        remaining_row = self.db.get_row_number(table) - predifined_row
         default_prob = 0
-        if remaining_mass>0:
-            default_prob = remaining_mass/(self.db.get_row_number(table)-predifined_row)
+        if remaining_row>0:
+            default_prob = remaining_mass/remaining_row
 
         for row in self.db.get_row_iterator(table):
             if row in tb_dist.keys():
