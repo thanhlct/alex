@@ -23,6 +23,7 @@ class SimpleUserSimulator(UserSimulator):
         db: The object connects to database.
         config: The Config object save all configurations.
         logger: The logger of the class.
+        turns: A list of dict presenting the history of the current conversation, each dict includes sys_da and user_da
 
     More details are available at htt://github.com/thanhlct/alex
     '''
@@ -37,6 +38,7 @@ class SimpleUserSimulator(UserSimulator):
         self._config = cfg.config['user_simulator']
         self.db = db
         self.goal = None
+        self.turns = []
         self._name = self.__class__.__name__
         self.metadata = self._config[self._name]['metadata']
         #self.metadata = self.get_metadata(self.config)
@@ -69,6 +71,7 @@ class SimpleUserSimulator(UserSimulator):
         self.unprocessed_da_queue = []
         self.act_used_slots = {}
         self.slot_level_used = 0
+        self.turns = []
 
     def _build_slot_level(self):
         '''Return dict of slot level.
@@ -239,6 +242,7 @@ class SimpleUserSimulator(UserSimulator):
             A list of DialogueAct presents answers of user
         '''
         das = []
+        turn = {'sys_da': deep_copy(self.unprocessed_da_queue)}
         while(len(self.unprocessed_da_queue)>0):
             da = self.unprocessed_da_queue.pop(0)
             das.append(self._get_answer_da(da))
@@ -246,6 +250,8 @@ class SimpleUserSimulator(UserSimulator):
         #    das = das[0]
         #print das[0]
         #pdb.set_trace()
+        turn['user_da']= das
+        self.turns.append(turn)
         return das
  
     def _get_answer_da(self, da_in):
@@ -661,11 +667,12 @@ class SimpleUserSimulator(UserSimulator):
 
     def reward_last_da(self):
         '''Rewards the last system dialgoue act'''
-        return self.metadata[self.goal_id]['reward_last_da_fun'](self.last_da)
+        last_da = self.turns[len(self.turns)-1]['sys_da']
+        return self.metadata['goals'][self.goal_id]['reward_last_da_fun'](self.goal, last_da)
 
-    def reward_final_goal(self, sys_predict):
+    def reward_final_goal(self):
         '''Return final reward for the current dialouge'''
-        return self.metadata[self.goal_id]['reward_final_goal_fun'](self.goal, sys_predict)
+        return self.metadata['goals'][self.goal_id]['reward_final_goal_fun'](self.goal, self.turns)
         
     def end_dialogue(self):
         '''end dialgoue and post-processing'''
