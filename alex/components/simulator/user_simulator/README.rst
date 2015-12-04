@@ -237,7 +237,7 @@ The below is an example showing a definition of the answer for replying *request
                         ],
     },
 
-Now we are moving to the second type of answer definition, ``conditional_answer``. In this type, intead of using the key ``return_acts``, we define the key,  ``oredered_return_acts``, which is a list of dict as normal. Each element (a dict) represents a way of answer, but the differencd is that the user simulator will try these answer by their order. Which means the later ones are using only if all of previous ones failed to apply. For supporting many alternative ways in each answer, we must define each way in a dict which is very similar to ``standard_answer``. Let look at the example below, a definition of how the user simulator will reply the *confirm* act from a system.
+Now we are moving to the second type of answer definition, ``conditional_answer``. In this type, intead of using the key ``return_acts``, we define the key,  ``oredered_return_acts``, which is a list of dict as normal. Each element (a dict) represents a way of answer, but the difference is that the user simulator will try these answer by their order. Which means the later ones are using only if all of previous ones failed to apply. For supporting many alternative ways in each answer, we must define each way in a dict which is very similar to ``standard_answer``. Let look at the example below, a definition of how the user simulator will reply the *confirm* act from a system.
 
 ::
 
@@ -347,7 +347,7 @@ Examples
 ----------------
 There are two examples provided in the folder demos. As already mentioned, one is a user simulator for appointment scheduling app (``demos/scheduler``), and another is for public transport information system (``demos/ptien``). You could run these examples by executing the file ``main.py`` which is provided in each directory.
 
-All configuration for deploying a user simulator in the first example, scheduler, is in the file ``demos/scheduler/scheduler_simulator.cfg``. This application includes one slot, *decision*, which may recieve three values (*accept*, *delay* and  *reject*) which is provided by a function. There are also three acts which the user may choose to answer system *request* act. The results of executing the example will be similar as below:
+All configuration for deploying the user simulator in the first example, scheduler, is in the file ``demos/scheduler/scheduler_simulator.cfg``. This application includes one slot, *decision*, which may recieve three values (*accept*, *delay* and  *reject*) which is provided by a function. There are also three acts which the user may choose to answer system *request* act. The results of executing the example will be similar as below:
 
 ::
 
@@ -364,7 +364,7 @@ All configuration for deploying a user simulator in the first example, scheduler
     user_da:        end()                           [last sys_da reward=-1]
     Final reward:   20
     
-You may also find a similar structure for the second sample. Addition to this, in the directory ``test``, there is also a kind of random tests generating goals and dialogues for this example. When you deploy a new user simulator, you might refer to the test as a way of guaranteeing the user developed working correctly.
+You may also find a similar structure for the second sample, public transport information system. Addition to this, in the directory ``test``, there is also a kind of random tests generating goals and dialogues for this example. When you deploy a new user simulator, you might refer to the test as a way of guaranteeing the user developed working correctly.
 
 License
 -------
