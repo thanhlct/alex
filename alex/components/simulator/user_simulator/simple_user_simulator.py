@@ -4,7 +4,7 @@ from alex.components.slu.da import DialogueActItem, DialogueActConfusionNetwork,
 
 from alex.utils.sample_distribution import sample_from_list, sample_from_dict, random_filter_list, sample_a_prob
 import alex.utils.matlab_functions as matlab
-from alex.utils.support_functions import get_dict_value, iscallable, iprint, deep_copy, debug_print
+from alex.utils.support_functions import get_dict_value, iscallable, iprint, deep_copy
 
 class SimpleUserSimulator(UserSimulator):
     '''Simulate an user in a slot-filled spoken dialogue system.

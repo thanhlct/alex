@@ -39,6 +39,8 @@ config = {
                     
         },
     },
+    'domain':{#probably like the configuration for suser simulator
+    },
     'user_simulator':{
         'type': SimpleUserSimulator,
         'SimpleUserSimulator':{
@@ -49,17 +51,41 @@ config = {
         'type': None,
         'debut': True,
         'SimpleASRSimulator':{
-            'information_confusion_types': ['correct', 'onlist', 'offlist'],#only for imagining
+            'act_confusion':{
+                'inform':{
+                    'inform': 0.5,
+                    'silence': 0.25,
+                    ('inform', 'request'): 0.25,
+                },
+                'affirm':{
+                    'affirm': 0.95,
+                    'negate': 0.05,
+                },
+                'negate':{
+                    'negate': 0.95,
+                    'affirm': 0.05,
+                },
+            },
+            'slot_confusion':{
+                'to_stop_fake':{
+                    'to_stop': 0.5,
+                    ('departure', 'arrival'): 0.5,
+                },
+            },
+            'information_confusion_types': ['correct', 'onlist', 'offlist', 'silence'],#only for imagining
             'default':{#define ASR simulator for a slot, the key default will be apply foo all slots are not specified explicitly
-                'max_length': 5,
-                'onlist_fraction_alpha': 0.75,
-                'onlist_fraction_beta': 1.5,
                 #default for all informatin confusion and prob. gnerator
-                'default_confusion_matrix':{#confusion type for information in an action, default for all actions wihout configuration
-                    'correct': 0.9,#meaning that the correction information will be still corret at 90%, highest prob on the hyp list
-                    'onlist': 0.05,#The correct information is on the hyp. list but smaller prob.
-                    'offlist': 0.05,#the correct information is off the hyp.list
-                    'default_probability_generator':{#using dicrehet for generator probability
+                'default_confusion_matrix':{
+                    'max_length': 5,
+                    'onlist_fraction_alpha': 0.75,
+                    'onlist_fraction_beta': 1.5,
+                    'confusion_types':{#confusion type for information in an action, default for all actions wihout configuration
+                        'correct': 0.9,#meaning that the correction information will be still corret at 90%, highest prob on the hyp list
+                        'onlist': 0.05,#The correct information is on the hyp. list but smaller prob.
+                        'offlist': 0.05,#the correct information is off the hyp.list
+                        'silence': 0.0,#the slot is ignored this time, and the respective action will becom silence
+                    },
+                    'probability_generator':{#using dicrehet for generator probability
                         'correct':{#the confution type = correct
                             'correct':6.0, #the part for the correct item
                             'onlist': 1.0, #the part for other items on the list of hypotheses
@@ -77,25 +103,28 @@ config = {
                         },
                     },
                 },
-                'inform_confusion_matrix':{#the confusion matrix for inform action
-                    'correct': 0.9,
-                    'onlist': 0.05,
-                    'offlist': 0.05,
+                'inform_confusion_matrix':{#a refined confusion matrix for inform action
+                    'confusion_types':{
+                        'correct': 0.9,
+                        'onlist': 0.05,
+                        'offlist': 0.05,
+                    },
                     #the default_prob.generator is missing the default one should be used
                 },
-                'act_confusion_matrix':{#the action confusiion matrix for this slot.
-                    'inform':{
-                        'inform': 0.9,
-                        'affirm': 0.1,
+            },#end of the default consusion for all slots
+            'slot_name':{
+                'default_confusion_matrix':{
+                    'confusion_types':{
+                        #something goes here
+                    },
+                    'probability_generator':{
+                        #something goes here
                     },
                 },
-            },#end of the default consusion for all slots
-            'default_act_confusion_matrix':{#the default action confusion for all slots
-                'inform':{
-                    'inform': 0.9,
-                    'affirm': 0.1,
-                },
-            },
-        },
-    },
+                'inform_confusion_matrix':{
+                    
+                }
+            }#end of the confusion descrip for slot_name
+        },#end of SimpleUserSimulator
+    },#end of asr_simulator
 }
