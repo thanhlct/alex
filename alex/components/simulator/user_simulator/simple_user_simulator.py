@@ -36,6 +36,7 @@ class SimpleUserSimulator(UserSimulator):
             db: A object connects to database.
         '''
         self._config = cfg.config['user_simulator']
+        self.system_logger = cfg['Logging']['system_logger']
         self.db = db
         self.goal = None
         self.turns = []
@@ -72,6 +73,8 @@ class SimpleUserSimulator(UserSimulator):
         self.act_used_slots = {}
         self.slot_level_used = 0
         self.turns = []
+
+        self.system_logger.info("SimpleUserSimulator: GOAL: %s"%self.goal)
 
     def _build_slot_level(self):
         '''Return dict of slot level.
@@ -235,6 +238,8 @@ class SimpleUserSimulator(UserSimulator):
         assert self.goal is not None, 'user simulator has no goal, you have to call new_dialogue building goal first before make conversation'
         self.unprocessed_da_queue.append(da)
 
+        self.system_logger.info('SimpleUserSimulator:da_in: %s'%da)
+
     def da_out(self):
         '''Answer unprocessed system dialogue act so far.
 
@@ -252,6 +257,11 @@ class SimpleUserSimulator(UserSimulator):
         #pdb.set_trace()
         turn['user_da']= das
         self.turns.append(turn)
+      
+        das_str = ''
+        for da in das:
+            das_str += str(da)
+        self.system_logger.info('SimpleUserSimulator:da_out: %s'%das_str)
         return das
  
     def _get_answer_da(self, da_in):
