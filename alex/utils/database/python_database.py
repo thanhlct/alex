@@ -53,10 +53,11 @@ class PythonDatabase(object):
         pass
     def get_field_size(self, table, field):
         '''Return number of distinct values in given table and field'''
-        pass
+        return len(self.get_field_values(table, field))
+
     def get_field_index(self, table, field):
         '''Return column index of given field in the given table, index starts from 0'''
-        pass
+        return table['fields'].index(field)
     def get_row_field_value(self, table, row, field):
         '''Return the value of the field given in the given row in the given table'''
         fid = self._tables[table]['fields'].index(field)
@@ -67,7 +68,8 @@ class PythonDatabase(object):
         return len(self._tables[table]['rows'])
     def get_field_values(self, table, field):
         '''Return set of distinct values in given table and field'''
-        pass
+        return self._tables[table]['fields_values'][field]
+
     def get_row_iterator(self, table):
         '''Return iterator over all rows in given table'''
         for row in self._tables[table]['rows']:
@@ -93,9 +95,21 @@ class PythonDatabase(object):
                     row = tuple(row)
                     d['rows'].append(row)
             self._tables[name] = d
-       
-    
+            self._build_fields_values(name)
+
+    def _build_fields_values(self, table):
+        '''Build the property fields_values for the given table.'''
+        fields_values = {}
+        for f in self._tables[table]['fields']:
+            fields_values[f] = set()
+
+        for row in self.get_row_iterator(table):
+            for i in range(len(self._tables[table]['fields'])):
+                fields_values[self._tables[table]['fields'][i]].add(row[i])
+        
+        self._tables[table]['fields_values'] = fields_values
     #-------------definetion for specific apps
+
 #----------for testing---------------
 if __name__ == '__main__':
     import autopath

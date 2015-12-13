@@ -40,6 +40,129 @@ config = {
         },
     },
     'domain':{#probably like the configuration for suser simulator
+            'dialogue_act_definitions': {#dialogue acts which user simulator used for answering
+                'request':{
+                    'slot_included': True,
+                    'value_included': False,
+                    'combineable_slots': ['number_transfer', 'duration', 'distance']
+                },
+                'inform':{
+                    'slot_included': True,
+                    'value_included': True,
+                    'slot_from': 'sys_da', #in normal case, list of slots will be informed is taken from system dialogue request act, or from goal
+                    'value_from': 'goal', #in normal case, where to get values for selected slots
+                    'limited_slots': [], #list of slot cant combine
+                    'accept_used_slots': False,
+                    'use_slot_sequence': True,
+                },
+                'oog':{
+                    'slot_included': False,
+                    'value_included': False,
+                    'act_without_slot': True,
+                },
+                'deny':{
+                    'slot_included': True,
+                    'value_included': True,
+                    'slot_from': 'sys_da',
+                    'value_from': 'sys_da',
+                    'status_included': 'incorrect',
+                },
+                'repeat':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'help':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'apology':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'confirm':{#make a question to clarify something, ?User may also make this action?? How to make it? only at the end?, since simulator always know exactly what is going on
+                    'slot_included': True,
+                    'value_included': True,
+                    'status_included': 'filled',
+                },
+                'canthearyou, notunderstood':{#only available for system, not for user
+                },
+                'affirm':{#simply YES #something interesting here,  doesn't include slot/value, but slots consider from sys_da and they are correct
+                    'slot_included': False,
+                    'value_included': False,
+                    'slot_from': 'sys_da',
+                    'status_included': 'correct',
+                    'status_in_all_slots': True,
+                    #TODO add cheeck all sys_da slot?
+                    #all_slot_included: True,
+                },
+                'ack':{
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'thankyou':{
+                    'slot_included': False,
+                    'value_included': False,
+                    'act_without_slot': True,
+                },
+               'silence':{
+                    'slot_included': False,
+                    'value_included': False,
+                    'act_without_slot': True,
+                },
+               'reqalts':{
+                    'slot_included': True,
+                    'value_included': True,
+                    'combineable_slots': ['alternative'],
+                    'slot_from': 'none',
+                    'value_from': 'function',
+                    #'value_fun': alternative_value_fun,
+                },
+                'negate':{
+                    'slot_included': False,
+                    'value_included': False,
+                    'slot_from': 'sys_da',
+                    'status_included': 'incorrect',
+                },
+                'bye':{
+                    'slot_included': False,
+                    'value_included': False,
+                    'act_without_slot': True,
+                },
+                'hello':{
+                    'slot_included': False,
+                    'value_included': False,
+                    'act_without_slot': True,
+                    #'add_to_da_prob':0.5,
+                },
+                'restart':{#TODO how to user this action?
+                    'slot_included': False,
+                    'value_included': False,
+                },
+                'hangup':{
+                    'slot_included': False,
+                    'value_included': False,
+                    'act_without_slot': True,
+                },
+                'help':{#How?
+                    'slot_included': False,
+                    'value_included': False,
+                },
+            },
+            'slot_table_field_mapping':{'from_stop':[('stops','stop')],
+                                        'to_stop':[('stops', 'stop')],
+                                        'from_city':[('cities', 'city')],
+                                        'to_city':[('cities', 'city')],
+                                        'from_street':[('streets', 'street')],
+                                        'to_street':[('streets', 'street')],
+                                        'departure_time':[('time', 'time')],
+                                        'departure_time_rel':[('time_relative', 'relative')],
+                                        'arrival_time': [('time', 'time')],
+                                        'arrival_time_rel': [('time_relative', 'relative')],
+                                        'vehicle': [('vehicles', 'vehicle')],
+                                        'street':[('streets', 'street'), ('places', 'street')],
+                                        'city':[('cities', 'city'), ('places', 'city')],
+                                        'state':[('states', 'state'), ('places', 'state')],
+            }, 
     },
     'user_simulator':{
         'type': SimpleUserSimulator,
@@ -53,9 +176,9 @@ config = {
         'SimpleASRSimulator':{
             'act_confusion':{
                 'inform':{
-                    'inform': 0.5,
-                    'silence': 0.25,
-                    ('inform', 'request'): 0.25,
+                    'inform': 1.0,
+                    'silence': 0.3,
+                    ('inform', 'request'): 0.2,
                 },
                 'affirm':{
                     'affirm': 0.95,
@@ -80,9 +203,9 @@ config = {
                     'onlist_fraction_alpha': 0.75,
                     'onlist_fraction_beta': 1.5,
                     'confusion_types':{#confusion type for information in an action, default for all actions wihout configuration
-                        'correct': 0.9,#meaning that the correction information will be still corret at 90%, highest prob on the hyp list
-                        'onlist': 0.05,#The correct information is on the hyp. list but smaller prob.
-                        'offlist': 0.05,#the correct information is off the hyp.list
+                        'correct': 0.4,#meaning that the correction information will be still corret at 90%, highest prob on the hyp list
+                        'onlist': 0.3,#The correct information is on the hyp. list but smaller prob.
+                        'offlist': 0.3,#the correct information is off the hyp.list
                         'silence': 0.0,#the slot is ignored this time, and the respective action will becom silence
                     },
                     'probability_generator':{#using dicrehet for generator probability
@@ -99,7 +222,7 @@ config = {
                         'offlist':{
                             'correct':3.0,
                             'onlist':1.0,
-                            'offlist':0.6,
+                            'offlist':6.0,
                         },
                     },
                 },

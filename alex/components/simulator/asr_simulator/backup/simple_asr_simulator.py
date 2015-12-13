@@ -29,19 +29,12 @@ class SimpleASRSimulator(ASRSimulator):
         for da_item in user_da:
             self._sampled_da_items.append(self.simulate_one_da_item(da_item))
         
-        #print 'get sample da_items', self._sampled_da_items
-        #self._nbest_list = DialogueActNBList()
-        #self._build_da_nbest_list(0, None, None)
-        #print 'get nbest-listobject'
+        print 'get sample da_items', self._sampled_da_items
+        self._nbest_list = DialogueActNBList()
+        self._build_da_nbest_list(0, None, None)
+        print 'get nbest-listobject'
 
-        #return self._nbest_list
-
-        confusion_net = DialogueActConfusionNetwork()
-        for da_items, probs in self._sampled_da_items:
-            for dai, prob in zip(da_items, probs):
-                confusion_net.add_merge(prob, dai)
-
-        return confusion_net
+        return self._nbest_list
 
     def _build_da_nbest_list(self, i, da, prob):
         if i<len(self._sampled_da_items):
@@ -122,10 +115,6 @@ class SimpleASRSimulator(ASRSimulator):
                     da_items_probs.extend(probs)
                              
         #print 'Get final resul for a dialogue_item:', da_items
-        print '***sampled dialogue acts:'
-        for dai, prob in zip(da_items, da_items_probs):
-            print dai, '\t', prob
-            
         return da_items, da_items_probs
     
     def _sample_confusion_type(self, confusion_des):
@@ -239,7 +228,7 @@ def get_config():
 
 def print_nbest_list(nbest_list):
     print '-'*20, 'len=', len(nbest_list)
-    for prob, da in nbest_list:
+    for da, prob in nbest_list:
         print str(da), '\t', prob
 
 def main():
@@ -249,9 +238,9 @@ def main():
     
     #da = DialogueAct('inform(to_stop=Central Park)')
     da = DialogueAct('inform(from_stop=Thanh)&inform(to_stop=Central Park)')
-    confusion_net = asr.simulate_asr(da)
-    print_nbest_list(confusion_net)
-    pdb.set_trace()
+    nbest_list = asr.simulate_asr(da)
+    print_nbest_list(nbest_list)
+    #pdb.set_trace()
 
 if __name__ == '__main__':
     main()
