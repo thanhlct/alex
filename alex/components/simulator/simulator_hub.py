@@ -6,6 +6,7 @@ if __name__ == '__main__':
     import autopath
     import pdb
 
+import time
 import argparse
 
 from alex.applications.exceptions import SemHubException
@@ -16,6 +17,7 @@ from alex.components.dm.common import dm_factory, get_dm_type
 from alex.utils.config import Config
 
 from alex.components.simulator.user_simulator.simple_user_simulator import SimpleUserSimulator
+from alex.components.simulator.asr_simulator.simple_asr_simulator import SimpleASRSimulator
 from alex.utils.database.python_database import PythonDatabase
 from alex.components.slu.da import DialogueActItem, DialogueAct
 import multiprocessing
@@ -50,7 +52,8 @@ class SimulatorHub(Hub):
         cfg['Logging']['session_logger'].session_start(cfg['Logging']['system_logger'].get_session_dir_name())
         cfg['Logging']['session_logger'].config('config = ' + unicode(cfg))
         cfg['Logging']['session_logger'].header(cfg['Logging']["system_name"], cfg['Logging']["version"])
-        cfg['Logging']['session_logger'].input_source("dialogue acts")
+        #cfg['Logging']['session_logger'].input_source("dialogue acts")
+        cfg['Logging']['session_logger'].input_source("voip")
 
         sys_das = ['hello()',
                 'request(task)',
@@ -71,12 +74,16 @@ class SimulatorHub(Hub):
 
             user.da_in(sys_da)
             user_da = user.da_out()
-            print 'user_da:\t', user_da[0]
+            user_da = user_da[0]
+            print 'user_da:\t', user_da
             self.cfg['Logging']['session_logger'].turn("user")
-            self.cfg['Logging']['session_logger'].dialogue_act("user", user_da[0]) 
-            #self.cfg['Logging']['session_logger'].slu("user", 'fname', 'nblist', 'confnet=confnet')
+            self.cfg['Logging']['session_logger'].dialogue_act("user", user_da)
 
-            if user_da[0][0].dat in ['bye', 'hangup']:
+            confusion_net = asr.simulate_asr(user_da)
+            nbest_list = confusion_net.get_da_nblist()
+            self.cfg['Logging']['session_logger'].slu("user", '*', nbest_list, confnet=confusion_net)
+
+            if user_da[0].dat in ['bye', 'hangup']:
                 break
             index +=1
 
@@ -96,10 +103,11 @@ class SimulatorHub(Hub):
 
             db = PythonDatabase(cfg)
             user = SimpleUserSimulator(cfg, db)
+            asr = SimpleASRSimulator(cfg, db)
 
             while True:
-                self.simulate_one_dialogue(user, None, None)
-                self.simulate_one_dialogue(user, None, None)
+                self.simulate_one_dialogue(user, asr, None)
+                self.simulate_one_dialogue(user, asr, None)
                 break
         
         except KeyboardInterrupt:
@@ -108,7 +116,8 @@ class SimulatorHub(Hub):
         except:
             self.cfg['Logging']['system_logger'].exception('Uncaught exception in SHUB process.')
             raise
-
+        
+        time.sleep(3)
         print 'Exiting: %s. Setting close event' % multiprocessing.current_process().name
         self.close_event.set()
 
@@ -135,8 +144,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.configs is None:
-        args.configs = ['./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py']
-    cfg = Config.load_configs(args.configs)
+        args.configs = ['./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/config_asr_simulator.py']
+    cfg = Config.load_configs(args.configs, log=False)
 
     shub = SimulatorHub(cfg)
 

@@ -94,6 +94,7 @@ config = {
                     'status_in_all_slots': True,
                     #TODO add cheeck all sys_da slot?
                     #all_slot_included: True,
+                    'act_without_slot': True,
                 },
                 'ack':{
                     'slot_included': False,
@@ -122,6 +123,7 @@ config = {
                     'value_included': False,
                     'slot_from': 'sys_da',
                     'status_included': 'incorrect',
+                    'act_without_slot': True,
                 },
                 'bye':{
                     'slot_included': False,
@@ -162,6 +164,8 @@ config = {
                                         'street':[('streets', 'street'), ('places', 'street')],
                                         'city':[('cities', 'city'), ('places', 'city')],
                                         'state':[('states', 'state'), ('places', 'state')],
+                                        'task': [lambda: ['find_connection', 'find_platform', 'weather']],
+                                        'alternative': [lambda: ['next', 'previous', 'next hour']],
             }, 
     },
     'user_simulator':{
@@ -174,19 +178,62 @@ config = {
         'type': None,
         'debut': True,
         'SimpleASRSimulator':{
+            'prob_combine_fun': None,#the function to calculate new prob from two event, particular is prob of da_type and prob of slot- its value
             'act_confusion':{
-                'inform':{
-                    'inform': 1.0,
-                    'silence': 0.3,
-                    ('inform', 'request'): 0.2,
+                'default':{ 
+                    'confusion_matrix':{
+                        'max_length': 1,
+                        'confusable_acts': [],
+                        'onlist_fraction_alpha': 0.75,
+                        'onlist_fraction_beta': 1.5,
+                        'confusion_types':{#confusion type for information in an action, default for all actions wihout configuration
+                            'correct': 1.0,#meaning that the correction information will be still corret at 90%, highest prob on the hyp list
+                            'onlist': 0.0,#The correct information is on the hyp. list but smaller prob.
+                            'offlist': 0.0,#the correct information is off the hyp.list
+                            'silence': 0.0,#the slot is ignored this time, and the respective action will becom silence
+                        },
+                        'probability_generator':{#using dicrehet for generator probability
+                            'correct':{#the confution type = correct
+                                'correct':6.0, #the part for the correct item
+                                'onlist': 1.0, #the part for other items on the list of hypotheses
+                                'offlist': 0.0, #the part for the osther items which are not on the list
+                            },
+                            'onlist':{
+                                'correct':2.5,
+                                'onlist':1.0,
+                                'offlist':2.5,
+                            },
+                            'offlist':{
+                                'correct':3.0,
+                                'onlist':1.0,
+                                'offlist':6.0,
+                            },
+                        },
+                    },
                 },
                 'affirm':{
-                    'affirm': 0.95,
-                    'negate': 0.05,
+                    'confusion_matrix':{
+                        'max_length': 2,
+                        'confusable_acts': ['affirm', 'negate'],
+                        'confusion_types':{
+                            'correct': 0.95,
+                            'onlist': 0.05,
+                            'offlist': 0.0,
+                            'silence': 0.0,#the slot is ignored this time, and the respective action will becom silence
+                        },
+                    },
                 },
                 'negate':{
-                    'negate': 0.95,
-                    'affirm': 0.05,
+                    'confusion_matrix':{
+                        'max_length': 2,
+                        'confusable_acts': ['affirm', 'negate'],
+                        'confusion_types':{
+                            'correct': 0.95,
+                            'onlist': 0.05,
+                            'offlist': 0.0,
+                            'silence': 0.0,#the slot is ignored this time, and the respective action will becom silence
+                        },
+                    },
                 },
             },
             'slot_confusion':{
@@ -203,9 +250,9 @@ config = {
                     'onlist_fraction_alpha': 0.75,
                     'onlist_fraction_beta': 1.5,
                     'confusion_types':{#confusion type for information in an action, default for all actions wihout configuration
-                        'correct': 0.4,#meaning that the correction information will be still corret at 90%, highest prob on the hyp list
-                        'onlist': 0.3,#The correct information is on the hyp. list but smaller prob.
-                        'offlist': 0.3,#the correct information is off the hyp.list
+                        'correct': 0.9,#meaning that the correction information will be still corret at 90%, highest prob on the hyp list
+                        'onlist': 0.05,#The correct information is on the hyp. list but smaller prob.
+                        'offlist': 0.05,#the correct information is off the hyp.list
                         'silence': 0.0,#the slot is ignored this time, and the respective action will becom silence
                     },
                     'probability_generator':{#using dicrehet for generator probability
@@ -226,7 +273,7 @@ config = {
                         },
                     },
                 },
-                'inform_confusion_matrix':{#a refined confusion matrix for inform action
+                'inform_fake_confusion_matrix':{#a refined confusion matrix for inform action
                     'confusion_types':{
                         'correct': 0.9,
                         'onlist': 0.05,
@@ -235,6 +282,36 @@ config = {
                     #the default_prob.generator is missing the default one should be used
                 },
             },#end of the default consusion for all slots
+            'task_fake':{
+                'default_confusion_matrix':{
+                    'max_length': 3,
+                    'onlist_fraction_alpha': 0.75,
+                    'onlist_fraction_beta': 1.5,
+                    'confusion_types':{#confusion type for information in an action, default for all actions wihout configuration
+                        'correct': 0.9,#meaning that the correction information will be still corret at 90%, highest prob on the hyp list
+                        'onlist': 0.05,#The correct information is on the hyp. list but smaller prob.
+                        'offlist': 0.05,#the correct information is off the hyp.list
+                        'silence': 0.0,#the slot is ignored this time, and the respective action will becom silence
+                    },
+                    'probability_generator':{#using dicrehet for generator probability
+                        'correct':{#the confution type = correct
+                            'correct':6.0, #the part for the correct item
+                            'onlist': 1.0, #the part for other items on the list of hypotheses
+                            'offlist': 3.0, #the part for the osther items which are not on the list
+                        },
+                        'onlist':{
+                            'correct':2.5,
+                            'onlist':1.0,
+                            'offlist':2.5,
+                        },
+                        'offlist':{
+                            'correct':3.0,
+                            'onlist':1.0,
+                            'offlist':6.0,
+                        },
+                    },
+                },
+            },
             'slot_name':{
                 'default_confusion_matrix':{
                     'confusion_types':{
