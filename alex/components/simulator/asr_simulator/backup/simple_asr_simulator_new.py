@@ -1,3 +1,6 @@
+import autopath
+import pdb
+
 import random
 from statlib.stats import lbetai
 
@@ -7,35 +10,11 @@ from alex.components.slu.da import DialogueActItem, DialogueActConfusionNetwork,
 from alex.utils.sample_distribution import sample_from_dict, sample_from_list, sample_dirichlet_from_dict
 from alex.components.simulator.base import ASRSimulator
 from alex.utils.support_functions import override_dicts, iscallable
-
-#from alex.utils.database.python_database import PythonDatabase
+from alex.utils.database.python_database import PythonDatabase
 
 class SimpleASRSimulator(ASRSimulator):
-    '''Simulating error for ASR and SLU from dialogue act.
-
-    Based on a confusion matrix, a database and other configurations,
-    the ASR simulator ramdomly simulate error for user dialogue act,
-    all confusion setting such as act, slot, generating observation probability,
-    is defined in configuration files.
-
-    The domain definitons and the database are pointed out by the Config module,
-    which is also included in the framework.
-
-    Attributes:
-        prob_combine_fun: A funtion calcuateing the joint probability of two events such as action type, slots values.
-        db: The object connects to database.
-        config: The Config object save all configurations for this class.
-        system_logger: The system logger.
-
-    More details are available at https://github.com/thanhlct/alex/tree/user_simulator/alex/components/simulator/asr_simulator
-    '''
+    '''Simple ASR simulator'''
     def __init__(self, cfg, db):
-        '''Create a new ASRSimulator object and init core elements.
-
-        Args:
-            cfg: A config object contains domain definitions and other configurations.
-            db: A object connects to database.
-        '''
         self.full_config = cfg
         self._name = self.__class__.__name__
         self.config = cfg['asr_simulator'][self._name]
@@ -48,14 +27,7 @@ class SimpleASRSimulator(ASRSimulator):
             self.prob_combine_fun = lambda p1, p2: p1*p2
     
     def simulate_asr(self, user_da):
-        '''Returns N-best list ASR hypotheses for the given correct user_da.
-
-        Args:
-            user_da: A DialogueAct object, representing the correct user utterance
-
-        Returns:
-            A DialogueActConfusonNetwork comprising N-best SLU hypotheses.
-        '''
+        '''Returns N-best list ASR hypothesis given correct user_da and grammar or data etc.'''
         self._sampled_da_items = []
         for da_item in user_da:
             self._sampled_da_items.append(self.simulate_one_da_item(da_item))
@@ -72,7 +44,6 @@ class SimpleASRSimulator(ASRSimulator):
         return self._build_confusion_network(self._sampled_da_items)
 
     def _build_confusion_network(self, sampled_da_items):
-        '''Build confusion network from a list containing DialgoueActItem and their observation probability.'''
         confusion_net = DialogueActConfusionNetwork()
         for da_items, probs in sampled_da_items:
             for dai, prob in zip(da_items, probs):
@@ -81,10 +52,6 @@ class SimpleASRSimulator(ASRSimulator):
         return confusion_net
 
     def _build_da_nbest_list(self, i, da, prob):
-        '''Build all combination for the DialogueActItem and probs saved in self._sampled_da_item.
-
-        Currently, not being used.
-        '''
         if i<len(self._sampled_da_items):
             da_items, probs = self._sampled_da_items[i]
             for dai_index in range(len(da_items)):
@@ -101,14 +68,6 @@ class SimpleASRSimulator(ASRSimulator):
             self._nbest_list.add(da, prob)
 
     def simulate_one_da_item(self, da_item):
-        '''Simulate ASR error for one DialgoueActItem.
-
-        Args:
-            da_item: A DialogueActItem.
-
-        Returns:
-            A tuple containing two list with same size presenting confused dialogue items and corespongding probability.
-        '''
         #TODO: The current way of sample prob is not really fit with action and slot confusion, just for value confusion
         print '--Simulate da_item:', da_item
         original_da_type = da_item.dat
@@ -163,19 +122,13 @@ class SimpleASRSimulator(ASRSimulator):
             
         return da_items, da_items_probs
 
-    def _get_confused_slot_values(self, confusion_des, slot, true_value):
-        '''Get confused values, their probability for a slot.
-
-        Args:
-            confusion_des: A dict, presenting confusion_matrix defined in a configuration
-        ''' 
+    def _get_confused_slot_values(self, confusion_des, slot, true_value): 
         confusable_values = self._get_slot_values(slot)  
         items, probs = self._get_confused_values(confusion_des, true_value, confusable_values)
 
         return items, probs
 
     def _get_confused_acts(self, da_type):
-        '''Get confused actions and coresponding probability for an action type.'''
         act_confusion = self.config['act_confusion']
         confusion_des = act_confusion['default']['confusion_matrix']
         if da_type in act_confusion.keys():
@@ -190,7 +143,6 @@ class SimpleASRSimulator(ASRSimulator):
         return acts, probs
 
     def _get_confused_values(self, confusion_des, true_value, confusable_values):
-        '''Get confused items (values, prob) for a given list of potential values.'''
         items = []
         probs = []
 
@@ -223,7 +175,6 @@ class SimpleASRSimulator(ASRSimulator):
         return items, probs
 
     def _sample_nbest_list_values(self, values, true_value, correct_position, length):
-        '''Get confused values from a list of potential values (in values param).'''
         items = []
 
         sample_length = length
@@ -245,11 +196,9 @@ class SimpleASRSimulator(ASRSimulator):
         return items 
 
     def _sample_confusion_type(self, confusion_des):
-        '''Sample confusion type.'''
         return sample_from_dict(confusion_des['confusion_types'])
 
     def _get_confusion_description(self, slot, da_type):
-        '''Get confusion description for the given slot.'''
         slot_confusion_des = self.config['default']
         if slot in self.config.keys():
             slot_confusion_des = self.config[slot]
@@ -264,7 +213,6 @@ class SimpleASRSimulator(ASRSimulator):
         return slot_confusion_des
 
     def _sample_onlist_position(self, confusion_des, length):
-        '''Sample the position for the correct value.'''
         alpha = confusion_des['onlist_fraction_alpha']
         beta = confusion_des['onlist_fraction_beta']
         x = random.betavariate(alpha, beta)
@@ -289,7 +237,6 @@ class SimpleASRSimulator(ASRSimulator):
         return probs
 
     def _get_onlist_fractions(self, confusion_des, length):
-        '''Get factions for all elements in the N-best list.'''
         frac = []; prev = 0.0
         step_size = 1.0/(length-1.0)
         alpha = confusion_des['onlist_fraction_alpha']
@@ -319,3 +266,53 @@ class SimpleASRSimulator(ASRSimulator):
         '''Return a full set of table field mapping for the given slot.'''
         assert slot in self.domain['slot_table_field_mapping'].keys(), "Have not defined the slot_table_field_mapping for the slot=%s"%(slot)
         return self.domain['slot_table_field_mapping'][slot]
+
+#-----------for developing------
+cfg = None
+db = None
+
+def get_config():
+    global cfg
+    cfg = Config.load_configs(['config_asr_simulator.py'], log=False)
+
+def print_nbest_list(nbest_list):
+    print '-'*20, 'da_items'
+    print nbest_list
+    print '-'*20, 'nblist ='
+    for prob, da in nbest_list.get_da_nblist():
+        print str(da), '\t', prob
+    print '-'*20, 'best hyp='
+    print nbest_list.get_best_da_hyp()
+
+def print_asr_results(asr):
+    for items, probs in asr:
+        for item, prob in zip(items, probs):
+            print prob, '\t', item
+
+def test1():
+    asr = SimpleASRSimulator(cfg, db)
+
+    da = DialogueAct('deny(to_stop=thanh)')
+    #da = DialogueAct('inform(task=find_connection)')
+    #da = DialogueAct('inform(to_stop=Central Park)')
+    #da = DialogueAct('inform(from_stop=Thanh)&inform(to_stop=Central Park)')
+    #da = DialogueAct('affirm()')
+    #da = DialogueAct('affirm()&inform(to_stop=Central Park)')
+    for i in range(1):
+        asr_results  = asr.simulate_asr(da)
+        print_nbest_list(asr_results)
+
+    #print_asr_results(asr_results)
+    #confusion_net = asr.simulate_asr(da)
+    #print confusion_net
+    #print_nbest_list(confusion_net)
+    #pdb.set_trace()
+
+def main():
+    global db
+    get_config()
+    db = PythonDatabase(cfg)
+    test1()
+
+if __name__ == '__main__':
+    main()

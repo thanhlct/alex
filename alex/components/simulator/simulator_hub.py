@@ -144,7 +144,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.configs is None:
-        args.configs = ['./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/config_asr_simulator.py']
+        args.configs = ['./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/config_asr_simulator.py']
     cfg = Config.load_configs(args.configs, log=False)
 
     shub = SimulatorHub(cfg)

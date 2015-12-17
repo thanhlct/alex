@@ -7,13 +7,13 @@ import alex.utils.matlab_functions as matlab
 from alex.utils.support_functions import get_dict_value, iscallable, iprint, deep_copy
 
 class SimpleUserSimulator(UserSimulator):
-    '''Simulate an user in a slot-filled spoken dialogue system.
+    '''Simulating an user for slot-filling spoken dialogue system.
     
     Based on a domain definitions, a database and other configurations,
     the user simulator chooses randomly a final goal and make conversation
     reponsing to system acts suitablely with the current goal picked out.
    
-    The domain definitons and the database are figured out by the Config module,
+    The domain definitons and the database are pointed out by the Config module,
     It is also included in the framework.    
 
     Attributes:
@@ -25,7 +25,7 @@ class SimpleUserSimulator(UserSimulator):
         logger: The logger of the class.
         turns: A list of dict presenting the history of the current conversation, each dict includes sys_da and user_da
 
-    More details are available at htt://github.com/thanhlct/alex
+    More details are available at https://github.com/thanhlct/alex/tree/user_simulator/alex/components/simulator/user_simulator
     '''
 
     def __init__(self, cfg, db):
