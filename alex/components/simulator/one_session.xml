@@ -1,0 +1,882 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dialogue>
+    <config>
+        <!--    config = { 'ASR': { 'Google': { 'debug': False, 'key': 'PRIVATE KEY', 'language': 'en', 'maxresults': 20},
+               'Kaldi': { 'config': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/hclg/models/mfcc.conf',
+                          'debug': False,
+                          'extra_args': '  - -max-mem=10000000000 - -acoustic-scale=0.1 - -beam=12.0 - -lattice-beam=6.0 - -max-active=5000',
+                          'hclg': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/hclg/models/HCLG_tri2b_bmmi.fst',
+                          'matrix': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/hclg/models/tri2b_bmmi.mat',
+                          'max_dec_frames': 10,
+                          'model': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/hclg/models/tri2b_bmmi.mdl',
+                          'silent_phones': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/hclg/models/silence.csl',
+                          'verbose': 0,
+                          'wst': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/hclg/models/words.txt'},
+               'debug': True,
+               'n_rawa': 5,
+               'type': 'Google'},
+      'Analytics': Analytics(account_id='None', domain_name='None'),
+      'Audio': { 'sample_rate': 16000, 'samples_per_frame': 256},
+      'AudioIO': { 'debug': True, 'output_dir': './aio_call_log', 'play_buffer_size': 1024},
+      'CRWS': { 'max_connections_count': -1},
+      'DM': { 'DeterministicDiscriminativeDialogueState': { 'type': 'MDP'},
+              'PUfalRuleDM': { 'code_submit_url': None,
+                               'db_cfg': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/../applications/CamInfoRest/cued_data/CIRdbase_V7_noloc.txt',
+                               'ontology': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/../applications/CamInfoRest/ontology.cfg',
+                               'provide_code': False},
+              'UfalRuleDM': { 'code_submit_url': None,
+                              'db_cfg': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/../applications/CamInfoRest/cued_data/CIRdbase_V7_noloc.txt',
+                              'ontology': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/../applications/CamInfoRest/ontology.cfg',
+                              'provide_code': False},
+              'basic': { 'debug': True, 'silence_timeout': 10.0},
+              'debug': True,
+              'dialogue_policy': { 'type': <class 'alex.components.dm.dummypolicy.DummyDialoguePolicy'>},
+              'dialogue_state': { 'type': <class 'alex.components.dm.dddstate.DeterministicDiscriminativeDialogueState'>},
+              'epilogue': { 'code_seed': 1,
+                            'final_code_min_turn_count': 0,
+                            'final_code_text': None,
+                            'final_code_text_min_turn_count_not_reached': None,
+                            'final_code_text_repeat': None,
+                            'final_code_url': None,
+                            'final_question': None},
+              'input_timeout': 3.0,
+              'ontology': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/data/ontology.py',
+              'type': 'basic'},
+      'General': { 'debug': False,
+                   'include': ['/home/root-data/thanh_pro/git_clone/alex/alex/resources/private/default.cfg']},
+      'Hub': { 'history_file': 'hub_history_hub.txt', 'history_length': 1000, 'main_loop_sleep_time': 0.001},
+      'Logging': { 'excepthook': ExceptionHook(
+            ExceptionHook
+              Hook Type: log
+              Hook Logger: SystemLogger(output_dir=./call_logs, stdout_log_level='DEBUG', stdout=True, file_log_level='DEBUG')),
+                   'session_logger': SessionLogger(),
+                   'system_logger': SystemLogger(output_dir=./call_logs, stdout_log_level='DEBUG', stdout=True, file_log_level='DEBUG'),
+                   'system_name': 'Default alex',
+                   'version': '1.0'},
+      'NLG': { 'Template': { 'model': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/../applications/CamInfoRest/nlgtemplates.cfg'},
+               'debug': True,
+               'type': 'Template'},
+      'SHub': { 'history_file': 'hub_history_shub.txt', 'history_length': 1000},
+      'SLU': { 'debug': False,
+               'type': <class 'alex.components.slu.dailrclassifier.DAILogRegClassifier'>,
+               <class 'alex.components.slu.dailrclassifier.DAILogRegClassifier'>: { 'cldb_fname': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/data/database.py',
+                                                                                    'model_fname': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/slu/dailogregclassifier/dailogreg.nbl.model.all'}},
+      'THub': { 'history_file': 'hub_history_thub.txt', 'history_length': 1000},
+      'TTS': { 'Flite': { 'debug': False,
+                          'preprocessing': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/tts/prep_flite_en.cfg',
+                          'tempo': 1.0,
+                          'voice': 'kal16'},
+               'Google': { 'debug': False,
+                           'language': 'en',
+                           'preprocessing': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/tts/prep_google_en.cfg',
+                           'tempo': 1.0},
+               'SpeechTech': { 'debug': True,
+                               'preprocessing': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/tts/prep_speechtech_cs.cfg',
+                               'tempo': 1.2,
+                               'voice': 'Iva210'},
+               'VoiceRss': { 'language': 'en-gb',
+                             'preprocessing': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/tts/prep_voicerss_en.cfg',
+                             'tempo': 1.0},
+               'debug': True,
+               'in_between_segments_silence': 0.01,
+               'type': 'Flite'},
+      'VAD': { 'debug': False,
+               'decision_frames_sil': 35,
+               'decision_frames_speech': 15,
+               'decision_non_speech_threshold': 0.1,
+               'decision_speech_threshold': 0.7,
+               'ffnn': { 'ceplifter': 22,
+                         'enormalise': True,
+                         'filter_length': 2,
+                         'frameshift': 160,
+                         'framesize': 512,
+                         'frontend': 'MFCC',
+                         'hifreq': 3800,
+                         'lofreq': 125,
+                         'mel_banks_only': True,
+                         'model': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/vad/voip/vad_nnt_1196_hu512_hl1_hla3_pf30_nf15_acf_4.0_mfr32000000_mfl1000000_mfps0_ts0_usec00_usedelta0_useacc0_mbo1_bs1000.tffnn',
+                         'n_last_frames': 30,
+                         'n_prev_frames': 15,
+                         'numceps': 12,
+                         'numchans': 26,
+                         'preemcoef': 0.97,
+                         'useacc': False,
+                         'usec0': False,
+                         'usecmn': False,
+                         'usedelta': False,
+                         'usehamming': True,
+                         'usepower': True,
+                         'zmeansource': True},
+               'gmm': { 'ceplifter': 22,
+                        'enormalise': True,
+                        'filter_length': 2,
+                        'frameshift': 160,
+                        'framesize': 512,
+                        'frontend': 'MFCC',
+                        'hifreq': 3800,
+                        'lofreq': 125,
+                        'n_last_frames': 0,
+                        'numceps': 12,
+                        'numchans': 26,
+                        'preemcoef': 0.97,
+                        'sil_model': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/vad/voip/vad_sil_sds_mfcc_m064_f100000.gmm',
+                        'speech_model': '/home/root-data/thanh_pro/git_clone/alex/alex/resources/vad/voip/vad_speech_sds_mfcc_m064_f100000.gmm',
+                        'useacc': True,
+                        'usec0': False,
+                        'usecmn': False,
+                        'usedelta': True,
+                        'usehamming': True,
+                        'usepower': True,
+                        'zmeansource': True},
+               'n_rwa': 5,
+               'power': { 'adaptation_frames': 30, 'threshold': 70, 'threshold_multiplier': 1.0},
+               'speech_buffer_frames': 35,
+               'type': 'ffnn'},
+      'VoipHub': { 'blacklist_for': 7200,
+                   'call_db': './call_logs/call_db.pckl',
+                   'hard_time_limit': 360,
+                   'hard_turn_limit': 120,
+                   'history_length': 1000,
+                   'last_period_max_num_calls': 200,
+                   'last_period_max_total_time': 7200,
+                   'limit_reached_message': u'Thank you for calling. Your calling limit was reached. Please call later.',
+                   'period': 172800,
+                   'pid_file': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/vhub.pid',
+                   'wait_time_before_calling_back': 10},
+      'VoipIO': { 'allowed_hosts': '',
+                  'allowed_phone_numbers': '(^[234567])',
+                  'allowed_users': '(^[234567])',
+                  'debug': True,
+                  'domain': 'name_of_the_sip_server',
+                  'forbidden_hosts': '',
+                  'forbidden_phone_number': '(^112$|^150$|^155$|^156$|^158$)',
+                  'forbidden_users': '(^112$|^150$|^155$|^156$|^158$)',
+                  'n_rwa': 5,
+    # this line was removed since it included a password
+                  'phone_number_obfuscation': True,
+                  'pjsip_log_level': 3,
+                  'reject_calls': False,
+                  'user': 'your_sip_user_name'},
+      'WSHub': { 'blacklist_for': 7200,
+                 'call_db': './call_logs/call_db.pckl',
+                 'hard_time_limit': 360,
+                 'hard_turn_limit': 120,
+                 'history_length': 1000,
+                 'last_period_max_num_calls': 200,
+                 'last_period_max_num_short_calls': 500,
+                 'last_period_max_total_time': 7200,
+                 'limit_reached_message': u'Thank you for calling. Your calling limit was reached. Please call later.',
+                 'period': 172800,
+                 'pid_file': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/wshub.pid',
+                 'short_calls_time_duration': 10,
+                 'wait_time_before_calling_back': 10},
+      'WSIO': { 'alex_addr': 'ws://192.168.0.1:9000/',
+                'listen_addr': '0.0.0.0',
+                'listen_port': 9000,
+                'router_addr': 'localhost',
+                'router_port': 9001},
+      'WebHub': { 'port': 8000},
+      'asr_simulator': { 'SimpleASRSimulator': { 'act_confusion': { 'affirm': { 'confusion_matrix': { 'confusable_acts': [ 'affirm',
+                                                                                                                           'negate'],
+                                                                                                      'confusion_types': { 'correct': 0.95,
+                                                                                                                           'offlist': 0.0,
+                                                                                                                           'onlist': 0.05,
+                                                                                                                           'silence': 0.0},
+                                                                                                      'max_length': 2}},
+                                                                    'default': { 'confusion_matrix': { 'confusable_acts': [ 'hello',
+                                                                                                                            'inform',
+                                                                                                                            'deny',
+                                                                                                                            'request',
+                                                                                                                            'hangup'],
+                                                                                                       'confusion_types': { 'correct': 1.0,
+                                                                                                                            'offlist': 0.0,
+                                                                                                                            'onlist': 0.0,
+                                                                                                                            'silence': 0.0},
+                                                                                                       'max_length': 1,
+                                                                                                       'onlist_fraction_alpha': 0.75,
+                                                                                                       'onlist_fraction_beta': 1.5,
+                                                                                                       'probability_generator': { 'correct': { 'correct': 6.0,
+                                                                                                                                               'offlist': 0.0,
+                                                                                                                                               'onlist': 1.0},
+                                                                                                                                  'offlist': { 'correct': 3.0,
+                                                                                                                                               'offlist': 6.0,
+                                                                                                                                               'onlist': 1.0},
+                                                                                                                                  'onlist': { 'correct': 2.5,
+                                                                                                                                              'offlist': 2.5,
+                                                                                                                                              'onlist': 1.0}}}},
+                                                                    'negate': { 'confusion_matrix': { 'confusable_acts': [ 'affirm',
+                                                                                                                           'negate'],
+                                                                                                      'confusion_types': { 'correct': 0.95,
+                                                                                                                           'offlist': 0.0,
+                                                                                                                           'onlist': 0.05,
+                                                                                                                           'silence': 0.0},
+                                                                                                      'max_length': 2}}},
+                                                 'default': { 'default_confusion_matrix': { 'confusion_types': { 'correct': 0.9,
+                                                                                                                 'offlist': 0.05,
+                                                                                                                 'onlist': 0.05,
+                                                                                                                 'silence': 0.0},
+                                                                                            'max_length': 5,
+                                                                                            'onlist_fraction_alpha': 0.75,
+                                                                                            'onlist_fraction_beta': 1.5,
+                                                                                            'probability_generator': { 'correct': { 'correct': 6.0,
+                                                                                                                                    'offlist': 3.0,
+                                                                                                                                    'onlist': 1.0},
+                                                                                                                       'offlist': { 'correct': 3.0,
+                                                                                                                                    'offlist': 6.0,
+                                                                                                                                    'onlist': 1.0},
+                                                                                                                       'onlist': { 'correct': 2.5,
+                                                                                                                                   'offlist': 2.5,
+                                                                                                                                   'onlist': 1.0}}},
+                                                              'inform_fake_confusion_matrix': { 'confusion_types': { 'correct': 0.9,
+                                                                                                                     'offlist': 0.05,
+                                                                                                                     'onlist': 0.05}}},
+                                                 'information_confusion_types': [ 'correct',
+                                                                                  'onlist',
+                                                                                  'offlist',
+                                                                                  'silence'],
+                                                 'prob_combine_fun': None,
+                                                 'slot_confusion': { 'to_stop_fake': { 'to_stop': 0.5,
+                                                                                       ('departure', 'arrival'): 0.5}},
+                                                 'slot_name': { 'default_confusion_matrix': { 'confusion_types': { },
+                                                                                              'probability_generator': { }},
+                                                                'inform_confusion_matrix': { }},
+                                                 'task_fake': { 'default_confusion_matrix': { 'confusion_types': { 'correct': 0.9,
+                                                                                                                   'offlist': 0.05,
+                                                                                                                   'onlist': 0.05,
+                                                                                                                   'silence': 0.0},
+                                                                                              'max_length': 3,
+                                                                                              'onlist_fraction_alpha': 0.75,
+                                                                                              'onlist_fraction_beta': 1.5,
+                                                                                              'probability_generator': { 'correct': { 'correct': 6.0,
+                                                                                                                                      'offlist': 3.0,
+                                                                                                                                      'onlist': 1.0},
+                                                                                                                         'offlist': { 'correct': 3.0,
+                                                                                                                                      'offlist': 6.0,
+                                                                                                                                      'onlist': 1.0},
+                                                                                                                         'onlist': { 'correct': 2.5,
+                                                                                                                                     'offlist': 2.5,
+                                                                                                                                     'onlist': 1.0}}}}},
+                         'debut': True,
+                         'type': None},
+      'corpustools': { 'get_jasr_confnets': { 'frame_size': 256, 'rt_ratio': 0.2}},
+      'database': { 'PythonDatabase': { 'files': [ '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoEN/data/thanh_data/stops.txt',
+                                                   '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoEN/data/thanh_data/streets.txt',
+                                                   '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoEN/data/thanh_data/vehicles.txt',
+                                                   '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoEN/data/thanh_data/time.txt',
+                                                   '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoEN/data/thanh_data/cities.txt',
+                                                   '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoEN/data/thanh_data/time_relative.txt',
+                                                   '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoEN/data/thanh_data/places.txt']},
+                    'debug': True,
+                    'type': <class 'alex.utils.database.python_database.PythonDatabase'>},
+      'domain': { 'dialogue_act_definitions': { 'ack': { 'slot_included': False, 'value_included': False},
+                                                'affirm': { 'act_without_slot': True,
+                                                            'slot_from': 'sys_da',
+                                                            'slot_included': False,
+                                                            'status_in_all_slots': True,
+                                                            'status_included': 'correct',
+                                                            'value_included': False},
+                                                'apology': { 'slot_included': False, 'value_included': False},
+                                                'bye': { 'act_without_slot': True,
+                                                         'slot_included': False,
+                                                         'value_included': False},
+                                                'canthearyou, notunderstood': { },
+                                                'confirm': { 'slot_included': True,
+                                                             'status_included': 'filled',
+                                                             'value_included': True},
+                                                'deny': { 'slot_from': 'sys_da',
+                                                          'slot_included': True,
+                                                          'status_included': 'incorrect',
+                                                          'value_from': 'sys_da',
+                                                          'value_included': True},
+                                                'hangup': { 'act_without_slot': True,
+                                                            'slot_included': False,
+                                                            'value_included': False},
+                                                'hello': { 'act_without_slot': True,
+                                                           'slot_included': False,
+                                                           'value_included': False},
+                                                'help': { 'slot_included': False, 'value_included': False},
+                                                'inform': { 'accept_used_slots': False,
+                                                            'limited_slots': [],
+                                                            'slot_from': 'sys_da',
+                                                            'slot_included': True,
+                                                            'use_slot_sequence': True,
+                                                            'value_from': 'goal',
+                                                            'value_included': True},
+                                                'negate': { 'act_without_slot': True,
+                                                            'slot_from': 'sys_da',
+                                                            'slot_included': False,
+                                                            'status_included': 'incorrect',
+                                                            'value_included': False},
+                                                'oog': { 'act_without_slot': True,
+                                                         'slot_included': False,
+                                                         'value_included': False},
+                                                'repeat': { 'slot_included': False, 'value_included': False},
+                                                'reqalts': { 'combineable_slots': ['alternative'],
+                                                             'slot_from': 'none',
+                                                             'slot_included': True,
+                                                             'value_from': 'function',
+                                                             'value_included': True},
+                                                'request': { 'combineable_slots': [ 'number_transfer',
+                                                                                    'duration',
+                                                                                    'distance'],
+                                                             'slot_included': True,
+                                                             'value_included': False},
+                                                'restart': { 'slot_included': False, 'value_included': False},
+                                                'silence': { 'act_without_slot': True,
+                                                             'slot_included': False,
+                                                             'value_included': False},
+                                                'thankyou': { 'act_without_slot': True,
+                                                              'slot_included': False,
+                                                              'value_included': False}},
+                  'slot_table_field_mapping': { 'alternative': [<function <lambda> at 0x7f110e940050>],
+                                                'arrival_time': [('time', 'time')],
+                                                'arrival_time_rel': [('time_relative', 'relative')],
+                                                'city': [('cities', 'city'), ('places', 'city')],
+                                                'departure_time': [('time', 'time')],
+                                                'departure_time_rel': [('time_relative', 'relative')],
+                                                'from_city': [('cities', 'city')],
+                                                'from_stop': [('stops', 'stop')],
+                                                'from_street': [('streets', 'street')],
+                                                'state': [('states', 'state'), ('places', 'state')],
+                                                'street': [('streets', 'street'), ('places', 'street')],
+                                                'task': [<function <lambda> at 0x7f110e9401b8>],
+                                                'to_city': [('cities', 'city')],
+                                                'to_stop': [('stops', 'stop')],
+                                                'to_street': [('streets', 'street')],
+                                                'vehicle': [('vehicles', 'vehicle')]}},
+      'user_simulator': { 'SimpleUserSimulator': { 'metadata': { 'act_formats': { 'slot_value_correct': { 'correct_slot_included': False,
+                                                                                                          'incorrect_slot_included': False,
+                                                                                                          'slot_included': True,
+                                                                                                          'value_from': 'goal',
+                                                                                                          'value_included': True}},
+                                                                 'answer_types': [ 'direct_answer',
+                                                                                   'over_answer',
+                                                                                   'complete_answer'],
+                                                                 'data_observation_probability': { 'time_relative': { ('afternoon',): 0.1,
+                                                                                                                      ('as soon as possible',): 0.2,
+                                                                                                                      ('early morning',): 0.05,
+                                                                                                                      ('midnight',): 0.05,
+                                                                                                                      ('morning',): 0.1,
+                                                                                                                      ('next hour',): 0.1,
+                                                                                                                      ('night',): 0.1,
+                                                                                                                      ('noon',): 0.1,
+                                                                                                                      ('the day after tomorrow',): 0.05,
+                                                                                                                      ('today',): 0.1,
+                                                                                                                      ('tomorrow',): 0.05}},
+                                                                 'dialogue_act_definitions': { 'ack': { 'slot_included': False,
+                                                                                                        'value_included': False},
+                                                                                               'affirm': { 'slot_from': 'sys_da',
+                                                                                                           'slot_included': False,
+                                                                                                           'status_in_all_slots': True,
+                                                                                                           'status_included': 'correct',
+                                                                                                           'value_included': False},
+                                                                                               'apology': { 'slot_included': False,
+                                                                                                            'value_included': False},
+                                                                                               'bye': { 'act_without_slot': True,
+                                                                                                        'slot_included': False,
+                                                                                                        'value_included': False},
+                                                                                               'canthearyou, notunderstood': { },
+                                                                                               'confirm': { 'slot_included': True,
+                                                                                                            'status_included': 'filled',
+                                                                                                            'value_included': True},
+                                                                                               'deny': { 'slot_from': 'sys_da',
+                                                                                                         'slot_included': True,
+                                                                                                         'status_included': 'incorrect',
+                                                                                                         'value_from': 'sys_da',
+                                                                                                         'value_included': True},
+                                                                                               'hangup': { 'act_without_slot': True,
+                                                                                                           'slot_included': False,
+                                                                                                           'value_included': False},
+                                                                                               'hello': { 'act_without_slot': True,
+                                                                                                          'slot_included': False,
+                                                                                                          'value_included': False},
+                                                                                               'help': { 'slot_included': False,
+                                                                                                         'value_included': False},
+                                                                                               'inform': { 'accept_used_slots': False,
+                                                                                                           'limited_slots': [ ],
+                                                                                                           'slot_from': 'sys_da',
+                                                                                                           'slot_included': True,
+                                                                                                           'use_slot_sequence': True,
+                                                                                                           'value_from': 'goal',
+                                                                                                           'value_included': True},
+                                                                                               'negate': { 'slot_from': 'sys_da',
+                                                                                                           'slot_included': False,
+                                                                                                           'status_included': 'incorrect',
+                                                                                                           'value_included': False},
+                                                                                               'oog': { 'act_without_slot': True,
+                                                                                                        'slot_included': False,
+                                                                                                        'value_included': False},
+                                                                                               'repeat': { 'slot_included': False,
+                                                                                                           'value_included': False},
+                                                                                               'reqalts': { 'combineable_slots': [ 'alternative'],
+                                                                                                            'slot_from': 'none',
+                                                                                                            'slot_included': True,
+                                                                                                            'value_from': 'function',
+                                                                                                            'value_fun': <function alternative_value_fun at 0x7f110e940140>,
+                                                                                                            'value_included': True},
+                                                                                               'request': { 'combineable_slots': [ 'number_transfer',
+                                                                                                                                   'duration',
+                                                                                                                                   'distance'],
+                                                                                                            'slot_included': True,
+                                                                                                            'value_included': False},
+                                                                                               'restart': { 'slot_included': False,
+                                                                                                            'value_included': False},
+                                                                                               'silence': { 'act_without_slot': True,
+                                                                                                            'slot_included': False,
+                                                                                                            'value_included': False},
+                                                                                               'thankyou': { 'act_without_slot': True,
+                                                                                                             'slot_included': False,
+                                                                                                             'value_included': False}},
+                                                                 'goals': [ { 'active_prob': 1.0,
+                                                                              'changeable_slots': [ 'from_stop',
+                                                                                                    'to_stop',
+                                                                                                    'from_city',
+                                                                                                    'to_city',
+                                                                                                    'from_street',
+                                                                                                    'to_street',
+                                                                                                    'departure_time',
+                                                                                                    'arrival_time',
+                                                                                                    'departure_time_rel',
+                                                                                                    'arrival_time_rel',
+                                                                                                    'vehicle',
+                                                                                                    'number_transfer',
+                                                                                                    'duration',
+                                                                                                    'distance'],
+                                                                              'default_slots_values': [ ( 'departure_time',
+                                                                                                          'as soon as possible'),
+                                                                                                        ( 'vehicle',
+                                                                                                          'dontcare'),
+                                                                                                        ( 'arrival_time',
+                                                                                                          'as soon as possible')],
+                                                                              'end_dialogue_post_process_fun': None,
+                                                                              'equivalent_slots': [ ( 'from_stop',
+                                                                                                      'from_city',
+                                                                                                      'from_street'),
+                                                                                                    ( 'to_stop',
+                                                                                                      'to_city',
+                                                                                                      'to_street'),
+                                                                                                    ( 'arrival_time',
+                                                                                                      'arrival_time_rel'),
+                                                                                                    ( 'departure_time',
+                                                                                                      'departure_time_rel')],
+                                                                              'fixed_slots': [ ( 'task',
+                                                                                                 'find_connection')],
+                                                                              'goal_post_process_fun': None,
+                                                                              'goal_slot_relax_fun': None,
+                                                                              'one_of_slot_set': [ { ('from_city', 'to_city'): 0.2,
+                                                                                                     ('from_stop', 'to_stop'): 0.3,
+                                                                                                     ('from_stop', 'to_street'): 0.2,
+                                                                                                     ('from_street', 'to_street'): 0.3},
+                                                                                                   { (): 0.3,
+                                                                                                     ('arrival_time',): 0.1,
+                                                                                                     ('arrival_time_rel',): 0.25,
+                                                                                                     ('departure_time',): 0.1,
+                                                                                                     ('departure_time_rel',): 0.25},
+                                                                                                   { (): 0.5,
+                                                                                                     ('vehicle',): 0.5}],
+                                                                              'reward_final_goal_fun': None,
+                                                                              'reward_last_da_fun': None,
+                                                                              'same_table_slot_keys': [],
+                                                                              'slot_used_sequence': { 0: ('task',),
+                                                                                                      1: ( 'from_stop',
+                                                                                                           'from_city',
+                                                                                                           'from_street',
+                                                                                                           'to_stop',
+                                                                                                           'to_city',
+                                                                                                           'to_street'),
+                                                                                                      2: ( 'departure_time',
+                                                                                                           'arrival_time',
+                                                                                                           'departure_tiem_rel',
+                                                                                                           'arrival_time_rel',
+                                                                                                           'vehicle')},
+                                                                              'sys_unaskable_slots': [ 'number_transfer',
+                                                                                                       'duration',
+                                                                                                       'distance']},
+                                                                            { 'active_prob': 0.0,
+                                                                              'changeable_slots': [ 'street',
+                                                                                                    'city',
+                                                                                                    'state'],
+                                                                              'default_slots_values': [],
+                                                                              'fixed_slots': [ ( 'task',
+                                                                                                 'find_platform')],
+                                                                              'goal_post_process_fun': None,
+                                                                              'goal_slot_relax_fun': None,
+                                                                              'one_of_slot_set': [],
+                                                                              'same_table_slot_keys': ['place'],
+                                                                              'sys_unaskable_slots': []},
+                                                                            { 'active_prob': 0.0,
+                                                                              'changeable_slots': ['city', 'state'],
+                                                                              'default_slots_values': [],
+                                                                              'fixed_slots': [('task', 'weather')],
+                                                                              'goal_post_process_fun': None,
+                                                                              'goal_slot_relax_fun': None,
+                                                                              'one_of_slot_set': [],
+                                                                              'same_table_slot_keys': ['place'],
+                                                                              'sys_unaskable_slots': []}],
+                                                                 'reply_system_acts': { 'bye': [ { 'active_prob': 1.0,
+                                                                                                   'return_acts': [ 'hangup']}],
+                                                                                        'confirm': [ { 'active_prob': 1.0,
+                                                                                                       'ordered_return_acts': [ { 'case1': { 'active_prob': 0.5,
+                                                                                                                                             'return_acts': [ 'affirm']},
+                                                                                                                                  'case2': { 'active_prob': 0.5,
+                                                                                                                                             'inform_answer_types': { 'over_answer': 1.0},
+                                                                                                                                             'inform_overridden_properties': { 'slot_from': 'none'},
+                                                                                                                                             'return_acts': [ 'affirm',
+                                                                                                                                                              'inform']}},
+                                                                                                                                { 'case1': { 'active_prob': 0.4,
+                                                                                                                                             'inform_answer_types': { 'direct_answer': 1.0},
+                                                                                                                                             'inform_overridden_properties': { 'slot_from': 'sys_da',
+                                                                                                                                                                               'status_included': 'incorrect',
+                                                                                                                                                                               'use_slot_sequence': False,
+                                                                                                                                                                               'value_from': 'goal'},
+                                                                                                                                             'return_acts': [ 'negate',
+                                                                                                                                                              'inform']},
+                                                                                                                                  'case2': { 'active_prob': 0.2,
+                                                                                                                                             'return_acts': [ 'deny']},
+                                                                                                                                  'case3': { 'active_prob': 0.4,
+                                                                                                                                             'inform_overridden_properties': { 'slot_from': 'sys_da',
+                                                                                                                                                                               'status_included': 'incorrect',
+                                                                                                                                                                               'use_slot_sequence': False,
+                                                                                                                                                                               'value_from': 'goal'},
+                                                                                                                                             'return_acts': [ 'deny',
+                                                                                                                                                              'inform']}}]}],
+                                                                                        'hello': [ { 'active_prob': 0.3,
+                                                                                                     'return_acts': [ 'hello']},
+                                                                                                   { 'active_prob': 0.7,
+                                                                                                     'hello_overridden_properties': { 'add_to_da_prob': 0.5},
+                                                                                                     'inform_answer_types': { 'complete_answer': 0.2,
+                                                                                                                              'over_answer': 0.8},
+                                                                                                     'inform_overridden_properties': { 'atleast_slots': [ 'task'],
+                                                                                                                                       'slot_from': 'none'},
+                                                                                                     'return_acts': [ 'hello',
+                                                                                                                      'inform']}],
+                                                                                        'implconfirm': [ { 'active_prob': 1.0,
+                                                                                                           'ordered_return_acts': [ { 'case1': { 'active_prob': 1.0,
+                                                                                                                                                 'affirm_overridden_properties': { 'add_to_da_prob': 0.5},
+                                                                                                                                                 'return_acts': [ 'affirm']}},
+                                                                                                                                    { 'case1': { 'active_prob': 0.7,
+                                                                                                                                                 'inform_answer_types': { 'direct_answer': 1.0},
+                                                                                                                                                 'inform_overridden_properties': { 'slot_from': 'sys_da',
+                                                                                                                                                                                   'status_included': 'incorrect',
+                                                                                                                                                                                   'use_slot_sequence': False,
+                                                                                                                                                                                   'value_from': 'goal'},
+                                                                                                                                                 'return_acts': [ 'negate',
+                                                                                                                                                                  'inform']},
+                                                                                                                                      'case2': { 'active_prob': 0.3,
+                                                                                                                                                 'inform_overridden_properties': { 'slot_from': 'sys_da',
+                                                                                                                                                                                   'status_included': 'incorrect',
+                                                                                                                                                                                   'use_slot_sequence': False,
+                                                                                                                                                                                   'value_from': 'goal'},
+                                                                                                                                                 'return_acts': [ 'deny',
+                                                                                                                                                                  'inform']}}]}],
+                                                                                        'offer': { 0: [ { 'active_prob': 0.2,
+                                                                                                          'return_acts': [ 'bye']},
+                                                                                                        { 'active_prob': 0.2,
+                                                                                                          'return_acts': [ 'request']},
+                                                                                                        { 'active_prob': 0.2,
+                                                                                                          'return_acts': [ 'reqalts']},
+                                                                                                        { 'active_prob': 0.4,
+                                                                                                          'return_acts': [ 'thankyou']}],
+                                                                                                   1: [ { 'active_prob': 0.5,
+                                                                                                          'return_acts': [ 'bye']},
+                                                                                                        { 'active_prob': 0.5,
+                                                                                                          'return_acts': [ 'thankyou']}],
+                                                                                                   2: [ { 'active_prob': 0.5,
+                                                                                                          'return_acts': [ 'bye']},
+                                                                                                        { 'active_prob': 0.5,
+                                                                                                          'return_acts': [ 'thankyou']}]},
+                                                                                        'request': [ { 'active_prob': 0.85,
+                                                                                                       'inform_answer_types': { 'complete_answer': 0.05,
+                                                                                                                                'direct_answer': 0.7,
+                                                                                                                                'over_answer': 0.25},
+                                                                                                       'inform_overridden_properties': { 'use_slot_sequence': False},
+                                                                                                       'return_acts': [ 'inform']},
+                                                                                                     { 'active_prob': 0.05,
+                                                                                                       'return_acts': [ 'silence']},
+                                                                                                     { 'active_prob': 0.1,
+                                                                                                       'return_acts': [ 'oog']}]},
+                                                                 'same_table_slots': { 'from_place': { 'slots': [ 'from_stop',
+                                                                                                                  'from_street',
+                                                                                                                  'from_city',
+                                                                                                                  'from_state'],
+                                                                                                       'table': 'places'},
+                                                                                       'place': { 'slots': [ 'street',
+                                                                                                             'city',
+                                                                                                             'state'],
+                                                                                                  'table': 'places'},
+                                                                                       'to_place': { 'slots': [ 'to_stop',
+                                                                                                                'to_street',
+                                                                                                                'to_city',
+                                                                                                                'to_state'],
+                                                                                                     'table': 'places'}},
+                                                                 'slot_from': ['sys_da', 'goal', 'none'],
+                                                                 'slot_table_field_mapping': { 'arrival_time': [ ( 'time',
+                                                                                                                   'time')],
+                                                                                               'arrival_time_rel': [ ( 'time_relative',
+                                                                                                                       'relative')],
+                                                                                               'city': [ ( 'cities',
+                                                                                                           'city'),
+                                                                                                         ( 'places',
+                                                                                                           'city')],
+                                                                                               'departure_time': [ ( 'time',
+                                                                                                                     'time')],
+                                                                                               'departure_time_rel': [ ( 'time_relative',
+                                                                                                                         'relative')],
+                                                                                               'from_city': [ ( 'cities',
+                                                                                                                'city')],
+                                                                                               'from_stop': [ ( 'stops',
+                                                                                                                'stop')],
+                                                                                               'from_street': [ ( 'streets',
+                                                                                                                  'street')],
+                                                                                               'slot_fun': [ <function values_generator1 at 0x7f111e7b7668>,
+                                                                                                             <function values_generator2 at 0x7f110e9400c8>],
+                                                                                               'state': [ ( 'states',
+                                                                                                            'state'),
+                                                                                                          ( 'places',
+                                                                                                            'state')],
+                                                                                               'street': [ ( 'streets',
+                                                                                                             'street'),
+                                                                                                           ( 'places',
+                                                                                                             'street')],
+                                                                                               'to_city': [ ( 'cities',
+                                                                                                              'city')],
+                                                                                               'to_stop': [ ( 'stops',
+                                                                                                              'stop')],
+                                                                                               'to_street': [ ( 'streets',
+                                                                                                                'street')],
+                                                                                               'vehicle': [ ( 'vehicles',
+                                                                                                              'vehicle')]},
+                                                                 'slot_value_from': ['goal', 'sys_da'],
+                                                                 'slots': [ 'from_stop',
+                                                                            'to_stop',
+                                                                            'from_city',
+                                                                            'to_city',
+                                                                            'from_street',
+                                                                            'to_street',
+                                                                            'departure_time',
+                                                                            'departure_date',
+                                                                            'arrival_time',
+                                                                            'arrival_date',
+                                                                            'vihecle',
+                                                                            'arrival_time_rel',
+                                                                            'depature_time_rel',
+                                                                            'number_transfers',
+                                                                            'duration',
+                                                                            ' distance',
+                                                                            'street',
+                                                                            'city',
+                                                                            'state',
+                                                                            'alternative',
+                                                                            'date_rel',
+                                                                            'slot_fun'],
+                                                                 'status_included': [ 'correct',
+                                                                                      'incorect',
+                                                                                      'pending',
+                                                                                      'filled',
+                                                                                      'all']}},
+                          'debug': True,
+                          'type': <class 'alex.components.simulator.user_simulator.simple_user_simulator.SimpleUserSimulator'>},
+      'weather': { 'dictionary': '/home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoCS/weather_cs.cfg',
+                   'suffix': 'CZ',
+                   'units': 'celsius'}}
+-->
+    </config>
+    <header>
+        <host>took76</host>
+        <date>2015-12-14 01:39:12 CET</date>
+        <system>Default alex</system>
+        <version>1.0</version>
+        <input_source type="voip"/>
+    </header>
+    <turn speaker="system" time="0.093" turn_number="1">
+        <dialogue_act time="0.100">hello()</dialogue_act>
+    </turn>
+    <turn speaker="user" time="0.110" turn_number="1">
+        <dialogue_act time="0.114">hello()</dialogue_act>
+        <slu>
+            <interpretation p="0.908">hello()</interpretation>
+            <interpretation p="0.092">null()</interpretation>
+            <interpretation p="0.000">other()</interpretation>
+            <confnet>
+                <dai_alternatives>
+                    <dai p="0.908">hello()</dai>
+                    <dai p="0.092">null()</dai>
+                </dai_alternatives>
+            </confnet>
+        </slu>
+    </turn>
+    <turn speaker="system" time="0.132" turn_number="2">
+        <dialogue_act time="0.137">request(task)</dialogue_act>
+    </turn>
+    <turn speaker="user" time="0.143" turn_number="2">
+        <dialogue_act time="0.148">inform(task=&quot;find_connection&quot;)</dialogue_act>
+        <slu>
+            <interpretation p="0.588">null()</interpretation>
+            <interpretation p="0.352">inform(task=&quot;find_connection&quot;)</interpretation>
+            <interpretation p="0.027">inform(task=&quot;weather&quot;)</interpretation>
+            <interpretation p="0.016">inform(task=&quot;find_connection&quot;)&amp;inform(task=&quot;weather&quot;)</interpretation>
+            <interpretation p="0.010">inform(task=&quot;find_platform&quot;)</interpretation>
+            <interpretation p="0.006">inform(task=&quot;find_connection&quot;)&amp;inform(task=&quot;find_platform&quot;)</interpretation>
+            <interpretation p="0.000">inform(task=&quot;weather&quot;)&amp;inform(task=&quot;find_platform&quot;)</interpretation>
+            <interpretation p="0.000">inform(task=&quot;find_connection&quot;)&amp;inform(task=&quot;weather&quot;)&amp;inform(task=&quot;find_platform&quot;)</interpretation>
+            <interpretation p="0.000">other()</interpretation>
+            <confnet>
+                <dai_alternatives>
+                    <dai p="0.374">inform(task=&quot;find_connection&quot;)</dai>
+                    <dai p="0.626">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.044">inform(task=&quot;weather&quot;)</dai>
+                    <dai p="0.956">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.016">inform(task=&quot;find_platform&quot;)</dai>
+                    <dai p="0.984">null()</dai>
+                </dai_alternatives>
+            </confnet>
+        </slu>
+    </turn>
+    <turn speaker="system" time="0.157" turn_number="3">
+        <dialogue_act time="0.163">implconfirm(task=&quot;find_connection&quot;)&amp;request(from_stop)</dialogue_act>
+    </turn>
+    <turn speaker="user" time="0.168" turn_number="3">
+        <dialogue_act time="0.174">affirm()&amp;silence()</dialogue_act>
+        <slu>
+            <interpretation p="0.628">silence()&amp;affirm()</interpretation>
+            <interpretation p="0.367">silence()</interpretation>
+            <interpretation p="0.003">affirm()</interpretation>
+            <interpretation p="0.002">null()</interpretation>
+            <interpretation p="0.000">other()</interpretation>
+            <confnet>
+                <dai_alternatives>
+                    <dai p="0.631">affirm()</dai>
+                    <dai p="0.369">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.996">silence()</dai>
+                    <dai p="0.004">null()</dai>
+                </dai_alternatives>
+            </confnet>
+        </slu>
+    </turn>
+    <turn speaker="system" time="0.186" turn_number="4">
+        <dialogue_act time="0.192">request(to_stop)</dialogue_act>
+    </turn>
+    <turn speaker="user" time="0.199" turn_number="4">
+        <dialogue_act time="0.205">inform(to_stop=&quot;Crocheron Av/166 St&quot;)</dialogue_act>
+        <slu>
+            <interpretation p="0.517">null()</interpretation>
+            <interpretation p="0.474">inform(to_stop=&quot;Crocheron Av/166 St&quot;)</interpretation>
+            <interpretation p="0.002">inform(to_stop=&quot;New Durham Rd At Corporate Blvd&quot;)</interpretation>
+            <interpretation p="0.002">inform(to_stop=&quot;Crocheron Av/166 St&quot;)&amp;inform(to_stop=&quot;New Durham Rd At Corporate Blvd&quot;)</interpretation>
+            <interpretation p="0.001">inform(to_stop=&quot;Rt-36 At Rumson Rd#&quot;)</interpretation>
+            <interpretation p="0.001">inform(to_stop=&quot;Crocheron Av/166 St&quot;)&amp;inform(to_stop=&quot;Rt-36 At Rumson Rd#&quot;)</interpretation>
+            <interpretation p="0.001">inform(to_stop=&quot;Ratzer Rd At Alps Rd (Sunset Terr)&quot;)</interpretation>
+            <interpretation p="0.001">inform(to_stop=&quot;Crocheron Av/166 St&quot;)&amp;inform(to_stop=&quot;Ratzer Rd At Alps Rd (Sunset Terr)&quot;)</interpretation>
+            <interpretation p="0.000">inform(to_stop=&quot;Pennington Rd At Woodland Ave&quot;)</interpretation>
+            <interpretation p="0.000">inform(to_stop=&quot;Crocheron Av/166 St&quot;)&amp;inform(to_stop=&quot;Pennington Rd At Woodland Ave&quot;)</interpretation>
+            <interpretation p="0.000">other()</interpretation>
+            <confnet>
+                <dai_alternatives>
+                    <dai p="0.478">inform(to_stop=&quot;Crocheron Av/166 St&quot;)</dai>
+                    <dai p="0.522">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.004">inform(to_stop=&quot;New Durham Rd At Corporate Blvd&quot;)</dai>
+                    <dai p="0.996">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.002">inform(to_stop=&quot;Rt-36 At Rumson Rd#&quot;)</dai>
+                    <dai p="0.998">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.002">inform(to_stop=&quot;Ratzer Rd At Alps Rd (Sunset Terr)&quot;)</dai>
+                    <dai p="0.998">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.001">inform(to_stop=&quot;Pennington Rd At Woodland Ave&quot;)</dai>
+                    <dai p="0.999">null()</dai>
+                </dai_alternatives>
+            </confnet>
+        </slu>
+    </turn>
+    <turn speaker="system" time="0.220" turn_number="5">
+        <dialogue_act time="0.226">implconfirm(to_stop=&quot;first stop&quot;)&amp;request(arrival_time)</dialogue_act>
+    </turn>
+    <turn speaker="user" time="0.232" turn_number="5">
+        <dialogue_act time="0.238">deny(to_stop=&quot;first stop&quot;)&amp;inform(to_stop=&quot;Crocheron Av/166 St&quot;)&amp;inform(arrival_time=&quot;11:35 AM&quot;)</dialogue_act>
+        <slu>
+            <interpretation p="0.158">inform(arrival_time=&quot;11:35 AM&quot;)&amp;deny(to_stop=&quot;first stop&quot;)</interpretation>
+            <interpretation p="0.129">inform(arrival_time=&quot;11:35 AM&quot;)</interpretation>
+            <interpretation p="0.128">deny(to_stop=&quot;first stop&quot;)</interpretation>
+            <interpretation p="0.105">null()</interpretation>
+            <interpretation p="0.072">inform(arrival_time=&quot;11:35 AM&quot;)&amp;deny(to_stop=&quot;first stop&quot;)&amp;inform(to_stop=&quot;Crocheron Av/166 St&quot;)</interpretation>
+            <interpretation p="0.058">inform(arrival_time=&quot;11:35 AM&quot;)&amp;inform(to_stop=&quot;Crocheron Av/166 St&quot;)</interpretation>
+            <interpretation p="0.058">deny(to_stop=&quot;first stop&quot;)&amp;inform(to_stop=&quot;Crocheron Av/166 St&quot;)</interpretation>
+            <interpretation p="0.047">inform(to_stop=&quot;Crocheron Av/166 St&quot;)</interpretation>
+            <interpretation p="0.023">inform(arrival_time=&quot;11:35 AM&quot;)&amp;deny(to_stop=&quot;first stop&quot;)&amp;inform(arrival_time=&quot;2:10 PM&quot;)</interpretation>
+            <interpretation p="0.019">inform(arrival_time=&quot;11:35 AM&quot;)&amp;inform(arrival_time=&quot;2:10 PM&quot;)</interpretation>
+            <interpretation p="0.202">other()</interpretation>
+            <confnet>
+                <dai_alternatives>
+                    <dai p="0.550">deny(to_stop=&quot;first stop&quot;)</dai>
+                    <dai p="0.450">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.311">inform(to_stop=&quot;Crocheron Av/166 St&quot;)</dai>
+                    <dai p="0.689">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.101">inform(to_stop=&quot;Wyckoff Av/Myrtle Av&quot;)</dai>
+                    <dai p="0.899">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.037">inform(to_stop=&quot;Washington Ave At Shadyside Ave&quot;)</dai>
+                    <dai p="0.963">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.552">inform(arrival_time=&quot;11:35 AM&quot;)</dai>
+                    <dai p="0.448">null()</dai>
+                </dai_alternatives>
+                <dai_alternatives>
+                    <dai p="0.127">inform(arrival_time=&quot;2:10 PM&quot;)</dai>
+                    <dai p="0.873">null()</dai>
+                </dai_alternatives>
+            </confnet>
+        </slu>
+    </turn>
+    <turn speaker="system" time="0.254" turn_number="6">
+        <dialogue_act time="0.261">offer(route=&quot;take the tram 12, it will pass your destination after 6 stops.&quot;)</dialogue_act>
+    </turn>
+    <turn speaker="user" time="0.269" turn_number="6">
+        <dialogue_act time="0.277">thankyou()</dialogue_act>
+        <slu>
+            <interpretation p="0.795">thankyou()</interpretation>
+            <interpretation p="0.205">null()</interpretation>
+            <interpretation p="0.000">other()</interpretation>
+            <confnet>
+                <dai_alternatives>
+                    <dai p="0.795">thankyou()</dai>
+                    <dai p="0.205">null()</dai>
+                </dai_alternatives>
+            </confnet>
+        </slu>
+    </turn>
+    <turn speaker="system" time="0.294" turn_number="7">
+        <dialogue_act time="0.302">bye()</dialogue_act>
+    </turn>
+    <turn speaker="user" time="0.311" turn_number="7">
+        <dialogue_act time="0.319">hangup()</dialogue_act>
+        <slu>
+            <interpretation p="0.964">hangup()</interpretation>
+            <interpretation p="0.036">null()</interpretation>
+            <interpretation p="0.000">other()</interpretation>
+            <confnet>
+                <dai_alternatives>
+                    <dai p="0.964">hangup()</dai>
+                    <dai p="0.036">null()</dai>
+                </dai_alternatives>
+            </confnet>
+        </slu>
+    </turn>
+</dialogue>
