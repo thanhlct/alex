@@ -38,6 +38,7 @@ Configurations
 A typical configuration for the ``SimpleASRSimulator``, like in user simulator, is also a python dict containing some sections as following:
 
 ::
+
     'asr_simulator:{
         'SimpleUserSimulator':{
             'prob_combine_fun': product_fun,
@@ -116,6 +117,7 @@ slot_confusion
 We define confusion for a slot  by adding the slot name to the dict. One example is given below:
 
 ::
+
             'slot_confusion':{
                 'd':{
                     'to_stop': 0.5,
@@ -130,6 +132,7 @@ slot_name
 The confusing definition for slot is very similar to the definition for acts, except that you may also define a refined verion for a specific act. For example, in definition below, we defined a refinement which will be applied when the slot (here is ``default``) being used in the act ``inform``. The refinement is pointed out bye a key ``act_type````_confusion_matrix`` (in example is ``inform_confusion_matrix``)
 
 ::
+
             'default':{#define ASR simulator for a slot, the key default will be apply foo all slots are not specified explicitly
                 #default for all informatin confusion and prob. gnerator
                 'default_confusion_matrix':{
