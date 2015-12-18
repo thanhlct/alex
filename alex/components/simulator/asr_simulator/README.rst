@@ -31,7 +31,7 @@ In the ``SimpleASRSimualtor``, we currently support four types of generating the
 - ``offlist``: The user itent is confused out of the N-best hypotheses.
 - ``silence``: All of user utterances will be eliminated completely, results in a slient act.
 
-The confused values is recieve from an instance of the ``PythonDatabase``, refer to the user simulator guide for how to use the database object and a general configuration used in the Alex framwork. All confusion setting is coded in configuration file which is described in next section.
+The confused values is fetching from an instance of the ``PythonDatabase``, refer to the user simulator guide for how to use the database object and a general configuration used in the Alex framwork. All confusion setting is coded in a configuration file which is described in next section.
 
 Configurations
 -----------------
@@ -119,7 +119,7 @@ We define confusion for a slot  by adding the slot name to the dict. One example
 ::
 
             'slot_confusion':{
-                'd':{
+                'to_stop':{
                     'to_stop': 0.5,
                     ('departure', 'arrival'): 0.5,
                 },
@@ -129,7 +129,7 @@ We could simple list all cases of confusing and their corresponding active proba
 
 slot_name
 ----------------
-The confusing definition for slot is very similar to the definition for acts, except that you may also define a refined verion for a specific act. For example, in definition below, we defined a refinement which will be applied when the slot (here is ``default``) being used in the act ``inform``. The refinement is pointed out bye a key ``act_type````_confusion_matrix`` (in example is ``inform_confusion_matrix``)
+The confusing definition for slot is very similar to the definition for acts, except that you may also define a refined verion for a specific act. For example, in definition below, we defined a refinement which will be applied when the slot (here is ``default``) being used in the act ``inform``. The refinement is pointed out bye a key ``act_type`` + ``_confusion_matrix`` (in this example is ``inform_confusion_matrix``)
 
 ::
 
