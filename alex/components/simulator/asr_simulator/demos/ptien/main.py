@@ -16,9 +16,11 @@ def print_nbest_list(nbest_list):
     print nbest_list
     print '-'*20, 'nblist ='
     for prob, da in nbest_list.get_da_nblist():
-        print str(da), '\t', prob
+        print prob, '\t', str(da)
     print '-'*20, 'best hyp='
     print nbest_list.get_best_da_hyp()
+    print '-'*20, 'best hyp non null='
+    print nbest_list.get_best_nonnull_da()
 
 def print_asr_results(asr):
     for items, probs in asr:
@@ -30,7 +32,7 @@ def test1():
 
     da = DialogueAct('deny(to_stop=thanh)')
     #da = DialogueAct('inform(task=find_connection)')
-    #da = DialogueAct('inform(to_stop=Central Park)')
+    da = DialogueAct('inform(to_stop=Central Park)')
     #da = DialogueAct('inform(from_stop=Thanh)&inform(to_stop=Central Park)')
     #da = DialogueAct('affirm()')
     #da = DialogueAct('affirm()&inform(to_stop=Central Park)')

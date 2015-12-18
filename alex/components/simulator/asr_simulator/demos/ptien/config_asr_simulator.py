@@ -176,7 +176,7 @@ config = {
     },
     'asr_simulator':{
         'type': None,
-        'debut': True,
+        'debug': True,
         'SimpleASRSimulator':{
             'prob_combine_fun': None,#the function to calculate new prob from two event, particular is prob of da_type and prob of slot- its value
             'act_confusion':{
