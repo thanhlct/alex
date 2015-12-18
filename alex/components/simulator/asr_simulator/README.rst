@@ -17,7 +17,7 @@ Error simulator for ASR and SLU
 
 Description
 -----------------
-This module is dedicated to simulating errors in Automatic Speech Recognision (ASR) and Spoken Lanugage Understanding (SLU). Currenly, this module contains only a ``SimpleASRSimulator`` which sample N-best SLU hypotheses by simulating noise adding to the correct user dialogue acts.
+This module is dedicated to simulate errors in Automatic Speech Recognision (ASR) and Spoken Lanugage Understanding (SLU). Currenly, this module contains only a ``SimpleASRSimulator`` which sample N-best SLU hypotheses by simulating noise adding to the correct user dialogue acts.
 In this document we quickly describe the ASR simulator and also provide examples of how it could be used.
 
 Overview
