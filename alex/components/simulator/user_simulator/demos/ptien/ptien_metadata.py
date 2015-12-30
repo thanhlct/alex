@@ -14,6 +14,7 @@ def alternative_value_fun():
 config = {
     'user_simulator':{
         'SimpleUserSimulator':{
+            'debug': True,
             'metadata':{
             'slots': ['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street',
                     'departure_time', 'departure_date', 'arrival_time', 'arrival_date',

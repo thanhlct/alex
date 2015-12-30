@@ -53,7 +53,7 @@ class SimulatorHub(Hub):
         cfg['Logging']['session_logger'].config('config = ' + unicode(cfg))
         cfg['Logging']['session_logger'].header(cfg['Logging']["system_name"], cfg['Logging']["version"])
         #cfg['Logging']['session_logger'].input_source("dialogue acts")
-        cfg['Logging']['session_logger'].input_source("voip")
+        #cfg['Logging']['session_logger'].input_source("voip")
 
         sys_das = ['hello()',
                 'request(task)',
@@ -65,6 +65,8 @@ class SimulatorHub(Hub):
                 ]
         
         user.new_dialogue()
+        print '%s\n-User goal: %s\n%s'%('-'*50, user.goal, '-'*50)
+        #cfg['Logging']['session_logger'].input_source("dialogue acts")
         index = 0
         while(True):
             sys_da = DialogueAct(sys_das[index])
@@ -144,7 +146,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.configs is None:
-        args.configs = ['./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/config_asr_simulator.py']
+        args.configs = ['./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/ptien/config_asr_simulator.py']
     cfg = Config.load_configs(args.configs, log=False)
 
     shub = SimulatorHub(cfg)

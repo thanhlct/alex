@@ -110,14 +110,16 @@ class SimpleASRSimulator(ASRSimulator):
             A tuple containing two list with same size presenting confused dialogue items and corespongding probability.
         '''
         #TODO: The current way of sample prob is not really fit with action and slot confusion, just for value confusion
-        print '--Simulate da_item:', da_item
+        #print '--Simulate da_item:', da_item
+        self.system_logger.info('--Simulate da_item: %s'%da_item)
+
         original_da_type = da_item.dat
         original_slot = da_item.name
         original_value = da_item.value
 
         #get the da_types/acts will be confused
         da_types, da_types_probs = self._get_confused_acts(original_da_type)
-        print zip(da_types, da_types_probs)
+        #print zip(da_types, da_types_probs)
         #print '------FInish test, da confused: '
         #print da_types, '|||',  da_types_probs
         #pdb.set_trace()
@@ -157,9 +159,11 @@ class SimpleASRSimulator(ASRSimulator):
                     da_items_probs.append(self.prob_combine_fun(prob,da_types_probs[index]))
                              
         #print 'Get final resul for a dialogue_item:', da_items
-        print '***sampled dialogue acts:'
+        infos = []
+        infos.append('***sampled dialogue acts:')
         for dai, prob in zip(da_items, da_items_probs):
-            print dai, '\t', prob
+            infos.append('%s\t%f'%(dai, prob))
+        self.system_logger.debug('n'.join(infos))
             
         return da_items, da_items_probs
 
@@ -169,6 +173,7 @@ class SimpleASRSimulator(ASRSimulator):
         Args:
             confusion_des: A dict, presenting confusion_matrix defined in a configuration
         ''' 
+        self.system_logger.debug('Get confused values for slot [%s]'%slot)
         confusable_values = self._get_slot_values(slot)  
         items, probs = self._get_confused_values(confusion_des, true_value, confusable_values)
 
@@ -176,6 +181,7 @@ class SimpleASRSimulator(ASRSimulator):
 
     def _get_confused_acts(self, da_type):
         '''Get confused actions and coresponding probability for an action type.'''
+        self.system_logger.debug('Get confused acts:%s'%da_type)
         act_confusion = self.config['act_confusion']
         confusion_des = act_confusion['default']['confusion_matrix']
         if da_type in act_confusion.keys():
@@ -195,7 +201,7 @@ class SimpleASRSimulator(ASRSimulator):
         probs = []
 
         confusion_type = self._sample_confusion_type(confusion_des)
-        print 'confusion_type:', confusion_type,
+        self.system_logger.debug('confusion_type: %s'%confusion_type)
 
         if confusion_type == 'silence':#can be never used since it is similar to the act confusion
             items.append('silence')
@@ -217,7 +223,7 @@ class SimpleASRSimulator(ASRSimulator):
             else:
                 raise NotImplementedError('confusion_type=%s was not implemented.'%confusion_type)
             
-            print 'length=', length
+            self.system_logger.debug('require sample length=%d'%length)
             items = self._sample_nbest_list_values(confusable_values, true_value, correct_position, length)
             probs = self._sample_nbest_list_probs(confusion_des, confusion_type, length)
         return items, probs
@@ -229,6 +235,8 @@ class SimpleASRSimulator(ASRSimulator):
         sample_length = length
         if correct_position == -1:#Plus one in the case of sampled value equal to correct value
             sample_length = length + 1
+            if sample_length>=len(values):
+                sample_length = len(values)-1
 
         row_ids = random.sample(xrange(len(values)), sample_length)
         for i in range(length):
