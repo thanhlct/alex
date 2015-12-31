@@ -46,7 +46,7 @@ config = {
                             ('vehicle',):0.5,
                             },
                         ],
-                    'equivalent_slots':[('from_stop', 'from_city', 'from_street'), ('to_stop', 'to_city', 'to_street'),
+                    'equivalent_slots':[('to_borough', 'from_stop', 'from_city', 'from_street'), ('to_borough', 'to_stop', 'to_city', 'to_street'),
                                         ('arrival_time', 'arrival_time_rel'), ('departure_time', 'departure_time_rel'),
                                     ],
                     'sys_unaskable_slots':['number_transfer', 'duration', 'distance',],
@@ -115,9 +115,9 @@ config = {
                                 }
                             },
 
-            'status_included': ['correct', 'incorect', 'pending', 'filled', 'all'],# only for imagining
+            'status_included': ['correct', 'incorect', 'unmentioned'],#'pending', 'filled', 'all'],# only for imagining
             'slot_value_from':['goal', 'sys_da'],#only for imagining
-            'slot_from': ['sys_da', 'none'],
+            'slot_from': ['sys_da', 'none', 'goal'],
             'answer_types':['direct_answer', 'over_answer', 'complete_answer'],#only for easy seeing and imagining
             'dialogue_act_definitions': {#dialogue acts which user simulator used for answering
                 'request':{
@@ -242,7 +242,7 @@ config = {
                                 'complete_answer':0.05,
                                 },
                             'inform_overridden_properties':{
-                                'use_slot_sequence': False,
+                                'use_slot_sequence': True,
                             },
                             'active_prob':0.9,
                         },
@@ -279,7 +279,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': False,
+                                            'use_slot_sequence': True,
                                         },
                                     },
                                     'case2':{'return_acts':['deny'],
@@ -291,7 +291,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': False
+                                            'use_slot_sequence': True,
                                         },
                                     },
                                 }#end of seond priority answer
@@ -317,7 +317,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': False
+                                            'use_slot_sequence': True,
                                         },
                                 },
                                 'case2':{'return_acts':['deny', 'inform'],
@@ -326,7 +326,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': False
+                                            'use_slot_sequence': True,
                                         },
                                 },
                             }#end of seond priority answer
@@ -352,7 +352,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': False
+                                            'use_slot_sequence': True,
                                         },
                                 },
                                 'case2':{'return_acts':['deny', 'inform'],
@@ -361,7 +361,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': False
+                                            'use_slot_sequence': True,
                                         },
                                 },
                             }#end of seond priority answer
@@ -369,7 +369,7 @@ config = {
                         },#end of the first way of answer
                 ], 
 
-                'inform':[{'active_prob': 1.0,
+                'inform_Not_used':[{'active_prob': 1.0,
                          'ordered_return_acts':[
                             {   'case1':{'return_acts':['affirm'],
                                     'active_prob':1.0,
@@ -387,7 +387,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': False
+                                            'use_slot_sequence': True,
                                         },
                                 },
                                 'case2':{'return_acts':['deny', 'inform'],
@@ -396,24 +396,21 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': False
+                                            'use_slot_sequence': True,
                                         },
                                 },
                             }#end of seond priority answer
                          ],
                         },#end of the first way of answer
                 ],
-
                'apology':[{'return_acts':[],
                             'active_prob':1.0,
                         },
                 ],
-
                 'silence':[{'return_acts':['silence'],
-                            'active_pro':1.0
+                            'active_prob':1.0
                         },
                 ],
-
                 'hello':[{'return_acts':['hello'],
                         'active_prob':0.3,
                         },
@@ -433,6 +430,85 @@ config = {
                         },
                 ],
                 'offer':{
+                    0:[{'active_prob':1.0,
+                         'ordered_return_acts':[
+                            {   'case1':{'return_acts':['inform'],
+                                        'active_prob':1.0,
+                                        'affirm_overridden_properties':{
+                                            'add_to_da_prob': 0.0,
+                                        },
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'goal',
+                                            'status_included': 'unmentioned',    
+                                        },
+                                },
+                            },
+                            {   'case1':{'return_acts':['affirm', 'bye'],
+                                    'active_prob':0.2,
+                                    'affirm_overridden_properties':{
+                                        'add_to_da_prob':0.0,
+                                    },
+                                },#end of first way in the firs priority answer
+                                'case2':{'return_acts':['affirm', 'thankyou'],
+                                    'active_prob':0.4,
+                                    'affirm_overridden_properties':{
+                                        'add_to_da_prob':0.0,
+                                    },
+                                },#end of second way in the firs priority answer
+                                 'case3':{'return_acts':['affirm', 'request'],
+                                    'active_prob':0.2,
+                                    'affirm_overridden_properties':{
+                                        'add_to_da_prob':0.0,
+                                    },
+                                },#end of third way in the firs priority answer
+                                'case4':{'return_acts':['affirm', 'reqalts'],
+                                    'active_prob':0.2,
+                                    'affirm_overridden_properties':{
+                                        'add_to_da_prob':0.0,
+                                    },
+                                },#end of fourth way in the firs priority answer
+                            },#end of first priority answer
+                            {   'case1':{'return_acts':['negate', 'inform'],
+                                        'active_prob':0.7,
+                                        'inform_answer_types':{
+                                            'direct_answer':1.0,
+                                        },
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                            'use_slot_sequence': True,
+                                        },
+                                },
+                                'case2':{'return_acts':['deny', 'inform'],
+                                        'active_prob':0.3,
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                            'use_slot_sequence': True,
+                                        },
+                                },
+                            }#end of seond priority answer
+                         ],#end of the list of ordered answer
+                        },#end of first way of anser
+                    ],
+                    1:[{'return_acts':['bye'],
+                        'active_prob':0.5,
+                        },
+                        {'return_acts':['thankyou'],
+                        'active_prob':0.5,
+                        },
+                    ],
+                    2:[{'return_acts':['bye'],
+                        'active_prob':0.5,
+                        },
+                        {'return_acts':['thankyou'],
+                        'active_prob':0.5,
+                        },
+                    ],
+                },
+                'offer_old_unconditional':{
                     0:[{'return_acts':['bye'],#definition for goal_id=0
                         'active_prob':0.2,
                         },

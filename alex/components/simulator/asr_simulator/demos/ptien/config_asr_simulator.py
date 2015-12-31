@@ -165,7 +165,7 @@ config = {
                                         'city':[('cities', 'city'), ('places', 'city')],
                                         'state':[('states', 'state'), ('places', 'state')],
                                         'task': [lambda: ['find_connection', 'find_platform', 'weather']],
-                                        'alternative': [lambda: ['next', 'previous', 'next hour']],
+                                        'alternative': [lambda: ['next', 'prev', 'last', '1', '2', '3', '4', 'next hour']],
             }, 
     },
     'user_simulator':{

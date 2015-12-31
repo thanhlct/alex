@@ -529,6 +529,8 @@ class SimpleUserSimulator(UserSimulator):
                 lst.extend(act_in['slots'])
             elif act_out_des['slot_from']=='none':
                 pass#dont take slot from sys_da
+            elif act_out_des['slot_from']=='goal':
+                lst.extend(self.goal.keys())
             else:
                 raise NotImplementedError('slot_from=%s unhandled yet'%act_out_des['slot_from'])
             
@@ -639,8 +641,10 @@ class SimpleUserSimulator(UserSimulator):
                 lst.append(s)
             elif status=='incorrect' and correct_value is not None and correct_value!= act_in['slot_value'][s]:
                 lst.append(s)
+            elif status=='unmentioned' and s not in act_in['slots']:#unmetioned in only this turn, not from begining
+                lst.append(s)
             else:
-                if status not in ['correct', 'incorrect']:
+                if status not in ['correct', 'incorrect', 'unmentioned']:
                     raise NotImplementedError('status_included=%s unhandled yet'%status)
         return lst
 
@@ -650,7 +654,6 @@ class SimpleUserSimulator(UserSimulator):
         Raises:
             RuntimeError: Cant find value for the given slot.
         '''
-        #TODO:how to handle the slot only availible on the system, also think about how to evaluate the final reward?list of inform is an offer
         item = DialogueActItem()
         if slot in self.goal.keys():
             return self.goal[slot]
