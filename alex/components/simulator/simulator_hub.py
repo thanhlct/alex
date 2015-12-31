@@ -67,7 +67,7 @@ class SimulatorHub(Hub):
                 ]
         
         user.new_dialogue()
-        print '%s\n-User goal: %s\n%s'%('-'*50, user.goal, '-'*50)
+        print '%s\n-User goal: %s\n%s'%('='*60, user.goal, '='*60)
         #cfg['Logging']['session_logger'].input_source("dialogue acts")
         index = 0
         #TODO: Get DM and make it conversation with simulator
@@ -105,7 +105,7 @@ class SimulatorHub(Hub):
         self.cfg['Logging']['system_logger'].session_end()
         self.cfg['Logging']['session_logger'].session_end()
 
-    def run(self):
+    def run(self, episode=10):
         """Run the hub."""
         try:
             cfg['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
@@ -121,10 +121,10 @@ class SimulatorHub(Hub):
             asr = SimpleASRSimulator(cfg, db)
             dm = self.dm
 
-            while True:
+            count = 0
+            while count<episode:
                 self.simulate_one_dialogue(user, asr, dm)
-                self.simulate_one_dialogue(user, asr, dm)
-                break
+                count += 1
         
         except KeyboardInterrupt:
             print 'KeyboardInterrupt exception in: %s' % multiprocessing.current_process().name

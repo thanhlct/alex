@@ -250,7 +250,14 @@ class SimpleUserSimulator(UserSimulator):
         turn = {'sys_da': deep_copy(self.unprocessed_da_queue)}
         while(len(self.unprocessed_da_queue)>0):
             da = self.unprocessed_da_queue.pop(0)
-            das.append(self._get_answer_da(da))
+            #das.append(self._get_answer_da(da))
+            da_ret = self._get_answer_da(da)
+            if len(da_ret)>0:
+                das.append(da_ret)
+
+        if len(das)==0:
+            print '!!!!!!!!!!!!!!!!Empty acts return?????? change to default fixed slots value act!!!!'
+            das = self._zero_act_return()
         #if len(das)==1:
         #    das = das[0]
         #print das[0]
@@ -263,6 +270,17 @@ class SimpleUserSimulator(UserSimulator):
             das_str += str(da)
         self.system_logger.info('SimpleUserSimulator:da_out: %s'%das_str)
         return das
+
+    def _zero_act_return(self):
+        da = DialogueAct()
+        fixed_slots_values = self.metadata['goals'][self.goal_id]['fixed_slots']
+        for s, v in fixed_slots_values:
+            da.append(DialogueActItem('inform', s, v))
+
+        if self.slot_level_used == 0:
+            self.slot_level_used = 1
+
+        return [da]
  
     def _get_answer_da(self, da_in):
         '''Answer a sytem dialogue act.'''
@@ -330,6 +348,7 @@ class SimpleUserSimulator(UserSimulator):
         '''
         #print answer
         da_items = []
+        new_items = []
         first_act = True
         for act_out in answer['return_acts']:#for reply without ordered answer
             answer_types = get_dict_value(answer, act_out + '_answer_types')
@@ -337,7 +356,14 @@ class SimpleUserSimulator(UserSimulator):
             if answer_types is not None:
                 answer_type = sample_from_dict(answer_types)
             overridden_properties = get_dict_value(answer, act_out + '_overridden_properties')
-            da_items.extend(self._build_dialogue_act_items(da_metadata, act_out, answer_type, overridden_properties))
+            #da_items.extend(self._build_dialogue_act_items(da_metadata, act_out, answer_type, overridden_properties))
+            new_items = self._build_dialogue_act_items(da_metadata, act_out, answer_type, overridden_properties)
+            da_items.extend(new_items)
+
+            if follow_order and 'all_act_valid' in answer.keys() and answer['all_act_valid']==True:#this case of this answer requires all acts must appliabl
+                if len(new_items)==0:
+                    da_items = []#cancel all other da item already build, that will move to next case of anser
+                    break 
             if first_act and follow_order:#if the first action in a return actions which follows the order not successful, that case not satisfy, give up
                 first_act=False
                 if len(da_items)==0:
@@ -642,7 +668,14 @@ class SimpleUserSimulator(UserSimulator):
             elif status=='incorrect' and correct_value is not None and correct_value!= act_in['slot_value'][s]:
                 lst.append(s)
             elif status=='unmentioned' and s not in act_in['slots']:#unmetioned in only this turn, not from begining
-                lst.append(s)
+                not_found = True
+                eq_slots = self._get_equivalent_slots(s)
+                for eq_s in eq_slots:
+                    if eq_s in act_in['slots']:
+                        not_found = False
+                        break
+                if not_found:
+                    lst.append(s)
             else:
                 if status not in ['correct', 'incorrect', 'unmentioned']:
                     raise NotImplementedError('status_included=%s unhandled yet'%status)
@@ -674,7 +707,9 @@ class SimpleUserSimulator(UserSimulator):
                             item.value = value
                             item.name = s
                     if item.value is None:
-                        raise RuntimeError('Cant find value for slot %s and its equivalents slot from goal and default slots'%slot)
+                        #raise RuntimeError('Cant find value for slot %s and its equivalents slot from goal and default slots'%slot)
+                        print '!!!!!!???set to None, Cant find value for slot [%s] and its equivalents slot from goal and default slots'%slot
+                        item.value = None
             else:
                 item.value=self.goal[slot]
                 item.name = slot

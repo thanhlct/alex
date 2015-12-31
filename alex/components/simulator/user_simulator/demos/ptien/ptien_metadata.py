@@ -46,11 +46,12 @@ config = {
                             ('vehicle',):0.5,
                             },
                         ],
-                    'equivalent_slots':[('to_borough', 'from_stop', 'from_city', 'from_street'), ('to_borough', 'to_stop', 'to_city', 'to_street'),
+                    'equivalent_slots':[('from_borough', 'from_stop', 'from_city', 'from_street'), ('to_borough', 'to_stop', 'to_city', 'to_street'),
                                         ('arrival_time', 'arrival_time_rel'), ('departure_time', 'departure_time_rel'),
                                     ],
                     'sys_unaskable_slots':['number_transfer', 'duration', 'distance',],
-                    'default_slots_values':[('departure_time', 'as soon as possible'), ('vehicle', 'dontcare'), ('arrival_time', 'as soon as possible')],
+                    #'default_slots_values':[('departure_time', 'as soon as possible'), ('vehicle', 'dontcare'), ('arrival_time', 'as soon as possible')],
+                    'default_slots_values':[('departure_time', 'now'), ('vehicle', 'dontcare'), ('arrival_time', 'now')],
                     #'add_fixed_slot_to_goal': True,
                     'active_prob':1.0,#probability of observing the task being active
                     'same_table_slot_keys':[],#defining when serveral slots connected to a row in a table and we would like to get them linked together
@@ -132,7 +133,7 @@ config = {
                     'value_from': 'goal', #in normal case, where to get values for selected slots
                     'limited_slots': [], #list of slot cant combine
                     'accept_used_slots': False,
-                    'use_slot_sequence': True,
+                    'use_slot_sequence': False,
                 },
                 'oog':{
                     'slot_included': False,
@@ -242,7 +243,7 @@ config = {
                                 'complete_answer':0.05,
                                 },
                             'inform_overridden_properties':{
-                                'use_slot_sequence': True,
+                                #'use_slot_sequence': True,#will be error someday when system ask a slot which is absen in the current goal
                             },
                             'active_prob':0.9,
                         },
@@ -279,7 +280,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                     },
                                     'case2':{'return_acts':['deny'],
@@ -291,7 +292,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                     },
                                 }#end of seond priority answer
@@ -317,7 +318,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                 },
                                 'case2':{'return_acts':['deny', 'inform'],
@@ -326,7 +327,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                 },
                             }#end of seond priority answer
@@ -352,7 +353,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                 },
                                 'case2':{'return_acts':['deny', 'inform'],
@@ -361,7 +362,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                 },
                             }#end of seond priority answer
@@ -369,7 +370,7 @@ config = {
                         },#end of the first way of answer
                 ], 
 
-                'inform_Not_used':[{'active_prob': 1.0,
+                'inform':[{'active_prob': 1.0,
                          'ordered_return_acts':[
                             {   'case1':{'return_acts':['affirm'],
                                     'active_prob':1.0,
@@ -387,7 +388,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                 },
                                 'case2':{'return_acts':['deny', 'inform'],
@@ -396,14 +397,35 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                 },
-                            }#end of seond priority answer
+                            },#end of seond priority answer
+                            {   'case1':{'return_acts':['bye'],
+                                    'active_prob':0.5,
+                                    'affirm_overridden_properties':{
+                                        'add_to_da_prob':1.0,
+                                    },
+                                },#end of first way in the firs priority answer
+                                'case2':{'return_acts':['hangup'],
+                                    'active_prob':0.5,
+                                    'affirm_overridden_properties':{
+                                        'add_to_da_prob':1.0,
+                                    },
+                                },#end of first way in the firs priority answer
+                            },
                          ],
                         },#end of the first way of answer
                 ],
+                'select':[{'return_act':['inform'],
+                        'active_prob': 1.0,
+                    },
+                ],
                'apology':[{'return_acts':[],
+                            'active_prob':1.0,
+                        },
+                ],
+               'help':[{'return_acts':[],
                             'active_prob':1.0,
                         },
                 ],
@@ -432,14 +454,16 @@ config = {
                 'offer':{
                     0:[{'active_prob':1.0,
                          'ordered_return_acts':[
-                            {   'case1':{'return_acts':['inform'],
+                            {   'case1':{'return_acts':['affirm', 'inform'],
                                         'active_prob':1.0,
+                                        'all_act_valid': True,#all acts in return acts mus appliable !new
                                         'affirm_overridden_properties':{
                                             'add_to_da_prob': 0.0,
                                         },
                                         'inform_overridden_properties':{
-                                            'slot_from': 'goal',
-                                            'status_included': 'unmentioned',    
+                                            'slot_from': 'goal',#take all slots from goal as combinable
+                                            'status_included': 'unmentioned',#keep only slot which was not mentioned in this turn
+                                            #NOTE Should whe support multiple status setting such as unmentioned + incorrect (not save that infor now!
                                         },
                                 },
                             },
@@ -477,7 +501,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                 },
                                 'case2':{'return_acts':['deny', 'inform'],
@@ -486,7 +510,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'use_slot_sequence': True,
+                                            #'use_slot_sequence': True,
                                         },
                                 },
                             }#end of seond priority answer

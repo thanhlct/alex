@@ -1,0 +1,1639 @@
+Testing connection to the update server..
+================================================================================
+Could not stat: https://vystadial.ms.mff.cuni.cz/download/alex/applications/PublicTransportInfoEN/slu/dailogreg.nbl.model.all
+--------------------------------------------------------------------------------
+
+============================================================
+-User goal: {'to_street': u'Bergen Ct', 'task': 'find_connection', 'departure_time_rel': u'now', 'from_stop': u'Ave. C At 40Th St#'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()
+SLUHyp to DM:
+0.927 hello()
+--------------------Turn 1--------------------
+---sys_da:	request(to_stop)
+---user_da:	silence()
+SLUHyp to DM:
+0.882 silence()
+--------------------Turn 2--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.952 silence()
+--------------------Turn 3--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.822 silence()
+--------------------Turn 4--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.742 silence()
+--------------------Turn 5--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.576 silence()
+--------------------Turn 6--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.910 silence()
+--------------------Turn 7--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.990 silence()
+--------------------Turn 8--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.877 silence()
+--------------------Turn 9--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.624 silence()
+--------------------Turn 10--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.928 silence()
+--------------------Turn 11--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.997 silence()
+--------------------Turn 12--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.781 silence()
+--------------------Turn 13--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.932 silence()
+--------------------Turn 14--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.959 silence()
+--------------------Turn 15--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.982 silence()
+--------------------Turn 16--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.986 silence()
+--------------------Turn 17--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.903 silence()
+--------------------Turn 18--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.730 silence()
+--------------------Turn 19--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.860 silence()
+--------------------Turn 20--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.906 silence()
+--------------------Turn 21--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.667 silence()
+--------------------Turn 22--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.925 silence()
+--------------------Turn 23--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.639 silence()
+--------------------Turn 24--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.898 silence()
+--------------------Turn 25--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.576 silence()
+--------------------Turn 26--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.913 silence()
+--------------------Turn 27--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.790 silence()
+--------------------Turn 28--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.890 silence()
+--------------------Turn 29--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.954 silence()
+--------------------Turn 30--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.922 silence()
+--------------------Turn 31--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.943 silence()
+--------------------Turn 32--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.819 silence()
+--------------------Turn 33--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.899 silence()
+--------------------Turn 34--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.678 silence()
+--------------------Turn 35--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.965 silence()
+--------------------Turn 36--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.782 silence()
+--------------------Turn 37--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.998 silence()
+--------------------Turn 38--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.585 silence()
+--------------------Turn 39--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+1.000 silence()
+--------------------Turn 40--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.858 silence()
+--------------------Turn 41--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.954 silence()
+--------------------Turn 42--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.922 silence()
+--------------------Turn 43--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.970 silence()
+--------------------Turn 44--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+1.000 silence()
+--------------------Turn 45--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.880 silence()
+--------------------Turn 46--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.730 silence()
+--------------------Turn 47--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.971 silence()
+--------------------Turn 48--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.374 silence()
+--------------------Turn 49--------------------
+---sys_da:	request(to_stop)
+---user_da:	oog()
+SLUHyp to DM:
+0.843 oog()
+--------------------Turn 50--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="Bergen Ct")
+SLUHyp to DM:
+0.415 inform(to_street="Bergen Ct")
+0.074 inform(to_street="Essex Walk")
+0.039 inform(to_street="W 20 Rd")
+0.019 inform(to_street="Austin St")
+--------------------Turn 51--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="Bergen Ct")&inform(task="find_connection")&inform(departure_time_rel="now")&inform(from_stop="Ave. C At 40Th St#")
+SLUHyp to DM:
+0.716 inform(from_stop="Ave. C At 40Th St#")
+0.597 inform(to_street="Bergen Ct")
+0.421 inform(departure_time_rel="now")
+0.370 inform(task="find_connection")
+0.056 inform(to_street="White Ave")
+0.032 inform(to_street="Breezy Point Blvd")
+0.022 inform(to_street="Farragut St")
+0.011 inform(to_street="63 St")
+0.011 inform(from_stop="Summit Ave 130' N Of Academy St.")
+0.006 inform(from_stop="Egg Harbor Rd At Grenloch-Hurfville Rd")
+0.003 inform(from_stop="Av U/Mc Donald Av")
+--------------------Turn 52--------------------
+---sys_da:	confirm(to_street="Bergen Ct")
+---user_da:	affirm()
+SLUHyp to DM:
+0.757 affirm()
+0.243 negate()
+--------------------Turn 53--------------------
+---sys_da:	confirm(from_stop="Ave. C At 40Th St#")
+---user_da:	affirm()
+SLUHyp to DM:
+0.924 affirm()
+--------------------Turn 54--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Ave. C At 40Th St#")&offer(to_street="Bergen Ct")&offer(departure_time="now")&offer(arrival_time="now")&offer(vehicle="dontcare")
+---user_da:	thankyou()
+SLUHyp to DM:
+0.964 thankyou()
+--------------------Turn 55--------------------
+---sys_da:	inform(cordiality="true")&hello()
+!!!!!!???set to None, Cant find value for slot [cordiality] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [cordiality] and its equivalents slot from goal and default slots
+---user_da:	hangup()&inform(task="find_connection")
+SLUHyp to DM:
+0.869 hangup()
+0.350 inform(task="find_connection")
+============================================================
+-User goal: {'arrival_time': u'4:25 PM', 'to_street': u'Maple Ter', 'task': 'find_connection', 'from_stop': u'Greene Av/Adelphi St', 'vehicle': u'ferry'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()&inform(from_stop="Greene Av/Adelphi St")&inform(vehicle="ferry")&inform(task="find_connection")
+SLUHyp to DM:
+0.618 inform(task="find_connection")
+0.548 hello()
+0.524 inform(from_stop="Greene Av/Adelphi St")
+0.445 inform(vehicle="ferry")
+0.038 inform(from_stop="Newark Pompton Turnpike At Haul Rd")
+0.035 inform(task="find_platform")
+0.022 inform(from_stop="Av L/Bedford Av")
+0.015 inform(from_stop="Lawrence")
+0.013 inform(task="weather")
+0.007 inform(from_stop="Greenpoint Av")
+0.002 inform(vehicle="dontcare")
+0.001 inform(vehicle="train")
+0.000 inform(vehicle="bus")
+--------------------Turn 1--------------------
+---sys_da:	confirm(from_stop="Greene Av/Adelphi St")
+---user_da:	affirm()&inform(arrival_time="4:25 PM")&inform(to_street="Maple Ter")
+SLUHyp to DM:
+0.986 affirm()
+0.590 inform(arrival_time="4:25 PM")
+0.472 inform(to_street="Maple Ter")
+0.078 inform(to_street="Brightwater Ct")
+0.009 inform(arrival_time="0:40 AM")
+--------------------Turn 2--------------------
+---sys_da:	confirm(arrival_time="4:25 PM")
+---user_da:	affirm()
+SLUHyp to DM:
+0.962 affirm()
+--------------------Turn 3--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="Maple Ter")
+SLUHyp to DM:
+0.479 inform(to_street="Maple Ter")
+0.033 inform(to_street="60 Pl")
+0.017 inform(to_street="90 Rd")
+0.008 inform(to_street="Finn Sq")
+--------------------Turn 4--------------------
+---sys_da:	confirm(to_street="Maple Ter")
+---user_da:	affirm()
+SLUHyp to DM:
+0.679 affirm()
+0.321 negate()
+--------------------Turn 5--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Greene Av/Adelphi St")&offer(to_street="Maple Ter")&offer(departure_time="now")&offer(arrival_time="4:25 PM")&offer(vehicle="dontcare")
+---user_da:	negate()&inform(vehicle="ferry")
+SLUHyp to DM:
+0.877 negate()
+0.493 inform(vehicle="train")
+0.009 inform(vehicle="subway")
+0.005 inform(vehicle="bus")
+0.003 inform(vehicle="dontcare")
+0.002 inform(vehicle="tram")
+--------------------Turn 6--------------------
+---sys_da:	confirm(vehicle="train")
+---user_da:	negate()&inform(vehicle="ferry")
+SLUHyp to DM:
+0.797 negate()
+0.582 inform(vehicle="ferry")
+--------------------Turn 7--------------------
+---sys_da:	iconfirm(vehicle="ferry")&offer(task="find_connection")&offer(from_stop="Greene Av/Adelphi St")&offer(to_street="Maple Ter")&offer(departure_time="now")&offer(arrival_time="4:25 PM")&offer(vehicle="ferry")
+---user_da:	bye()&affirm()
+SLUHyp to DM:
+0.868 bye()
+0.676 affirm()
+0.324 negate()
+============================================================
+-User goal: {'to_stop': u'Jamaica Av/114 St', 'task': 'find_connection', 'departure_time_rel': u'now', 'from_stop': u'Us-9 At Cordery Ave#'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()&inform(task="find_connection")&inform(from_stop="Us-9 At Cordery Ave#")
+SLUHyp to DM:
+0.916 hello()
+0.562 inform(task="find_connection")
+0.548 inform(from_stop="Us-9 At Cordery Ave#")
+0.102 inform(task="weather")
+0.038 inform(task="find_platform")
+0.020 inform(from_stop="New Rd At Rt 40/322")
+0.011 inform(from_stop="St Johns Pl/Brooklyn Av")
+0.008 inform(from_stop="Washington Ave At Little St")
+0.004 inform(from_stop="Gates Av/Marcus Garvey Bl")
+--------------------Turn 1--------------------
+---sys_da:	confirm(from_stop="Us-9 At Cordery Ave#")
+---user_da:	affirm()
+SLUHyp to DM:
+0.459 affirm()
+--------------------Turn 2--------------------
+---sys_da:	confirm(from_stop="Us-9 At Cordery Ave#")
+---user_da:	affirm()
+SLUHyp to DM:
+0.855 affirm()
+--------------------Turn 3--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_stop="Jamaica Av/114 St")
+SLUHyp to DM:
+0.426 inform(to_stop="Jamaica Av/114 St")
+0.026 inform(to_stop="Huguenot Av/Sinclair Av")
+--------------------Turn 4--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_stop="Jamaica Av/114 St")&inform(departure_time_rel="now")
+SLUHyp to DM:
+0.640 inform(departure_time_rel="now")
+0.467 inform(to_stop="Jamaica Av/114 St")
+0.064 inform(to_stop="Washington Pl/Lane 6")
+0.033 inform(to_stop="Bergen St/Bond St")
+0.016 inform(to_stop="Chestnut St At Bonna Villa Ave")
+--------------------Turn 5--------------------
+---sys_da:	confirm(to_stop="Jamaica Av/114 St")
+---user_da:	affirm()
+SLUHyp to DM:
+0.945 affirm()
+--------------------Turn 6--------------------
+---sys_da:	confirm(departure_time_rel="now")
+---user_da:	affirm()
+SLUHyp to DM:
+0.860 affirm()
+0.140 negate()
+--------------------Turn 7--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Us-9 At Cordery Ave#")&offer(to_stop="Jamaica Av/114 St")&offer(departure_time="now")&offer(arrival_time="now")&offer(departure_time_rel="now")&offer(vehicle="dontcare")
+---user_da:	request(number_transfer)&request(duration)&request(distance)
+SLUHyp to DM:
+0.982 request(duration)
+0.895 request(distance)
+0.708 request(number_transfer)
+--------------------Turn 8--------------------
+---sys_da:	inform(duration="4:23")&inform(distance="152.1")&inform(num_stops="24")&inform(from_stop="us , ninth at cordery ave#")&inform(vehicle="bus")&inform(line="559")&inform(num_stops="3")&inform(from_stop="gate number three inside ac bus terminal")&inform(vehicle="bus")&inform(line="319")&inform(num_stops="13")&inform(from_stop="forty second street , port authority bus terminal")&inform(vehicle="subway")&inform(line="E")&inform(num_stops="2")&inform(from_stop="sutphin boulevard , archer avenue , jfk airport")&inform(vehicle="subway")&inform(line="J")
+!!!!!!???set to None, Cant find value for slot [duration] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [distance] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [duration] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [distance] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [duration] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [distance] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+---user_da:	negate()&inform(from_stop="Us-9 At Cordery Ave#")&inform(vehicle="dontcare")
+SLUHyp to DM:
+0.936 negate()
+0.659 inform(from_stop="Us-9 At Cordery Ave#")
+0.293 inform(vehicle="monorail")
+0.286 inform(vehicle="dontcare")
+0.091 inform(from_stop="Morris Ave 140'E Of Lowes (Jug Handle)")
+0.064 affirm()
+0.047 inform(from_stop="North Park Dr 100' W Of Mcclellan Ave.")
+0.023 inform(from_stop="Broadway/W 129 St")
+--------------------Turn 9--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Us-9 At Cordery Ave#")&offer(to_stop="Jamaica Av/114 St")&offer(departure_time="now")&offer(arrival_time="now")&offer(departure_time_rel="now")&offer(vehicle="dontcare")
+---user_da:	request(number_transfer)&request(duration)&request(distance)
+SLUHyp to DM:
+0.915 request(duration)
+0.889 request(number_transfer)
+0.837 request(distance)
+--------------------Turn 10--------------------
+---sys_da:	inform(duration="4:23")&inform(distance="152.1")&inform(num_stops="24")&inform(from_stop="us , ninth at cordery ave#")&inform(vehicle="bus")&inform(line="559")&inform(num_stops="3")&inform(from_stop="gate number three inside ac bus terminal")&inform(vehicle="bus")&inform(line="319")&inform(num_stops="13")&inform(from_stop="forty second street , port authority bus terminal")&inform(vehicle="subway")&inform(line="E")&inform(num_stops="2")&inform(from_stop="sutphin boulevard , archer avenue , jfk airport")&inform(vehicle="subway")&inform(line="J")
+!!!!!!???set to None, Cant find value for slot [duration] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [distance] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [duration] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [distance] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [duration] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [distance] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [num_stops] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+---user_da:	deny(from_stop="sutphin boulevard , archer avenue , jfk airport")&deny(vehicle="subway")&inform(from_stop="Us-9 At Cordery Ave#")&inform(vehicle="dontcare")
+SLUHyp to DM:
+0.529 deny(vehicle="subway")
+0.507 inform(from_stop="Us-9 At Cordery Ave#")
+0.496 deny(from_stop="sutphin boulevard , archer avenue , jfk airport")
+0.354 inform(vehicle="dontcare")
+0.075 deny(vehicle="monorail")
+0.044 inform(from_stop="Hillside Av/Creedmoore Hospital")
+0.043 inform(vehicle="cable_car")
+0.028 deny(vehicle="tram")
+0.016 inform(from_stop="Madison Ave At Thompson St")
+0.016 inform(vehicle="bus")
+--------------------Turn 11--------------------
+---sys_da:	confirm(vehicle="dontcare")
+---user_da:	affirm()
+SLUHyp to DM:
+0.712 affirm()
+0.288 negate()
+--------------------Turn 12--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Us-9 At Cordery Ave#")&offer(to_stop="Jamaica Av/114 St")&offer(departure_time="now")&offer(arrival_time="now")&offer(departure_time_rel="now")&offer(vehicle="dontcare")
+---user_da:	thankyou()
+SLUHyp to DM:
+0.637 thankyou()
+--------------------Turn 13--------------------
+---sys_da:	inform(cordiality="true")&hello()
+!!!!!!???set to None, Cant find value for slot [cordiality] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [cordiality] and its equivalents slot from goal and default slots
+---user_da:	bye()&hello()
+SLUHyp to DM:
+0.843 hello()
+0.435 bye()
+============================================================
+-User goal: {'from_street': u'Uncas Ave', 'to_street': u'108 Ave', 'task': 'find_connection', 'departure_time': u'11:50 AM', 'vehicle': u'ferry'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()
+SLUHyp to DM:
+0.960 hello()
+--------------------Turn 1--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="108 Ave")&inform(from_street="Uncas Ave")&inform(task="find_connection")&inform(departure_time="11:50 AM")&inform(vehicle="ferry")
+SLUHyp to DM:
+0.813 inform(to_street="108 Ave")
+0.691 inform(departure_time="11:50 AM")
+0.682 inform(from_street="Uncas Ave")
+0.521 inform(vehicle="ferry")
+0.449 inform(task="find_connection")
+0.117 inform(departure_time="11:35 PM")
+0.094 inform(task="weather")
+0.035 inform(task="find_platform")
+0.030 inform(from_street="Brabant St")
+0.017 inform(from_street="Quencer Rd")
+0.011 inform(from_street="Ardmore Ave")
+0.006 inform(from_street="Dorset St")
+0.005 inform(vehicle="cable_car")
+0.002 inform(vehicle="bus")
+0.001 inform(vehicle="tram")
+--------------------Turn 2--------------------
+---sys_da:	iconfirm(to_street="108 Ave")&confirm(departure_time="11:50 AM")
+---user_da:	affirm()
+SLUHyp to DM:
+0.647 affirm()
+0.353 negate()
+--------------------Turn 3--------------------
+---sys_da:	confirm(from_street="Uncas Ave")
+---user_da:	affirm()
+SLUHyp to DM:
+0.873 affirm()
+0.127 negate()
+--------------------Turn 4--------------------
+---sys_da:	confirm(vehicle="ferry")
+---user_da:	affirm()
+SLUHyp to DM:
+0.985 affirm()
+0.015 negate()
+--------------------Turn 5--------------------
+---sys_da:	offer(task="find_connection")&offer(from_street="Uncas Ave")&offer(to_street="108 Ave")&offer(departure_time="11:50 AM")&offer(arrival_time="now")&offer(vehicle="ferry")
+---user_da:	bye()
+SLUHyp to DM:
+0.891 bye()
+============================================================
+-User goal: {'from_street': u'Mc Laughlin Ave', 'to_street': u'Nameoke St', 'task': 'find_connection'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	inform(task="find_connection")
+SLUHyp to DM:
+0.624 inform(task="find_connection")
+0.095 inform(task="find_platform")
+--------------------Turn 1--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="Nameoke St")&inform(from_street="Mc Laughlin Ave")
+SLUHyp to DM:
+0.549 inform(to_street="Nameoke St")
+0.430 inform(from_street="Mc Laughlin Ave")
+0.197 inform(to_street="Linton Pl")
+0.073 inform(to_street="Wright Ave")
+0.043 inform(from_street="Garth Ct")
+--------------------Turn 2--------------------
+---sys_da:	confirm(to_street="Nameoke St")
+---user_da:	affirm()
+SLUHyp to DM:
+0.678 affirm()
+--------------------Turn 3--------------------
+---sys_da:	request(from_stop)
+---user_da:	inform(from_street="Mc Laughlin Ave")
+SLUHyp to DM:
+0.825 inform(from_street="Mc Laughlin Ave")
+0.008 inform(from_street="Bay Ridge Pl")
+0.005 inform(from_street="Seasongood Rd")
+0.003 inform(from_street="Stickney Pl")
+0.002 inform(from_street="Old Slip")
+--------------------Turn 4--------------------
+---sys_da:	iconfirm(from_stop="Mc Laughlin Ave")&offer(task="find_connection")&offer(from_street="Mc Laughlin Ave")&offer(to_street="Nameoke St")&offer(departure_time="now")&offer(arrival_time="now")&offer(vehicle="dontcare")
+---user_da:	reqalts(alternative="next hour")
+SLUHyp to DM:
+0.447 reqalts(alternative="next hour")
+--------------------Turn 5--------------------
+---sys_da:	offer(task="find_connection")&offer(from_street="Mc Laughlin Ave")&offer(to_street="Nameoke St")&offer(departure_time="now")&offer(arrival_time="now")&offer(vehicle="dontcare")
+---user_da:	bye()
+SLUHyp to DM:
+0.735 bye()
+============================================================
+-User goal: {'to_street': u'W 159 St', 'task': 'find_connection', 'departure_time': u'7:20 PM', 'from_stop': u'48 St/47 St', 'vehicle': u'monorail'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()&inform(to_street="W 159 St")&inform(task="find_connection")&inform(departure_time="7:20 PM")&inform(from_stop="48 St/47 St")&inform(vehicle="monorail")
+SLUHyp to DM:
+0.940 hello()
+0.787 inform(vehicle="monorail")
+0.749 inform(task="find_connection")
+0.600 inform(from_stop="48 St/47 St")
+0.463 inform(departure_time="7:20 PM")
+0.446 inform(to_street="W 159 St")
+0.037 inform(to_street="Borman Ave")
+0.021 inform(to_street="Brandis Ave")
+0.014 inform(to_street="Dawson Cir")
+0.014 inform(vehicle="subway")
+0.007 inform(to_street="Indian Trl")
+0.005 inform(vehicle="dontcare")
+0.005 inform(departure_time="9:15 PM")
+0.002 inform(departure_time="9:10 PM")
+--------------------Turn 1--------------------
+---sys_da:	confirm(vehicle="monorail")
+---user_da:	affirm()
+SLUHyp to DM:
+0.955 affirm()
+0.045 negate()
+--------------------Turn 2--------------------
+---sys_da:	confirm(from_stop="48 St/47 St")
+---user_da:	affirm()
+SLUHyp to DM:
+0.853 affirm()
+0.147 negate()
+--------------------Turn 3--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="W 159 St")
+SLUHyp to DM:
+0.571 inform(to_street="W 159 St")
+--------------------Turn 4--------------------
+---sys_da:	confirm(to_street="W 159 St")
+---user_da:	affirm()
+SLUHyp to DM:
+0.885 affirm()
+--------------------Turn 5--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="48 St/47 St")&offer(to_street="W 159 St")&offer(departure_time="now")&offer(arrival_time="now")&offer(vehicle="monorail")
+---user_da:	deny(departure_time="now")&inform(departure_time="7:20 PM")
+SLUHyp to DM:
+0.654 deny(departure_time="now")
+0.303 inform(departure_time="9:5 AM")
+0.079 inform(departure_time="7:20 PM")
+0.031 deny(departure_time="10:30 AM")
+0.018 deny(departure_time="5:40 PM")
+0.012 deny(departure_time="5:0 PM")
+0.006 deny(departure_time="5:40 AM")
+--------------------Turn 6--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="48 St/47 St")&offer(to_street="W 159 St")&offer(departure_time="7:20 PM")&offer(arrival_time="now")&offer(vehicle="monorail")
+---user_da:	bye()
+SLUHyp to DM:
+0.839 bye()
+============================================================
+-User goal: {'to_stop': u'Jamaica Av/Crescent St', 'task': 'find_connection', 'arrival_time_rel': u'now', 'from_stop': u'Riverside Dr/W 145 St', 'vehicle': u'monorail'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()&inform(to_stop="Jamaica Av/Crescent St")&inform(from_stop="Riverside Dr/W 145 St")&inform(vehicle="monorail")&inform(task="find_connection")
+SLUHyp to DM:
+0.734 hello()
+0.575 inform(to_stop="Jamaica Av/Crescent St")
+0.526 inform(from_stop="Riverside Dr/W 145 St")
+0.508 inform(task="find_connection")
+0.302 inform(vehicle="monorail")
+0.060 inform(vehicle="tram")
+0.038 inform(to_stop="W Mosholu Pky S/Jerome Av")
+0.034 inform(vehicle="bus")
+0.023 inform(vehicle="cable_car")
+0.014 inform(to_stop="W 106 St/Amsterdam Av")
+0.012 inform(vehicle="dontcare")
+0.007 inform(task="find_platform")
+0.003 inform(task="weather")
+--------------------Turn 1--------------------
+---sys_da:	confirm(to_stop="Jamaica Av/Crescent St")
+---user_da:	affirm()&inform(arrival_time_rel="now")
+SLUHyp to DM:
+0.906 affirm()
+0.553 inform(arrival_time_rel="now")
+0.094 negate()
+--------------------Turn 2--------------------
+---sys_da:	confirm(arrival_time_rel="now")
+---user_da:	affirm()
+SLUHyp to DM:
+0.571 affirm()
+--------------------Turn 3--------------------
+---sys_da:	confirm(from_stop="Riverside Dr/W 145 St")
+---user_da:	affirm()
+SLUHyp to DM:
+0.785 affirm()
+0.215 negate()
+--------------------Turn 4--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Riverside Dr/W 145 St")&offer(to_stop="Jamaica Av/Crescent St")&offer(departure_time="now")&offer(arrival_time="now")&offer(arrival_time_rel="now")&offer(vehicle="dontcare")
+---user_da:	negate()&inform(vehicle="monorail")
+SLUHyp to DM:
+0.702 inform(vehicle="monorail")
+0.613 negate()
+0.387 affirm()
+--------------------Turn 5--------------------
+---sys_da:	confirm(vehicle="monorail")
+---user_da:	affirm()
+SLUHyp to DM:
+0.610 affirm()
+--------------------Turn 6--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Riverside Dr/W 145 St")&offer(to_stop="Jamaica Av/Crescent St")&offer(departure_time="now")&offer(arrival_time="now")&offer(arrival_time_rel="now")&offer(vehicle="monorail")
+---user_da:	reqalts(alternative="next hour")
+SLUHyp to DM:
+0.367 reqalts(alternative="next hour")
+0.076 reqalts(alternative="2")
+--------------------Turn 7--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Riverside Dr/W 145 St")&offer(to_stop="Jamaica Av/Crescent St")&offer(departure_time="now")&offer(arrival_time="now")&offer(arrival_time_rel="now")&offer(vehicle="monorail")
+---user_da:	reqalts(alternative="prev")
+SLUHyp to DM:
+0.683 reqalts(alternative="prev")
+0.046 reqalts(alternative="next hour")
+--------------------Turn 8--------------------
+first one
+> /home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoEN/hdc_policy.py(336)get_connection_res_da()
+-> res_da = self._thanh_offer_route(ds)
+(Pdb) (Pdb) (Pdb) (Pdb) (Pdb) (Pdb) (Pdb) ---sys_da:	offer(task="find_connection")&offer(from_stop="Riverside Dr/W 145 St")&offer(to_stop="Jamaica Av/Crescent St")&offer(departure_time="now")&offer(arrival_time="now")&offer(arrival_time_rel="now")&offer(vehicle="monorail")
+---user_da:	request(number_transfer)&request(duration)&request(distance)
+SLUHyp to DM:
+0.954 request(number_transfer)
+0.874 request(duration)
+0.688 request(distance)
+--------------------Turn 9--------------------
+---sys_da:	inform(stops_conflict="no_stops")&inform(number_transfer="none")
+!!!!!!???set to None, Cant find value for slot [stops_conflict] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [number_transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [stops_conflict] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [number_transfer] and its equivalents slot from goal and default slots
+---user_da:	bye()
+SLUHyp to DM:
+0.980 bye()
+============================================================
+-User goal: {'to_street': u'122 St', 'task': 'find_connection', 'departure_time': u'7:30 PM', 'from_stop': u'Summit'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()
+SLUHyp to DM:
+0.738 hello()
+--------------------Turn 1--------------------
+---sys_da:	request(to_stop)
+---user_da:	silence()
+SLUHyp to DM:
+0.666 silence()
+--------------------Turn 2--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.973 silence()
+--------------------Turn 3--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.988 silence()
+--------------------Turn 4--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.957 silence()
+--------------------Turn 5--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.733 silence()
+--------------------Turn 6--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.954 silence()
+--------------------Turn 7--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.995 silence()
+--------------------Turn 8--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.888 silence()
+--------------------Turn 9--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.832 silence()
+--------------------Turn 10--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.922 silence()
+--------------------Turn 11--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.932 silence()
+--------------------Turn 12--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.873 silence()
+--------------------Turn 13--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.525 silence()
+--------------------Turn 14--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.728 silence()
+--------------------Turn 15--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.985 silence()
+--------------------Turn 16--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.830 silence()
+--------------------Turn 17--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.882 silence()
+--------------------Turn 18--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.882 silence()
+--------------------Turn 19--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.943 silence()
+--------------------Turn 20--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.978 silence()
+--------------------Turn 21--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.976 silence()
+--------------------Turn 22--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.964 silence()
+--------------------Turn 23--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.758 silence()
+--------------------Turn 24--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.956 silence()
+--------------------Turn 25--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.894 silence()
+--------------------Turn 26--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.894 silence()
+--------------------Turn 27--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.885 silence()
+--------------------Turn 28--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.917 silence()
+--------------------Turn 29--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.590 silence()
+--------------------Turn 30--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.964 silence()
+--------------------Turn 31--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.747 silence()
+--------------------Turn 32--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.923 silence()
+--------------------Turn 33--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.918 silence()
+--------------------Turn 34--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.665 silence()
+--------------------Turn 35--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.990 silence()
+--------------------Turn 36--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.988 silence()
+--------------------Turn 37--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.924 silence()
+--------------------Turn 38--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.822 silence()
+--------------------Turn 39--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.951 silence()
+--------------------Turn 40--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.968 silence()
+--------------------Turn 41--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.850 silence()
+--------------------Turn 42--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.747 silence()
+--------------------Turn 43--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.949 silence()
+--------------------Turn 44--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.987 silence()
+--------------------Turn 45--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.891 silence()
+--------------------Turn 46--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.758 silence()
+--------------------Turn 47--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.874 silence()
+--------------------Turn 48--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.769 silence()
+--------------------Turn 49--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.992 silence()
+--------------------Turn 50--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.951 silence()
+--------------------Turn 51--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.714 silence()
+--------------------Turn 52--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.988 silence()
+--------------------Turn 53--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.771 silence()
+--------------------Turn 54--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.905 silence()
+--------------------Turn 55--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.837 silence()
+--------------------Turn 56--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.778 silence()
+--------------------Turn 57--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.899 silence()
+--------------------Turn 58--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.490 silence()
+--------------------Turn 59--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.544 inform(to_street="122 St")
+--------------------Turn 60--------------------
+---sys_da:	confirm(to_street="122 St")
+---user_da:	affirm()
+SLUHyp to DM:
+0.762 affirm()
+0.238 negate()
+--------------------Turn 61--------------------
+---sys_da:	request(departure_time)
+---user_da:	inform(departure_time="7:30 PM")&inform(from_stop="Summit")
+SLUHyp to DM:
+0.688 inform(from_stop="Summit")
+0.475 inform(departure_time="7:30 PM")
+0.082 inform(departure_time="2:40 PM")
+0.016 inform(from_stop="154 St/Cross Island Py")
+0.009 inform(from_stop="New Dorp La/3 St")
+0.006 inform(from_stop="South Av/1000 South Av")
+0.003 inform(from_stop="Brookdale College (Parking Lot #3)")
+--------------------Turn 62--------------------
+---sys_da:	confirm(from_stop="Summit")
+---user_da:	affirm()&inform(task="find_connection")
+SLUHyp to DM:
+0.853 affirm()
+0.324 inform(task="find_connection")
+0.148 inform(task="weather")
+--------------------Turn 63--------------------
+---sys_da:	request(to_borough)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.686 inform(to_street="122 St")
+0.008 inform(to_street="Walke Ave")
+0.003 inform(to_street="Hemlock Ct")
+--------------------Turn 64--------------------
+---sys_da:	request(to_borough)
+---user_da:	silence()
+SLUHyp to DM:
+0.905 silence()
+--------------------Turn 65--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.890 silence()
+--------------------Turn 66--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.963 silence()
+--------------------Turn 67--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.576 silence()
+--------------------Turn 68--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.827 silence()
+--------------------Turn 69--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.678 silence()
+--------------------Turn 70--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.976 silence()
+--------------------Turn 71--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.796 silence()
+--------------------Turn 72--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.600 silence()
+--------------------Turn 73--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.860 silence()
+--------------------Turn 74--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.663 silence()
+--------------------Turn 75--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.976 silence()
+--------------------Turn 76--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.936 silence()
+--------------------Turn 77--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.774 silence()
+--------------------Turn 78--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.866 silence()
+--------------------Turn 79--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.981 silence()
+--------------------Turn 80--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.941 silence()
+--------------------Turn 81--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.997 silence()
+--------------------Turn 82--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.737 silence()
+--------------------Turn 83--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.934 silence()
+--------------------Turn 84--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.825 silence()
+--------------------Turn 85--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.985 silence()
+--------------------Turn 86--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.837 silence()
+--------------------Turn 87--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.409 silence()
+--------------------Turn 88--------------------
+---sys_da:	request(to_borough)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.368 inform(to_street="122 St")
+--------------------Turn 89--------------------
+---sys_da:	request(to_borough)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.737 inform(to_street="122 St")
+--------------------Turn 90--------------------
+---sys_da:	request(to_borough)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.502 inform(to_street="122 St")
+0.035 inform(to_street="Cattaraugus St")
+0.020 inform(to_street="Central Ave")
+0.013 inform(to_street="Avenue V")
+0.007 inform(to_street="Westgate St")
+--------------------Turn 91--------------------
+---sys_da:	request(to_borough)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.509 inform(to_street="122 St")
+0.163 inform(to_street="26 Ave")
+--------------------Turn 92--------------------
+---sys_da:	request(to_borough)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.597 inform(to_street="122 St")
+0.059 inform(to_street="Sanders Pl")
+0.031 inform(to_street="Bay 52 St")
+0.015 inform(to_street="Scheffelin Ave")
+--------------------Turn 93--------------------
+---sys_da:	request(to_borough)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.365 inform(to_street="122 St")
+0.044 inform(to_street="Nadine St")
+0.025 inform(to_street="E Mt Eden Ave")
+0.017 inform(to_street="Seminole St")
+0.009 inform(to_street="Castleton Ave")
+--------------------Turn 94--------------------
+---sys_da:	request(to_borough)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.636 inform(to_street="122 St")
+0.028 inform(to_street="Marisa Ct")
+0.016 inform(to_street="2 Ct")
+0.011 inform(to_street="Chittenden Ave")
+0.005 inform(to_street="Ingram Ave")
+--------------------Turn 95--------------------
+---sys_da:	request(to_borough)
+---user_da:	inform(to_street="122 St")
+SLUHyp to DM:
+0.599 inform(to_street="122 St")
+0.052 inform(to_street="Elizabeth Grove Rd")
+--------------------Turn 96--------------------
+---sys_da:	request(to_borough)
+---user_da:	silence()
+SLUHyp to DM:
+0.962 silence()
+--------------------Turn 97--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.655 silence()
+--------------------Turn 98--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.872 silence()
+--------------------Turn 99--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.743 silence()
+--------------------Turn 100--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.604 silence()
+--------------------Turn 101--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.975 silence()
+--------------------Turn 102--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.526 silence()
+--------------------Turn 103--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.671 silence()
+--------------------Turn 104--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.629 silence()
+--------------------Turn 105--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.961 silence()
+--------------------Turn 106--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.783 silence()
+--------------------Turn 107--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.632 silence()
+--------------------Turn 108--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.945 silence()
+--------------------Turn 109--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.958 silence()
+--------------------Turn 110--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.890 silence()
+--------------------Turn 111--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.898 silence()
+--------------------Turn 112--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.924 silence()
+--------------------Turn 113--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.981 silence()
+--------------------Turn 114--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.971 silence()
+--------------------Turn 115--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.661 silence()
+--------------------Turn 116--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.902 silence()
+--------------------Turn 117--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.804 silence()
+--------------------Turn 118--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.886 silence()
+--------------------Turn 119--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.927 silence()
+--------------------Turn 120--------------------
+---sys_da:	silence()
+---user_da:	silence()
+SLUHyp to DM:
+0.579 silence()
+--------------------Turn 121--------------------
+---sys_da:	bye()&inform(toolong="true")
+!!!!!!???set to None, Cant find value for slot [toolong] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [toolong] and its equivalents slot from goal and default slots
+---user_da:	hangup()
+SLUHyp to DM:
+0.590 hangup()
+============================================================
+-User goal: {'to_city': u'Fremont Center', 'arrival_time': u'5:0 AM', 'task': 'find_connection', 'vehicle': u'bus', 'from_city': u'Bunch'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()&inform(arrival_time="5:0 AM")&inform(task="find_connection")&inform(vehicle="bus")
+SLUHyp to DM:
+0.925 hello()
+0.794 inform(vehicle="bus")
+0.500 inform(arrival_time="5:0 AM")
+0.299 inform(task="find_connection")
+0.033 inform(vehicle="ferry")
+0.031 inform(task="find_platform")
+0.012 inform(vehicle="dontcare")
+0.011 inform(task="weather")
+--------------------Turn 1--------------------
+---sys_da:	confirm(vehicle="bus")
+---user_da:	affirm()&inform(from_city="Bunch")
+SLUHyp to DM:
+0.798 affirm()
+0.632 inform(from_city="Bunch")
+0.052 inform(from_city="Benton City")
+0.030 inform(from_city="Sun Prairie")
+0.020 inform(from_city="Hartsburg")
+0.010 inform(from_city="High Point")
+--------------------Turn 2--------------------
+---sys_da:	confirm(from_city="Bunch")
+---user_da:	affirm()&inform(to_city="Fremont Center")
+SLUHyp to DM:
+0.891 affirm()
+0.451 inform(to_city="Fremont Center")
+0.043 inform(to_city="Wana")
+0.024 inform(to_city="Aspen")
+0.016 inform(to_city="Duchesne")
+0.008 inform(to_city="Granite")
+--------------------Turn 3--------------------
+---sys_da:	confirm(arrival_time="5:0 AM")
+---user_da:	affirm()
+SLUHyp to DM:
+0.957 affirm()
+0.043 negate()
+--------------------Turn 4--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_city="Fremont Center")
+SLUHyp to DM:
+0.597 inform(to_city="Fremont Center")
+0.007 inform(to_city="Alkabo")
+0.003 inform(to_city="Port Jefferson S")
+--------------------Turn 5--------------------
+---sys_da:	confirm(to_city="Fremont Center")
+---user_da:	affirm()
+SLUHyp to DM:
+0.753 affirm()
+--------------------Turn 6--------------------
+---sys_da:	offer(task="find_connection")&offer(from_city="Bunch")&offer(to_city="Fremont Center")&offer(departure_time="now")&offer(arrival_time="5:0 AM")&offer(vehicle="bus")
+---user_da:	bye()
+SLUHyp to DM:
+0.845 bye()
+============================================================
+-User goal: {'from_street': u'Dodworth St', 'to_street': u'Mirlinda Ct', 'task': 'find_connection', 'arrival_time_rel': u'now'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	inform(from_street="Dodworth St")&inform(to_street="Mirlinda Ct")&inform(task="find_connection")&inform(arrival_time_rel="now")
+SLUHyp to DM:
+0.674 inform(task="find_connection")
+0.610 inform(to_street="Mirlinda Ct")
+0.586 inform(arrival_time_rel="now")
+0.477 inform(from_street="Dodworth St")
+0.047 inform(to_street="Fulton St")
+0.042 inform(from_street="Lott Ave")
+0.027 inform(to_street="Cameron Pl")
+0.022 inform(from_street="Alverson Loop")
+0.019 inform(task="find_platform")
+0.018 inform(to_street="W 214 St")
+0.011 inform(from_street="Anthony Ave")
+0.009 inform(to_street="Valentine Pl")
+0.007 inform(task="weather")
+--------------------Turn 1--------------------
+---sys_da:	confirm(to_street="Mirlinda Ct")
+---user_da:	affirm()
+SLUHyp to DM:
+0.799 negate()
+0.005 affirm()
+--------------------Turn 2--------------------
+---sys_da:	confirm(arrival_time_rel="now")
+---user_da:	affirm()
+SLUHyp to DM:
+0.972 affirm()
+--------------------Turn 3--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="Mirlinda Ct")
+SLUHyp to DM:
+0.398 inform(to_street="Mirlinda Ct")
+0.059 inform(to_street="65 Dr")
+--------------------Turn 4--------------------
+---sys_da:	confirm(to_street="Mirlinda Ct")
+---user_da:	affirm()
+SLUHyp to DM:
+0.855 affirm()
+--------------------Turn 5--------------------
+---sys_da:	request(from_stop)
+---user_da:	inform(from_street="Dodworth St")
+SLUHyp to DM:
+0.501 inform(from_street="Dodworth St")
+0.145 inform(from_street="Beach Front Rd")
+0.054 inform(from_street="Suburban Pl")
+--------------------Turn 6--------------------
+---sys_da:	confirm(from_street="Dodworth St")
+---user_da:	affirm()
+SLUHyp to DM:
+0.975 affirm()
+0.025 negate()
+--------------------Turn 7--------------------
+---sys_da:	offer(task="find_connection")&offer(from_street="Dodworth St")&offer(to_street="Mirlinda Ct")&offer(departure_time="now")&offer(arrival_time="now")&offer(arrival_time_rel="now")&offer(vehicle="dontcare")
+---user_da:	bye()
+SLUHyp to DM:
+0.672 bye()
+============================================================
+-User goal: {'to_stop': u'North Plainfield Shopping Center (Rt 22)', 'task': 'find_connection', 'vehicle': u'dontcare', 'from_stop': u'Valley St At 1St St', 'arrival_time': u'3:0 AM'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()
+SLUHyp to DM:
+0.883 hello()
+--------------------Turn 1--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_stop="North Plainfield Shopping Center (Rt 22)")
+SLUHyp to DM:
+0.595 inform(to_stop="North Plainfield Shopping Center (Rt 22)")
+0.063 inform(to_stop="Rt-322 At Village Pkwy#")
+0.033 inform(to_stop="Tonnelle Ave At 51St St")
+0.016 inform(to_stop="Vreeland Ave At Dorian Rd#")
+--------------------Turn 2--------------------
+---sys_da:	confirm(to_stop="North Plainfield Shopping Center (Rt 22)")
+---user_da:	affirm()&inform(from_stop="Valley St At 1St St")
+SLUHyp to DM:
+0.794 inform(from_stop="Valley St At 1St St")
+0.526 affirm()
+0.474 negate()
+0.008 inform(from_stop="2 Av/E 34 St")
+0.003 inform(from_stop="Rt-528 At Rt 571#")
+--------------------Turn 3--------------------
+---sys_da:	confirm(from_stop="Valley St At 1St St")
+---user_da:	affirm()&inform(task="find_connection")
+SLUHyp to DM:
+0.696 affirm()
+0.304 negate()
+0.274 inform(task="find_connection")
+0.003 inform(task="find_platform")
+0.001 inform(task="weather")
+--------------------Turn 4--------------------
+---sys_da:	confirm(to_stop="North Plainfield Shopping Center (Rt 22)")
+---user_da:	affirm()
+SLUHyp to DM:
+0.953 affirm()
+0.047 negate()
+--------------------Turn 5--------------------
+---sys_da:	ofEXEC Time inner loop: SessionLogger t = 0.2109 c = 0.0129
+
+Received close event in: SessionLogger-1
+fer(task="find_connection")&offer(from_stop="Valley St At 1St St")&offer(to_stop="North Plainfield Shopping Center (Rt 22)")&offer(departure_time="now")&offer(arrival_time="now")&offer(vehicle="dontcare")
+---user_da:	negate()&inform(arrival_time="3:0 AM")
+SLUHyp to DM:
+0.979 negate()
+0.696 inform(arrival_time="3:0 AM")
+0.021 affirm()
+0.000 inform(arrival_time="3:50 AM")
+0.000 inform(arrival_time="2:35 AM")
+0.000 inform(arrival_time="5:40 PM")
+0.000 inform(arrival_time="11:35 PM")
+--------------------Turn 6--------------------
+---sys_da:	confirm(arrival_time="3:0 AM")
+---user_da:	affirm()&inform(vehicle="dontcare")
+SLUHyp to DM:
+0.786 affirm()
+0.675 inform(vehicle="dontcare")
+0.214 negate()
+0.035 inform(vehicle="subway")
+--------------------Turn 7--------------------
+---sys_da:	confirm(vehicle="dontcare")
+---user_da:	affirm()
+SLUHyp to DM:
+0.208 affirm()
+--------------------Turn 8--------------------
+---sys_da:	confirm(vehicle="dontcare")
+---user_da:	affirm()
+SLUHyp to DM:
+0.921 affirm()
+0.079 negate()
+--------------------Turn 9--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Valley St At 1St St")&offer(to_stop="North Plainfield Shopping Center (Rt 22)")&offer(departure_time="now")&offer(arrival_time="3:0 AM")&offer(vehicle="dontcare")
+---user_da:	reqalts(alternative="next hour")
+SLUHyp to DM:
+0.738 reqalts(alternative="next hour")
+0.020 reqalts(alternative="2")
+0.010 reqalts(alternative="next")
+0.005 reqalts(alternative="3")
+--------------------Turn 10--------------------
+first one
+> /home/root-data/thanh_pro/git_clone/alex/alex/applications/PublicTransportInfoEN/hdc_policy.py(336)get_connection_res_da()
+-> res_da = self._thanh_offer_route(ds)
+(Pdb) (Pdb) (Pdb) (Pdb) (Pdb) ---sys_da:	offer(task="find_connection")&offer(from_stop="Valley St At 1St St")&offer(to_stop="North Plainfield Shopping Center (Rt 22)")&offer(departure_time="now")&offer(arrival_time="3:0 AM")&offer(vehicle="dontcare")
+---user_da:	request(number_transfer)&request(duration)&request(distance)
+SLUHyp to DM:
+0.950 request(duration)
+0.876 request(number_transfer)
+0.776 request(distance)
+--------------------Turn 11--------------------
+---sys_da:	inform(duration="1:42")
+!!!!!!???set to None, Cant find value for slot [duration] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [duration] and its equivalents slot from goal and default slots
+---user_da:	bye()
+SLUHyp to DM:
+0.947 bye()
+Exiting: MainProcess. Setting close event

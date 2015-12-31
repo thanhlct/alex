@@ -234,9 +234,10 @@ class SimpleASRSimulator(ASRSimulator):
 
         sample_length = length
         if correct_position == -1:#Plus one in the case of sampled value equal to correct value
+            if length>=len(values):
+                length=len(values)-1
             sample_length = length + 1
-            if sample_length>=len(values):
-                sample_length = len(values)-1
+        self.system_logger.debug('Fix with size of [%d], real sample length=%d'%(len(values),length))
 
         row_ids = random.sample(xrange(len(values)), sample_length)
         for i in range(length):
