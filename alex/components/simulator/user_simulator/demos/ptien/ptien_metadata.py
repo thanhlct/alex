@@ -8,7 +8,7 @@ def values_generator2(goal, slot):
 
 def alternative_value_fun():
     '''A generator for a slot during conversation'''
-    a = ['next', 'previous', 'next hour']
+    a = ['next', 'prev', 'last', '1', '2', '3', '4', 'next hour']
     return sample_from_list(a)
 
 config = {
@@ -117,7 +117,7 @@ config = {
 
             'status_included': ['correct', 'incorect', 'pending', 'filled', 'all'],# only for imagining
             'slot_value_from':['goal', 'sys_da'],#only for imagining
-            'slot_from': ['sys_da', 'goal', 'none'],
+            'slot_from': ['sys_da', 'none'],
             'answer_types':['direct_answer', 'over_answer', 'complete_answer'],#only for easy seeing and imagining
             'dialogue_act_definitions': {#dialogue acts which user simulator used for answering
                 'request':{
@@ -171,8 +171,6 @@ config = {
                     'slot_from': 'sys_da',
                     'status_included': 'correct',
                     'status_in_all_slots': True,
-                    #TODO add cheeck all sys_da slot?
-                    #all_slot_included: True,
                 },
                 'ack':{
                     'slot_included': False,
@@ -246,14 +244,14 @@ config = {
                             'inform_overridden_properties':{
                                 'use_slot_sequence': False,
                             },
-                            'active_prob':0.85,
-                            },
-                            {'return_acts':['silence'],
+                            'active_prob':0.9,
+                        },
+                        {'return_acts':['silence'],
                             'active_prob':0.05,
-                            },
-                            {'return_acts':['oog'],
-                            'active_prob':0.1,
-                            }
+                        },
+                        {'return_acts':['oog'],
+                            'active_prob':0.05,
+                        },
                  ],
                 'confirm':[{#explict confirm
                             #only one action in the set or specify explicitly the apply order and stop when first appliable
@@ -335,6 +333,87 @@ config = {
                          ],
                         },#end of the first way of answer
                 ],
+
+               'iconfirm':[{'active_prob': 1.0,
+                         'ordered_return_acts':[
+                            {   'case1':{'return_acts':['affirm'],
+                                    'active_prob':1.0,
+                                    'affirm_overridden_properties':{
+                                        'add_to_da_prob':0.5,
+                                    }
+                                },#end of first way in the firs priority answer
+                            },#end of first priority answer
+                            {   'case1':{'return_acts':['negate', 'inform'],
+                                        'active_prob':0.7,
+                                        'inform_answer_types':{
+                                            'direct_answer':1.0,
+                                        },
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                            'use_slot_sequence': False
+                                        },
+                                },
+                                'case2':{'return_acts':['deny', 'inform'],
+                                        'active_prob':0.3,
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                            'use_slot_sequence': False
+                                        },
+                                },
+                            }#end of seond priority answer
+                         ],
+                        },#end of the first way of answer
+                ], 
+
+                'inform':[{'active_prob': 1.0,
+                         'ordered_return_acts':[
+                            {   'case1':{'return_acts':['affirm'],
+                                    'active_prob':1.0,
+                                    'affirm_overridden_properties':{
+                                        'add_to_da_prob':0.5,
+                                    }
+                                },#end of first way in the firs priority answer
+                            },#end of first priority answer
+                            {   'case1':{'return_acts':['negate', 'inform'],
+                                        'active_prob':0.7,
+                                        'inform_answer_types':{
+                                            'direct_answer':1.0,
+                                        },
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                            'use_slot_sequence': False
+                                        },
+                                },
+                                'case2':{'return_acts':['deny', 'inform'],
+                                        'active_prob':0.3,
+                                        'inform_overridden_properties':{
+                                            'slot_from': 'sys_da',
+                                            'status_included': 'incorrect',
+                                            'value_from': 'goal',
+                                            'use_slot_sequence': False
+                                        },
+                                },
+                            }#end of seond priority answer
+                         ],
+                        },#end of the first way of answer
+                ],
+
+               'apology':[{'return_acts':[],
+                            'active_prob':1.0,
+                        },
+                ],
+
+                'silence':[{'return_acts':['silence'],
+                            'active_pro':1.0
+                        },
+                ],
+
                 'hello':[{'return_acts':['hello'],
                         'active_prob':0.3,
                         },
@@ -385,10 +464,13 @@ config = {
                 'bye':[{'return_acts':['hangup'],
                         'active_prob':1.0,
                     }
-                ]
+                ],
             },
             'data_observation_probability':{
                 'time_relative':{
+                    ('now',):1.0,#key is row in the table, if table has only one field, need add comma before the end of the tuple
+                },
+                'time_relative_full_thanh':{
                     ('as soon as possible',):0.2,#key is row in the table, if table has only one field, need add comma before the end of the tuple
                     ('next hour',):0.1,
                     ('morning',):0.1,

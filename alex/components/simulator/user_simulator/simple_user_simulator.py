@@ -633,10 +633,11 @@ class SimpleUserSimulator(UserSimulator):
         if status=='all':
             return slots
         lst = []
-        for s in slots: 
-            if status=='correct' and self._get_slot_value(s)== act_in['slot_value'][s]:
+        for s in slots:
+            correct_value = self._get_slot_value(s)
+            if status=='correct' and correct_value is not None and correct_value== act_in['slot_value'][s]:
                 lst.append(s)
-            elif status=='incorrect' and self._get_slot_value(s)!= act_in['slot_value'][s]:
+            elif status=='incorrect' and correct_value is not None and correct_value!= act_in['slot_value'][s]:
                 lst.append(s)
             else:
                 if status not in ['correct', 'incorrect']:
@@ -649,6 +650,7 @@ class SimpleUserSimulator(UserSimulator):
         Raises:
             RuntimeError: Cant find value for the given slot.
         '''
+        #TODO:how to handle the slot only availible on the system, also think about how to evaluate the final reward?list of inform is an offer
         item = DialogueActItem()
         if slot in self.goal.keys():
             return self.goal[slot]

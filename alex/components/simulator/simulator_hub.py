@@ -22,6 +22,8 @@ from alex.utils.database.python_database import PythonDatabase
 from alex.components.slu.da import DialogueActItem, DialogueAct
 import multiprocessing
 
+from alex.components.hub.messages import Command, ASRHyp, SLUHyp
+
 class SimulatorHub(Hub):
     """SimulatorHub simulates dialogues between an user simulator and a dialogue manager.
     
@@ -68,23 +70,34 @@ class SimulatorHub(Hub):
         print '%s\n-User goal: %s\n%s'%('-'*50, user.goal, '-'*50)
         #cfg['Logging']['session_logger'].input_source("dialogue acts")
         index = 0
+        #TODO: Get DM and make it conversation with simulator
+        dm.new_dialogue()
         while(True):
-            sys_da = DialogueAct(sys_das[index])
-            print 'sys_da:\t\t',sys_da
+            print '%sTurn %d%s'%('-'*20, index, '-'*20)
+            #print 'Dialogue state: ', dm.dialogue_state
+            sys_da = dm.da_out()
+            #sys_da = DialogueAct(sys_das[index])
+            print '---sys_da:\t',sys_da
+            #pdb.set_trace()
             self.cfg['Logging']['session_logger'].turn("system")
             self.cfg['Logging']['session_logger'].dialogue_act("system", sys_da) 
 
-            user.da_in(sys_da)
+            user.da_in(sys_da)#User Simulator
             user_da = user.da_out()
             user_da = user_da[0]
-            print 'user_da:\t', user_da
+            print '---user_da:\t', user_da
             self.cfg['Logging']['session_logger'].turn("user")
             self.cfg['Logging']['session_logger'].dialogue_act("user", user_da)
 
-            confusion_net = asr.simulate_asr(user_da)
+            confusion_net = asr.simulate_asr(user_da)#ASR Simulator
             nbest_list = confusion_net.get_da_nblist()
             self.cfg['Logging']['session_logger'].slu("user", '*', nbest_list, confnet=confusion_net)
 
+            hyps = SLUHyp(confusion_net, asr_hyp=None)#DM
+            print 'SLUHyp to DM:\n', hyps.hyp
+            dm.da_in(hyps.hyp,  utterance=None)
+            #pdb.set_trace()
+            
             if user_da[0].dat in ['bye', 'hangup']:
                 break
             index +=1
@@ -106,10 +119,11 @@ class SimulatorHub(Hub):
             db = PythonDatabase(cfg)
             user = SimpleUserSimulator(cfg, db)
             asr = SimpleASRSimulator(cfg, db)
+            dm = self.dm
 
             while True:
-                self.simulate_one_dialogue(user, asr, None)
-                self.simulate_one_dialogue(user, asr, None)
+                self.simulate_one_dialogue(user, asr, dm)
+                self.simulate_one_dialogue(user, asr, dm)
                 break
         
         except KeyboardInterrupt:
@@ -146,7 +160,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.configs is None:
-        args.configs = ['./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/ptien/config_asr_simulator.py']
+        args.configs = ['./ptien_configs/ptien.cfg', './ptien_configs/ptien_hdc_slu.cfg','./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/ptien/config_asr_simulator.py']
     cfg = Config.load_configs(args.configs, log=False)
 
     shub = SimulatorHub(cfg)
