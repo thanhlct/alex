@@ -17,18 +17,22 @@ def reward_last_turn(goal, last_da):
 
 def reward_final_goal(goal, turns):
     #Successful diaogue: 20; Unsuccessful: 0
+    success_reward = 20
+    failure_reward = 0
+
     last_offer = None
     for i in range(len(turns)-1, -1, -1):
         da = turns[i]['sys_da'][0]
         if da.has_dat('offer'):
             last_offer = da
             break
-
-    reward = 20
+    if last_offer is None:
+        return success_reward
+    reward = success_reward
     last_offer = get_dialogue_act_metadata(last_offer)['offer']['slot_value']
     for k, v in goal.items():
         if v != get_slot_value(last_offer, k):
-            reward=0
+            reward=failure_reward
             break
     return reward
 
