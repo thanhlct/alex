@@ -11,6 +11,65 @@ def alternative_value_fun():
     a = ['next', 'prev', 'last', '1', '2', '3', '4', 'next hour']
     return sample_from_list(a)
 
+def reward_last_turn(goal, last_da):
+    return -1
+
+
+def reward_final_goal(goal, turns):
+    #Successful diaogue: 20; Unsuccessful: 0
+    last_offer = None
+    for i in range(len(turns)-1, -1, -1):
+        da = turns[i]['sys_da'][0]
+        if da.has_dat('offer'):
+            last_offer = da
+            break
+
+    reward = 20
+    last_offer = get_dialogue_act_metadata(last_offer)['offer']['slot_value']
+    for k, v in goal.items():
+        if v != get_slot_value(last_offer, k):
+            reward=0
+            break
+    return reward
+
+def get_slot_value(offer, slot):
+    if slot in offer.keys():
+        return offer[slot]
+
+    eq_slots=[('from_borough', 'from_stop', 'from_city', 'from_street'), ('to_borough', 'to_stop', 'to_city', 'to_street'),
+                                        ('arrival_time', 'arrival_time_rel'), ('departure_time', 'departure_time_rel'),]
+
+    for eq in eq_slots:
+        if slot in eq:
+            break
+    for s in eq:
+        if s in offer.keys():
+            return offer[s]
+    return None
+    
+def get_dialogue_act_metadata(da):
+    '''Return metadata describe the dialogue act given.
+
+    Returns:
+        A dict presenting statistical info about all slots, values used for each action in the given da.
+    '''
+    d = {}
+    for item in da:
+        act = item.dat
+        slot = item.name
+        value = item.value
+        if act in d.keys():
+            d[act]['slots'].append(slot)
+            d[act]['values'].append(value)
+            d[act]['slot_value'][slot] = value
+        else:
+            d[act] = {
+                'slots': [slot],
+                'values': [value],
+                'slot_value': {slot:value},
+            }
+    return d
+
 config = {
     'user_simulator':{
         'SimpleUserSimulator':{
@@ -57,8 +116,8 @@ config = {
                     'same_table_slot_keys':[],#defining when serveral slots connected to a row in a table and we would like to get them linked together
                     'goal_post_process_fun': None,#post process function to refine the sampled goal, which will be defined for specific semantic relations
                     'goal_slot_relax_fun': None,#support function, relax the value of a slot given curretn goal, e.g. more late arrival, departure sooner
-                    'reward_last_da_fun': None,
-                    'reward_final_goal_fun': None,
+                    'reward_last_da_fun': reward_last_turn,
+                    'reward_final_goal_fun': reward_final_goal,
                     'end_dialogue_post_process_fun': None,
                     'slot_used_sequence':{#higher level is only able to used when one of slot at previous level used#TODO not used in the code yet
                         0:('task',),
@@ -124,7 +183,7 @@ config = {
                 'request':{
                     'slot_included': True,
                     'value_included': False,
-                    'combineable_slots': ['number_transfer', 'duration', 'distance']
+                    'combineable_slots': ['duration'],#['number_transfer', 'duration', 'distance']# return confliction after request
                 },
                 'inform':{
                     'slot_included': True,
@@ -245,10 +304,10 @@ config = {
                             'inform_overridden_properties':{
                                 #'use_slot_sequence': True,#will be error someday when system ask a slot which is absen in the current goal
                             },
-                            'active_prob':0.9,
+                            'active_prob':0.95,
                         },
                         {'return_acts':['silence'],
-                            'active_prob':0.05,
+                            'active_prob':0.00,
                         },
                         {'return_acts':['oog'],
                             'active_prob':0.05,
@@ -407,7 +466,7 @@ config = {
                                         'add_to_da_prob':1.0,
                                     },
                                 },#end of first way in the firs priority answer
-                                'case2':{'return_acts':['hangup'],
+                                'case2':{'return_acts':['thankyou', 'hangup'],
                                     'active_prob':0.5,
                                     'affirm_overridden_properties':{
                                         'add_to_da_prob':1.0,
@@ -417,7 +476,7 @@ config = {
                          ],
                         },#end of the first way of answer
                 ],
-                'select':[{'return_act':['inform'],
+                'select':[{'return_acts':['inform'],
                         'active_prob': 1.0,
                     },
                 ],
@@ -479,7 +538,7 @@ config = {
                                         'add_to_da_prob':0.0,
                                     },
                                 },#end of second way in the firs priority answer
-                                 'case3':{'return_acts':['affirm', 'request'],
+                                 'case3':{'return_acts':['affirm', 'request'],#NOTE: don't ask at the end since the current DM anser have inform(from_stop..
                                     'active_prob':0.2,
                                     'affirm_overridden_properties':{
                                         'add_to_da_prob':0.0,

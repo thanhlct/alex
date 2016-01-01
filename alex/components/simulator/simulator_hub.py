@@ -21,6 +21,8 @@ from alex.components.simulator.asr_simulator.simple_asr_simulator import SimpleA
 from alex.utils.database.python_database import PythonDatabase
 from alex.components.slu.da import DialogueActItem, DialogueAct
 import multiprocessing
+import time
+import numpy as np
 
 from alex.components.hub.messages import Command, ASRHyp, SLUHyp
 
@@ -45,7 +47,7 @@ class SimulatorHub(Hub):
         """Prints the dialogue act to the output, log."""
         print agent, '\t\t', unicode(da)
 
-    def simulate_one_dialogue(self, user, asr, dm):
+    def simulate_one_dialogue(self, user, asr, dm, dialogue_id=0):
         """Simulate one dialogue given user simuator, ASR simulator and dialogue manager."""
 
         cfg['Logging']['system_logger'].session_start("simulator")
@@ -67,13 +69,14 @@ class SimulatorHub(Hub):
                 ]
         
         user.new_dialogue()
-        print '%s\n-User goal: %s\n%s'%('='*60, user.goal, '='*60)
+        print '%s\nDialogue %d, ser goal: %s\n%s'%('='*60, dialogue_id, user.goal, '='*60)
         #cfg['Logging']['session_logger'].input_source("dialogue acts")
-        index = 0
+        turn_index = 0
         #TODO: Get DM and make it conversation with simulator
         dm.new_dialogue()
+        total_reward = 0
         while(True):
-            print '%sTurn %d%s'%('-'*20, index, '-'*20)
+            print '%sTurn %d%s'%('-'*20, turn_index, '-'*20)
             #print 'Dialogue state: ', dm.dialogue_state
             sys_da = dm.da_out()
             #sys_da = DialogueAct(sys_das[index])
@@ -85,6 +88,9 @@ class SimulatorHub(Hub):
             user.da_in(sys_da)#User Simulator
             user_da = user.da_out()
             user_da = user_da[0]
+            turn_reward = user.reward_last_da()
+            total_reward += turn_reward
+            #print 'reward:', turn_reward
             print '---user_da:\t', user_da
             self.cfg['Logging']['session_logger'].turn("user")
             self.cfg['Logging']['session_logger'].dialogue_act("user", user_da)
@@ -94,18 +100,26 @@ class SimulatorHub(Hub):
             self.cfg['Logging']['session_logger'].slu("user", '*', nbest_list, confnet=confusion_net)
 
             hyps = SLUHyp(confusion_net, asr_hyp=None)#DM
-            print 'SLUHyp to DM:\n', hyps.hyp
+            print '---SLUHyp to DM:\n', hyps.hyp
             dm.da_in(hyps.hyp,  utterance=None)
-            #pdb.set_trace()
             
-            if user_da[0].dat in ['bye', 'hangup']:
+            turn_index +=1
+            if user_da.has_dat('bye') or user_da.has_dat('hangup'):
                 break
-            index +=1
+
+        goal_reward = user.reward_final_goal()
+        total_reward += goal_reward
+        success = 0
+        if goal_reward==20:
+            success = 1
+        success_text = 'success' if success else 'UNsuccess'
+        print '%sDialogue %d: %s after %d turns, goal reward: %d, total reward: %d'%('-'*10,dialogue_id, success_text, turn_index, goal_reward, total_reward)
 
         self.cfg['Logging']['system_logger'].session_end()
         self.cfg['Logging']['session_logger'].session_end()
+        return success, turn_index, total_reward
 
-    def run(self, episode=10):
+    def run(self, episode=1000):
         """Run the hub."""
         try:
             cfg['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
@@ -121,11 +135,30 @@ class SimulatorHub(Hub):
             asr = SimpleASRSimulator(cfg, db)
             dm = self.dm
 
-            count = 0
-            while count<episode:
-                self.simulate_one_dialogue(user, asr, dm)
-                count += 1
-        
+            turn_counts = []
+            rewards = []
+            success_count = 0
+            start_time = time.time()
+
+            dialogue_count = 0
+            while dialogue_count<episode:
+                success, turn_count, reward = self.simulate_one_dialogue(user, asr, dm, dialogue_count)
+                turn_counts.append(turn_count)
+                rewards.append(reward)
+                success_count += success
+                dialogue_count += 1
+            
+            lines = ['\n%s%s%s'%('='*30, 'SUMMARY', '='*30)]
+            lines.append('-Total executing time: %.3f seconds'%(time.time()-start_time))
+            rate = success_count*100.0/episode
+            lines.append('-Success rate: %.2f (%d/%d)'%(rate,success_count, episode))
+            lines.append('-Averaging turn number/dialogue: %.3f (std=%.3f)'%(np.mean(turn_counts), np.std(turn_counts)))
+            lines.append('-Averaging total reward /dialogue: %.3f (std=%.3f)'%(np.mean(rewards), np.std(rewards)))
+            lines.append('-'*66)
+
+            print '\n'.join(lines)
+            #pdb.set_trace() 
+
         except KeyboardInterrupt:
             print 'KeyboardInterrupt exception in: %s' % multiprocessing.current_process().name
             return

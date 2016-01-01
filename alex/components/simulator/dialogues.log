@@ -1,0 +1,396 @@
+Testing connection to the update server..
+================================================================================
+Could not stat: https://vystadial.ms.mff.cuni.cz/download/alex/applications/PublicTransportInfoEN/slu/dailogreg.nbl.model.all
+--------------------------------------------------------------------------------
+
+============================================================
+Dialogue 0, ser goal: {'from_street': u'Schenck St', 'to_street': u'E 34 St', 'task': 'find_connection', 'vehicle': u'tram', 'arrival_time': u'9:15 AM'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	inform(to_street="E 34 St")&inform(task="find_connection")&inform(vehicle="tram")
+---SLUHyp to DM:
+0.405 inform(to_street="E 34 St")
+0.375 inform(task="find_platform")
+0.360 inform(vehicle="dontcare")
+0.112 inform(vehicle="subway")
+0.058 inform(vehicle="monorail")
+0.028 inform(vehicle="tram")
+0.020 inform(task="find_connection")
+0.020 inform(to_street="Maryland Ln")
+0.007 inform(task="weather")
+0.007 inform(to_street="Mc Guinness Blvd S")
+--------------------Turn 1--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="E 34 St")
+---SLUHyp to DM:
+0.595 inform(to_street="E 34 St")
+0.019 inform(to_street="Orlando St")
+--------------------Turn 2--------------------
+---sys_da:	confirm(to_street="E 34 St")
+---user_da:	affirm()&inform(arrival_time="9:15 AM")
+---SLUHyp to DM:
+0.998 affirm()
+0.355 inform(arrival_time="9:15 AM")
+--------------------Turn 3--------------------
+---sys_da:	request(from_stop)
+---user_da:	inform(from_street="Schenck St")
+---SLUHyp to DM:
+0.483 inform(from_street="Schenck St")
+0.024 inform(from_street="Avenue I")
+--------------------Turn 4--------------------
+---sys_da:	request(from_stop)
+---user_da:	inform(from_street="Schenck St")
+---SLUHyp to DM:
+0.785 inform(from_street="Schenck St")
+0.009 inform(from_street="Tom Ct")
+0.005 inform(from_street="Wales Pl")
+0.002 inform(from_street="Bayside Walk")
+--------------------Turn 5--------------------
+---sys_da:	iconfirm(from_stop="Schenck St")&offer(task="find_connection")&offer(from_street="Schenck St")&offer(to_street="E 34 St")&offer(departure_time="now")&offer(arrival_time="now")&offer(vehicle="dontcare")
+---user_da:	deny(arrival_time="now")&deny(vehicle="dontcare")&inform(arrival_time="9:15 AM")&inform(vehicle="tram")
+---SLUHyp to DM:
+0.744 deny(vehicle="dontcare")
+0.520 inform(vehicle="tram")
+0.513 deny(arrival_time="now")
+0.197 inform(arrival_time="4:10 AM")
+0.133 deny(arrival_time="12:50 PM")
+0.076 deny(arrival_time="11:15 PM")
+0.058 inform(arrival_time="3:20 PM")
+0.051 deny(arrival_time="8:20 AM")
+0.033 inform(arrival_time="10:50 AM")
+0.026 deny(arrival_time="11:45 AM")
+0.022 inform(arrival_time="2:35 AM")
+0.011 inform(arrival_time="2:55 PM")
+0.011 inform(vehicle="dontcare")
+0.004 inform(vehicle="cable_car")
+0.001 deny(vehicle="ferry")
+0.001 deny(vehicle="train")
+0.001 deny(vehicle="subway")
+0.000 deny(vehicle="monorail")
+--------------------Turn 6--------------------
+---sys_da:	confirm(vehicle="tram")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.916 affirm()
+--------------------Turn 7--------------------
+---sys_da:	offer(task="find_connection")&offer(from_street="Schenck St")&offer(to_street="E 34 St")&offer(departure_time="now")&offer(arrival_time="now")&offer(vehicle="tram")
+---user_da:	deny(arrival_time="now")&inform(arrival_time="9:15 AM")
+---SLUHyp to DM:
+0.752 deny(arrival_time="now")
+0.335 inform(arrival_time="9:15 AM")
+0.030 inform(arrival_time="11:40 AM")
+0.011 deny(arrival_time="11:5 AM")
+0.011 inform(arrival_time="6:50 PM")
+0.006 deny(arrival_time="4:0 PM")
+0.004 deny(arrival_time="11:35 AM")
+0.002 deny(arrival_time="8:20 AM")
+--------------------Turn 8--------------------
+---sys_da:	confirm(arrival_time="9:15 AM")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.949 affirm()
+--------------------Turn 9--------------------
+---sys_da:	offer(task="find_connection")&offer(from_street="Schenck St")&offer(to_street="E 34 St")&offer(departure_time="now")&offer(arrival_time="9:15 AM")&offer(vehicle="tram")
+---user_da:	bye()
+---SLUHyp to DM:
+0.981 bye()
+----------Dialogue 0: success after 10 turns, goal reward: 20, total reward: 10
+============================================================
+Dialogue 1, ser goal: {'from_street': u'Thurston St', 'to_street': u'Katan Loop', 'task': 'find_connection'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	inform(to_street="Katan Loop")&inform(task="find_connection")
+---SLUHyp to DM:
+0.400 inform(task="find_connection")
+0.331 inform(to_street="Katan Loop")
+0.217 inform(to_street="Trantor Pl")
+0.083 inform(task="find_platform")
+0.031 inform(task="weather")
+--------------------Turn 1--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="Katan Loop")
+---SLUHyp to DM:
+0.565 inform(to_street="Katan Loop")
+0.017 inform(to_street="Penn Plz")
+0.010 inform(to_street="Douglas Ave")
+0.007 inform(to_street="Bell Blvd")
+0.003 inform(to_street="Jaffe St")
+--------------------Turn 2--------------------
+---sys_da:	confirm(to_street="Katan Loop")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.919 affirm()
+--------------------Turn 3--------------------
+---sys_da:	request(from_stop)
+---user_da:	inform(from_street="Thurston St")
+---SLUHyp to DM:
+0.716 inform(from_street="Thurston St")
+0.042 inform(from_street="Latimer Pl")
+0.016 inform(from_street="149 Ave")
+--------------------Turn 4--------------------
+---sys_da:	confirm(from_street="Thurston St")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.976 affirm()
+0.024 negate()
+--------------------Turn 5--------------------
+---sys_da:	offer(task="find_connection")&offer(from_street="Thurston St")&offer(to_street="Katan Loop")&offer(departure_time="now")&offer(arrival_time="now")&offer(vehicle="dontcare")
+---user_da:	reqalts(alternative="2")
+---SLUHyp to DM:
+0.469 reqalts(alternative="2")
+0.102 reqalts(alternative="next hour")
+--------------------Turn 6--------------------
+first one
+---sys_da:	inform(found_directions="true")&inform(alternative="second")&inform(walk_to="richmond avenue and jules drive")&inform(vehicle="bus")&inform(line="S59")&inform(departure_time="12:58:PM")&inform(enter_at="richmond avenue and jules drive")&inform(headsign="Hylan Bl")&inform(exit_at="richmond avenue and augusta avenue")&inform(walk_to="FINAL_DEST")
+!!!!!!???set to None, Cant find value for slot [found_directions] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [alternative] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [found_directions] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [alternative] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [found_directions] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [alternative] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+---user_da:	negate()&inform(vehicle="dontcare")&inform(departure_time="now")
+---SLUHyp to DM:
+0.919 negate()
+0.458 inform(vehicle="dontcare")
+0.369 inform(departure_time="now")
+0.078 inform(vehicle="ferry")
+0.029 inform(vehicle="train")
+0.009 inform(departure_time="0:25 AM")
+0.005 inform(departure_time="9:35 PM")
+0.002 inform(departure_time="2:15 AM")
+--------------------Turn 7--------------------
+---sys_da:	offer(task="find_connection")&offer(from_street="Thurston St")&offer(to_street="Katan Loop")&offer(departure_time="now")&offer(arrival_time="now")&offer(vehicle="dontcare")
+---user_da:	thankyou()
+---SLUHyp to DM:
+0.981 thankyou()
+--------------------Turn 8--------------------
+---sys_da:	inform(cordiality="true")&hello()
+!!!!!!???set to None, Cant find value for slot [cordiality] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [cordiality] and its equivalents slot from goal and default slots
+---user_da:	bye()&hello()&inform(task="find_connection")
+---SLUHyp to DM:
+0.955 hello()
+0.726 bye()
+0.576 inform(task="find_connection")
+0.005 inform(task="find_platform")
+0.002 inform(task="weather")
+----------Dialogue 1: success after 9 turns, goal reward: 20, total reward: 11
+============================================================
+Dialogue 2, ser goal: {'to_street': u'Normal Rd', 'task': 'find_connection', 'arrival_time_rel': u'now', 'from_stop': u'Rt-18 At Pine Tree Blvd'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()&inform(task="find_connection")&inform(from_stop="Rt-18 At Pine Tree Blvd")
+---SLUHyp to DM:
+0.971 hello()
+0.684 inform(task="find_connection")
+0.368 inform(from_stop="Rt-18 At Pine Tree Blvd")
+0.079 inform(task="weather")
+0.029 inform(task="find_platform")
+--------------------Turn 1--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_street="Normal Rd")
+---SLUHyp to DM:
+0.678 inform(to_street="Normal Rd")
+0.065 inform(to_street="45 Dr")
+0.034 inform(to_street="Nancy Ct")
+0.016 inform(to_street="India St")
+--------------------Turn 2--------------------
+---sys_da:	confirm(to_street="Normal Rd")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.662 affirm()
+--------------------Turn 3--------------------
+---sys_da:	request(from_stop)
+---user_da:	inform(from_stop="Rt-18 At Pine Tree Blvd")
+---SLUHyp to DM:
+0.376 inform(from_stop="Rt-18 At Pine Tree Blvd")
+0.061 inform(from_stop="Utica Av/Prospect Pl")
+0.035 inform(from_stop="Mt. Prospect Ave 100' N Of Mt. Prospect Pl.")
+0.023 inform(from_stop="Rues Lane At W. Waverly Dr")
+0.012 inform(from_stop="Pennington Ave At Reservoir St")
+--------------------Turn 4--------------------
+---sys_da:	confirm(from_stop="Rt-18 At Pine Tree Blvd")
+---user_da:	affirm()&inform(arrival_time_rel="now")
+---SLUHyp to DM:
+0.651 affirm()
+0.600 inform(arrival_time_rel="now")
+0.349 negate()
+--------------------Turn 5--------------------
+---sys_da:	confirm(from_stop="Rt-18 At Pine Tree Blvd")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.841 affirm()
+0.159 negate()
+--------------------Turn 6--------------------
+---sys_da:	confirm(arrival_time_rel="now")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.823 affirm()
+--------------------Turn 7--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Rt-18 At Pine Tree Blvd")&offer(to_street="Normal Rd")&offer(departure_time="now")&offer(arrival_time="now")&offer(arrival_time_rel="now")&offer(vehicle="dontcare")
+---user_da:	thankyou()
+---SLUHyp to DM:
+0.980 thankyou()
+--------------------Turn 8--------------------
+---sys_da:	inform(cordiality="true")&hello()
+!!!!!!???set to None, Cant find value for slot [cordiality] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [cordiality] and its equivalents slot from goal and default slots
+---user_da:	thankyou()&hangup()&hello()&inform(task="find_connection")
+---SLUHyp to DM:
+0.971 thankyou()
+0.920 hello()
+0.889 hangup()
+0.383 inform(task="find_connection")
+0.062 inform(task="find_platform")
+0.023 inform(task="weather")
+----------Dialogue 2: success after 9 turns, goal reward: 20, total reward: 11
+============================================================
+Dialogue 3, ser goal: {'to_stop': u'Roseland Ave At Lenfell Lane#', 'task': 'find_connection', 'departure_time': u'7:35 AM', 'from_stop': u'Us-9 At Greenbush Rd'}
+============================================================
+--------------------Turn 0--------------------
+---sys_da:	hello()
+---user_da:	hello()
+---SLUHyp to DM:
+0.926 hello()
+--------------------Turn 1--------------------
+---sys_da:	request(to_stop)
+---user_da:	inform(to_stop="Roseland Ave At Lenfell Lane#")&inform(task="find_connection")&inform(departure_time="7:35 AM")&inform(from_stop="Us-9 At Greenbush Rd")
+---SLUHyp to DM:
+0.639 inform(from_stop="Us-9 At Greenbush Rd")
+0.605 inform(departure_time="7:35 AM")
+0.604 inform(to_stop="South Orange Ave 75' W Of Prospect St.")
+0.519 inform(task="find_connection")
+0.113 inform(task="find_platform")
+0.042 inform(task="weather")
+0.023 inform(departure_time="2:20 AM")
+0.016 inform(to_stop="Roseland Ave At Lenfell Lane#")
+0.009 inform(departure_time="9:5 PM")
+0.008 inform(to_stop="5 Av/W 135 St")
+0.004 inform(to_stop="Vauxhall Rd At Winslow Ave")
+--------------------Turn 2--------------------
+---sys_da:	confirm(from_stop="Us-9 At Greenbush Rd")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.798 affirm()
+--------------------Turn 3--------------------
+---sys_da:	confirm(departure_time="7:35 AM")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.863 affirm()
+--------------------Turn 4--------------------
+---sys_da:	confirm(to_stop="South Orange Ave 75' W Of Prospect St.")
+---user_da:	deny(to_stop="South Orange Ave 75' W Of Prospect St.")&inform(to_stop="Roseland Ave At Lenfell Lane#")
+---SLUHyp to DM:
+0.669 deny(to_stop="South Orange Ave 75' W Of Prospect St.")
+0.617 inform(to_stop="Roseland Ave At Lenfell Lane#")
+0.083 inform(to_stop="N Gannon Av / Manor Rd")
+0.010 deny(to_stop="Madison Ave 590'E Of S Oak Ct.")
+0.006 deny(to_stop="Bergen Community College Ender Hall")
+0.004 deny(to_stop="Linden Bl/Springfield Bl")
+0.002 deny(to_stop="Mercer Mall At Bus Stop Near Shoprite")
+--------------------Turn 5--------------------
+---sys_da:	confirm(to_stop="Roseland Ave At Lenfell Lane#")
+---user_da:	affirm()
+---SLUHyp to DM:
+0.929 affirm()
+--------------------Turn 6--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Us-9 At Greenbush Rd")&offer(to_stop="Roseland Ave At Lenfell Lane#")&offer(departure_time="7:35 AM")&offer(arrival_time="now")&offer(vehicle="dontcare")
+---user_da:	reqalts(alternative="3")
+---SLUHyp to DM:
+0.318 reqalts(alternative="3")
+--------------------Turn 7--------------------
+---sys_da:	offer(task="find_connection")&offer(from_stop="Us-9 At Greenbush Rd")&offer(to_stop="Roseland Ave At Lenfell Lane#")&offer(departure_time="7:35 AM")&offer(arrival_time="now")&offer(vehicle="dontcare")
+---user_da:	reqalts(alternative="next hour")
+---SLUHyp to DM:
+0.378 reqalts(alternative="next hour")
+0.297 reqalts(alternative="1")
+--------------------Turn 8--------------------
+first one
+---sys_da:	inform(found_directions="true")&inform(alternative="second")&inform(vehicle="bus")&inform(line="559")&inform(departure_time="01:28:PM")&inform(enter_at="us , ninth at greenbush road")&inform(headsign="559 Lakewood")&inform(exit_at="toms river park and ride")&inform(transfer="true")&inform(vehicle="bus")&inform(line="137")&inform(departure_time="02:55:PM")&inform(headsign="137 New York Parkway Exp")&inform(exit_at="port authority bus terminal")&inform(transfer="true")&inform(walk_to="times square , forty second street")&inform(vehicle="subway")&inform(line="1")&inform(departure_time="04:43:PM")&inform(enter_at="times square , forty second street")&inform(headsign="South Ferry Loop")&inform(exit_at="thirty fourth street , penn station")&inform(transfer="true")&inform(walk_to="new york penn station")&inform(vehicle="train")&inform(line="Northeast Corridor")&inform(departure_time="04:54:PM")&inform(enter_at="new york penn station")&inform(headsign="Trenton Transit Center")&inform(exit_at="newark")&inform(transfer="true")&inform(walk_to="bus lanes on raymond boulevard side")&inform(vehicle="bus")&inform(line="71")&inform(departure_time="05:22:PM")&inform(enter_at="bus lanes on raymond boulevard side")&inform(headsign="71 W CALDWELL-Exact Fare")&inform(exit_at="roseland avenue at lenfell lane#")
+!!!!!!???set to None, Cant find value for slot [found_directions] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [alternative] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [found_directions] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [alternative] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [walk_to] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [found_directions] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [alternative] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [enter_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [exit_at] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [transfer] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [line] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for slot [headsign] and its equivalents slot from goal and default slots
+!!!!!!???set to None, Cant find value for sl

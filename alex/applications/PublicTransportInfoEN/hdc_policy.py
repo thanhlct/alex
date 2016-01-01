@@ -331,9 +331,9 @@ class PTIENHDCPolicy(DialoguePolicy):
             ds["ludait"].reset()
             #=============thanh: changes for evaluating, must remove to run normally======
             print 'first one'
-            import pdb
-            pdb.set_trace()
-            res_da = self._thanh_offer_route(ds)
+            #import pdb
+            #pdb.set_trace()
+            #res_da = self._thanh_offer_route(ds)
             #import pdb
             #pdb.set_trace()
             #-----------------------------------------------------------------------------
@@ -342,8 +342,8 @@ class PTIENHDCPolicy(DialoguePolicy):
             res_da = self.get_requested_alternative(ds, slots_being_requested, accepted_slots)
             ds["alternative"].reset()
             print 'second one'
-            import pdb
-            pdb.set_trace()
+            #import pdb
+            #pdb.set_trace()
 
         elif slots_being_requested:
             # inform about all requested slots
