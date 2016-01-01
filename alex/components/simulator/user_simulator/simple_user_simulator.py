@@ -46,6 +46,11 @@ class SimpleUserSimulator(UserSimulator):
         #self._goal_dist = self._get_goal_distribution()
         self._goal_dist = self._get_dict_distribution(self.metadata['goals'])
 
+        self.config = self._config[self._name]
+        self.patience_level = 0
+        if 'patience_level' in self.config.keys():
+            self.patience_level = self.config['patience_level']
+
     def _get_dict_distribution(self, lst_dict):
         '''Get dict distribution for a list of dictionary or a dictionary of dictionary
         
@@ -73,6 +78,7 @@ class SimpleUserSimulator(UserSimulator):
         self.act_used_slots = {}
         self.slot_level_used = 0
         self.turns = []
+        self.patience_history= {}
 
         self.system_logger.info("SimpleUserSimulator: GOAL: %s"%self.goal)
 
@@ -285,6 +291,7 @@ class SimpleUserSimulator(UserSimulator):
     def _get_answer_da(self, da_in):
         '''Answer a sytem dialogue act.'''
         da_out = DialogueAct()
+        out_of_patience=False
 
         reply_sys_acts = self.metadata['reply_system_acts']
         da_metadata = self._get_dialogue_act_metadata(da_in)
@@ -305,7 +312,7 @@ class SimpleUserSimulator(UserSimulator):
             else:
                 da_items = self._build_one_answer(da_metadata[act_in], answer)
                 
-            for item in da_items:#process action can be whether add to da_out or not like impl_confirm
+            for item in da_items:#process action can be whether add to da_out or not like impl_confirmi
                 act_out_des = self._get_act_out_description(item.dat, answer)
                 if 'add_to_da_prob' in act_out_des.keys():
                     if sample_a_prob(act_out_des['add_to_da_prob']) and item not in da_out:
@@ -313,7 +320,21 @@ class SimpleUserSimulator(UserSimulator):
                 else:
                     if item not in da_out:
                         da_out.append(item)
+                #-------update patience history
+                if item.name is not None:#have slot, the sys act ask repeated the sema slot anserd, ignore the case of over answer
+                    if act_in not in self.patience_history.keys():
+                        self.patience_history[act_in] = {}
+                    if item.name not in self.patience_history[act_in]:
+                        self.patience_history[act_in][item.name]=1
+                    else:
+                        self.patience_history[act_in][item.name]+=1
+                        if self.patience_level>=1 and self.patience_history[act_in][item.name]>self.patience_level:
+                            out_of_patience = True
+                            break#only break the inner loop
             #da_out.extend(da_items)
+        if out_of_patience:
+            da_out = DialogueAct(self.config['out_of_patience_act'])
+            print '!!!!ANGRY...'
         return da_out
 
     def _get_act_out_description(self, act_out, specific_answer):

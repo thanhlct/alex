@@ -27,7 +27,7 @@ def reward_final_goal(goal, turns):
             last_offer = da
             break
     if last_offer is None:
-        return success_reward
+        return failure_reward
     reward = success_reward
     last_offer = get_dialogue_act_metadata(last_offer)['offer']['slot_value']
     for k, v in goal.items():
@@ -78,6 +78,8 @@ config = {
     'user_simulator':{
         'SimpleUserSimulator':{
             'debug': True,
+            'patience_level':6,#minimum 1,the number of repeated ask the same thing to get angry and hang up, set to 0 mean never hang up 
+            'out_of_patience_act':'hangup()',
             'metadata':{
             'slots': ['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street',
                     'departure_time', 'departure_date', 'arrival_time', 'arrival_date',
@@ -492,8 +494,33 @@ config = {
                             'active_prob':1.0,
                         },
                 ],
-                'silence':[{'return_acts':['silence'],
-                            'active_prob':1.0
+                'silence':[{'return_acts':['inform'],
+                            'active_prob':1.0,
+                            'inform_answer_types':{
+                                'direct_answer':0.0,
+                                'over_answer':0.9,
+                                'complete_answer':0.1,
+                            },
+                            'inform_overridden_properties':{
+                                'slot_from': 'none',
+                                'accept_used_slots': True,
+                                #'atleast_slots': ['task'],
+                            },
+                        },
+                ],
+                'notunderstood':[{'return_acts':['oog'],
+                                    'active_prob':1.0,
+                        },
+                ],
+                'irepeat':[{'return_acts':['oog'],
+                        'active_prob':1.0,
+                    },
+                ],
+                'reqmore':[{'return_acts':['negate'],
+                            'active_prob':0.7,
+                        },
+                        {   'return_acts':['request'],
+                            'active_prob':0.3,
                         },
                 ],
                 'hello':[{'return_acts':['hello'],

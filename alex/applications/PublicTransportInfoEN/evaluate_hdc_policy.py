@@ -329,11 +329,21 @@ class PTIENHDCPolicy(DialoguePolicy):
             # NLG("The next connection is ...")
             res_da = self.get_an_alternative(ds)
             ds["ludait"].reset()
-
+            #=============thanh: changes for evaluating, must remove to run normally======
+            print 'first one'
+            #import pdb
+            #pdb.set_trace()
+            #res_da = self._thanh_offer_route(ds)
+            #import pdb
+            #pdb.set_trace()
+            #-----------------------------------------------------------------------------
         elif "alternative" in accepted_slots:
             # Search for traffic direction and/or present the requested directions already found, take into account additional requests (dep_time etc.)
             res_da = self.get_requested_alternative(ds, slots_being_requested, accepted_slots)
             ds["alternative"].reset()
+            print 'second one'
+            #import pdb
+            #pdb.set_trace()
 
         elif slots_being_requested:
             # inform about all requested slots
@@ -352,12 +362,31 @@ class PTIENHDCPolicy(DialoguePolicy):
                     ds.conn_info = conn_info
                     res_da = iconfirm_da
                     res_da.extend(self.get_directions(ds, check_conflict=True))
+                    #=============thanh: changes for evaluating, must remove to run normally======
+                    res_da = self._thanh_offer_route(ds)
+                    #import pdb
+                    #pdb.set_trace()
+                    #-----------------------------------------------------------------------------
                 else:
                     res_da = self.backoff_action(ds)
             else:
                 res_da = req_da
 
         return res_da
+
+    def _thanh_offer_route(self, ds):
+        slots=['task', 'from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle',]
+        defaults = {'task': 'find_connection', 'departure_time':'now', 'arrival_time':'now', 'vehicle':'dontcare'} 
+        ret_da = DialogueAct()
+        for s in slots:
+            value = ds[s].mpv()
+            if value == 'none':
+                if s in defaults.keys():
+                    value = defaults[s]
+                else:
+                    continue
+            ret_da.append(DialogueActItem('offer', s, value))
+        return ret_da
 
     def get_weather_res_da(self, ds, ludait, slots_being_requested, slots_being_confirmed,
                            accepted_slots, changed_slots, state_changed):
