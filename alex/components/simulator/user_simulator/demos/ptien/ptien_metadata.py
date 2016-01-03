@@ -14,7 +14,6 @@ def alternative_value_fun():
 def reward_last_turn(goal, last_da):
     return -1
 
-
 def reward_final_goal(goal, turns):
     #Successful diaogue: 20; Unsuccessful: 0
     success_reward = 20

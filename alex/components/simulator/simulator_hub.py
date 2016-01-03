@@ -8,6 +8,7 @@ if __name__ == '__main__':
 
 import time
 import argparse
+import sys, traceback
 
 from alex.applications.exceptions import SemHubException
 from alex.components.hub import Hub
@@ -19,6 +20,7 @@ from alex.utils.config import Config
 from alex.components.simulator.user_simulator.simple_user_simulator import SimpleUserSimulator
 from alex.components.simulator.asr_simulator.simple_asr_simulator import SimpleASRSimulator
 from alex.utils.database.python_database import PythonDatabase
+from alex.utils.support_functions import deep_copy
 from alex.components.slu.da import DialogueActItem, DialogueAct
 import multiprocessing
 import time
@@ -36,7 +38,7 @@ class SimulatorHub(Hub):
 
     def __init__(self, cfg):
         super(SimulatorHub, self).__init__(cfg)
-
+        #self.cfg = cfg
         dm_type = get_dm_type(cfg)
         self.dm = dm_factory(dm_type, cfg)
         self.dm.new_dialogue()
@@ -49,7 +51,8 @@ class SimulatorHub(Hub):
 
     def simulate_one_dialogue(self, user, asr, dm, dialogue_id=0):
         """Simulate one dialogue given user simuator, ASR simulator and dialogue manager."""
-
+        
+        '''
         cfg['Logging']['system_logger'].session_start("simulator")
         cfg['Logging']['system_logger'].session_system_log('config = ' + unicode(cfg))
 
@@ -58,6 +61,7 @@ class SimulatorHub(Hub):
         cfg['Logging']['session_logger'].header(cfg['Logging']["system_name"], cfg['Logging']["version"])
         #cfg['Logging']['session_logger'].input_source("dialogue acts")
         #cfg['Logging']['session_logger'].input_source("voip")
+        '''
 
         sys_das = ['hello()',
                 'request(task)',
@@ -69,7 +73,7 @@ class SimulatorHub(Hub):
                 ]
         
         user.new_dialogue()
-        print '%s\nDialogue %d, ser goal: %s\n%s'%('='*60, dialogue_id, user.goal, '='*60)
+        print '%s\nDialogue %d, user goal: %s\n%s'%('='*60, dialogue_id, user.goal, '='*60)
         #cfg['Logging']['session_logger'].input_source("dialogue acts")
         turn_index = 0
         #TODO: Get DM and make it conversation with simulator
@@ -119,16 +123,19 @@ class SimulatorHub(Hub):
         self.cfg['Logging']['session_logger'].session_end()
         return success, turn_index, total_reward
 
-    def run(self, episode=1000):
+    def run(self, episode=1000, asr_error=0):
         """Run the hub."""
         try:
-            cfg['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
-            self.cfg['Logging']['system_logger'].info("""Starting...""")
-
+            self.cfg['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
+            self.cfg['Logging']['system_logger'].info("""Starting new one...""")
+            '''move this part to evaludate_dm
+            self.close_event = multiprocessing.Event()
             cfg['Logging']['session_logger'].set_close_event(self.close_event)
             cfg['Logging']['session_logger'].set_cfg(cfg)
-            cfg['Logging']['session_logger'].start()
+            if cfg['Logging']['session_logger']._popen is None:
+                cfg['Logging']['session_logger'].start()
             cfg['Logging']['session_logger'].cancel_join_thread()
+            '''
 
             db = PythonDatabase(cfg)
             user = SimpleUserSimulator(cfg, db)
@@ -138,20 +145,29 @@ class SimulatorHub(Hub):
             turn_counts = []
             rewards = []
             success_count = 0
+            error_count = 0
             start_time = time.time()
 
             dialogue_count = 0
             while dialogue_count<episode:
-                success, turn_count, reward = self.simulate_one_dialogue(user, asr, dm, dialogue_count)
-                turn_counts.append(turn_count)
-                rewards.append(reward)
-                success_count += success
+                try:
+                    success, turn_count, reward = self.simulate_one_dialogue(user, asr, dm, dialogue_count)
+                    turn_counts.append(turn_count)
+                    rewards.append(reward)
+                    success_count += success
+                except Exception as e:
+                    print '*******---System Error at Dialogue %d:'%(dialogue_count)
+                    traceback.print_exc()
+                    print '-'*50
+                    error_count += 1
+                    rewards.append(0)#0 is the reward of unsuccessful dialogue
                 dialogue_count += 1
             
-            lines = ['\n%s%s%s'%('='*30, 'SUMMARY', '='*30)]
+            lines = ['\n%s%s (asr error=%d%%)%s'%('='*30, 'SUMMARY', asr_error, '='*30)]
             lines.append('-Total executing time: %.3f seconds'%(time.time()-start_time))
             rate = success_count*100.0/episode
             lines.append('-Success rate: %.2f (%d/%d)'%(rate,success_count, episode))
+            lines.append('-Number of dialogue error: %d (%.3f%%)'%(error_count, error_count*100.0/episode))
             lines.append('-Averaging turn number/dialogue: %.3f (std=%.3f)'%(np.mean(turn_counts), np.std(turn_counts)))
             lines.append('-Averaging total reward /dialogue: %.3f (std=%.3f)'%(np.mean(rewards), np.std(rewards)))
             lines.append('-'*66)
@@ -166,11 +182,47 @@ class SimulatorHub(Hub):
             self.cfg['Logging']['system_logger'].exception('Uncaught exception in SHUB process.')
             raise
         
-        time.sleep(3)
-        print 'Exiting: %s. Setting close event' % multiprocessing.current_process().name
-        self.close_event.set()
+        #time.sleep(3)
+        #print 'Exiting: %s. Setting close event' % multiprocessing.current_process().name
+        #self.close_event.set()
 
 #########################################################################
+def set_asr_error(config, error):
+    config_asr = config['asr_simulator']['SimpleASRSimulator']
+    half_error = (float(error)/2.0)/100.0
+    config_asr['act_confusion']['affirm']['confusion_matrix']['confusion_types']['correct'] = 1.0-half_error
+    config_asr['act_confusion']['affirm']['confusion_matrix']['confusion_types']['onlist'] = half_error
+    config_asr['act_confusion']['negate']['confusion_matrix']['confusion_types']['correct'] = 1.0-half_error
+    config_asr['act_confusion']['negate']['confusion_matrix']['confusion_types']['onlist'] = half_error
+
+    config_asr['default']['default_confusion_matrix']['confusion_types']['correct'] = 1.0-error/100.0
+    config_asr['default']['default_confusion_matrix']['confusion_types']['onlist'] = half_error
+    config_asr['default']['default_confusion_matrix']['confusion_types']['offlist'] = half_error
+    
+    return config
+  
+def evaluate_dm(config, episode=1000):
+    close_event = multiprocessing.Event()
+    config['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
+    config['Logging']['system_logger'].info("""Starting...""")
+
+    config['Logging']['session_logger'].set_close_event(close_event)
+    config['Logging']['session_logger'].set_cfg(config)
+    #config['Logging']['session_logger'].start()
+    config['Logging']['session_logger'].cancel_join_thread()
+
+    asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
+    #asr_errors = [10, 15]
+    for error in asr_errors:
+        config = set_asr_error(config, error)
+        print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)
+        #config['Logging']['session_logger'].set_cfg(config)
+        shub = SimulatorHub(config)
+        shub.run(episode, error)
+
+    time.sleep(3)
+    print 'Exiting: %s. Setting close event' % multiprocessing.current_process().name
+    close_event.set()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -196,6 +248,7 @@ if __name__ == '__main__':
         args.configs = ['./ptien_configs/ptien.cfg', './ptien_configs/ptien_hdc_slu.cfg','./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/ptien/config_asr_simulator.py']
     cfg = Config.load_configs(args.configs, log=False)
 
-    shub = SimulatorHub(cfg)
+    #shub = SimulatorHub(cfg)
 
-    shub.run()
+    #shub.run()
+    evaluate_dm(cfg)
