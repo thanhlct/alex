@@ -201,7 +201,7 @@ def set_asr_error(config, error):
     
     return config
   
-def evaluate_dm(config, episode=1000):
+def evaluate_dm(config, episode=100):
     close_event = multiprocessing.Event()
     config['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
     config['Logging']['system_logger'].info("""Starting...""")
