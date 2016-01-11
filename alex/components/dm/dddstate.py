@@ -438,6 +438,13 @@ class DeterministicDiscriminativeDialogueState(DialogueState):
                     self.slots["ch_" + dai.name].set({"system-informed": 1.0, })
                     self.slots["sh_" + dai.name].set({"system-informed": 1.0, })
 
+                #THANH: Add feature for GP-Sarsa
+                if dai.dat == "request":
+                    fkey = "f_" + dai.name
+                    if fkey in self.slots.keys():
+                        self.slots[fkey].add("requested", 1)
+                    
+
         # now process the user dialogue act
         # processing the low probability DAIs first, emphasize the dialogue acts with high probability
         for prob, dai in sorted(user_da.items()):

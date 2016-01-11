@@ -21,6 +21,8 @@ from .time_zone import GoogleTimeFinder
 from .directions import GoogleDirectionsFinder, Travel
 from alex.applications.utils.weather import OpenWeatherMapWeatherFinder, WeatherPoint
 
+from alex.components.dm.gp_sarsa.gp_sarsa_episode import ApproximateEpisodicGPSarsa
+import numpy as np
 
 def randbool(n):
     """Randomly return True in 1 out of n cases.
@@ -57,6 +59,12 @@ class PTIENHDCPolicy(DialoguePolicy):
         self.policy_cfg = self.cfg['DM']['dialogue_policy']['PTIENHDCPolicy']
         self.accept_prob = self.policy_cfg['accept_prob']
 
+        #initilizing the GP-Sarsa Optimiser
+        self.gp_sarsa = ApproximateEpisodicGPSarsa(cfg['DM'])
+        self.turn_reward = -1
+        self.success_reward = 20
+        self.unsuccess_reward = 0
+        self.gp_sarsa.new_episode()
 
     def reset_on_change(self, ds, changed_slots):
         """Reset slots which depends on changed slots.
@@ -128,6 +136,41 @@ class PTIENHDCPolicy(DialoguePolicy):
             new_da.append(dai)
 
         return new_da
+
+    def _extract_features(self, ds):
+        slots=['task', 'from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle',]
+        defaults = ['task', 'departure_time', 'departure_time_rel', 'arrival_time', 'arrival_time_rel', 'vehicle']
+        #slot_feature(D=5): {top first; the second  probability of not-none value; has default value, number of time system requested about the slot; cofirmed}
+        features = []
+        for s in slots:
+            d1 = d2 = 0#top two not-none probabilities
+            if s in ds:
+                for v, p in ds[s].items():
+                    if v != 'none':
+                        if d1==0:
+                            d1 = p
+                        else:
+                            d2 = p
+                            break
+            d3 = 0#has defatult value
+            if s in defaults:
+                d3 = 1
+            d4 = 0#number of times system asked about the slot
+            d5 = 0#the value has cofirnmed
+            fkey = 'f' + s
+            if fkey in ds.slots.keys():
+                if 'requested' in ds.slots[fkey].keys():
+                    d4 = ds.slots[fkey]['requested']
+                if 'confirmed' in ds.slots[fkey].keys():
+                    d5 = ds.slots[fkey]['confirmed']
+            fslot = [d1, d2, d3, d4, d5]
+            print 'Feature for %s'%s, fslot
+            features.extend(fslot)
+
+        print 'FEATURE DONE'        
+        import pdb
+        pdb.set_trace()
+        return np.array(features)
 
     def get_da(self, dialogue_state):
         """The main policy decisions are made here. For each action, some set of conditions must be met. These
@@ -268,27 +311,37 @@ class PTIENHDCPolicy(DialoguePolicy):
             res_da = DialogueAct("irepeat()")
             dialogue_state["ludait"].reset()
 
-        elif fact['there_is_something_to_be_selected']:
+        elif fact['user_wants_to_know_the_time']==False and fact['user_wants_to_know_the_weather']==False:
+            #-----------------------------the GP-Sarsa take stage for the transport information
+            print 'Going to GP-Sarsa'
+            belief_features = self._extract_features(dialogue_state)
+            sys_da = self.gp_sarsa.get_act(belief_features, self.turn_reward)
+            #NOTE get feature, how to build full action for return acts from GP-Sarsa
+            import pdb
+            pdb.set_trace()
+            
+
+        elif fact['there_is_something_to_be_selected']:#TODO: THANH
             # implicitly confirm all changed slots
             res_da = self.get_iconfirm_info(changed_slots)
             # select between two values for a slot that is not certain
             res_da.extend(self.select_info(slots_tobe_selected))
             res_da = self.filter_iconfirms(res_da)
 
-        elif fact['there_is_something_to_be_confirmed']:
+        elif fact['there_is_something_to_be_confirmed']:#TODO: THANH
             # implicitly confirm all changed slots
             res_da = self.get_iconfirm_info(changed_slots)
             # confirm all slots that are not certain
             res_da.extend(self.confirm_info(slots_tobe_confirmed))
             res_da = self.filter_iconfirms(res_da)
 
-        elif fact['user_wants_to_know_the_time']:
+        elif fact['user_wants_to_know_the_time']:#TODO THANH
             # Respond to questions about current time
             # TODO: allow combining with other questions?
             res_da = self.get_current_time_res_da(dialogue_state, accepted_slots, has_state_changed)
 
         # topic-dependent
-        elif fact['user_wants_to_know_the_weather']:
+        elif fact['user_wants_to_know_the_weather']:#TODO THANH
             # implicitly confirm all changed slots
             res_da = self.get_iconfirm_info(changed_slots)
 
@@ -297,7 +350,7 @@ class PTIENHDCPolicy(DialoguePolicy):
                                            accepted_slots, changed_slots, has_state_changed)
             res_da.extend(w_da)
             res_da = self.filter_iconfirms(res_da)
-        else:
+        else:#TODO: THANH Public infor ofer
             # implicitly confirm all changed slots
             #todo: refactoring (place, area) - remove this hack - streets share stop slot so we don't have to generate more nlg templates
             changed_slots = self.fix_stop_street_slots(changed_slots)

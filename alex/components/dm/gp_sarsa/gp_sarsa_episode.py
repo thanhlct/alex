@@ -34,7 +34,8 @@ class ApproximateEpisodicGPSarsa:
         self.kernel = self.config['kernel_fun']
         
         #Get all of acts which system may try
-        self.acts = self.config['sys_acts']
+        self._get_acts_fun = self.config['get_possible_sys_acts_fun']
+        #self.acts = self.config['sys_acts']
 
         self._first_episode = True#update to false when end dialogue or read parameters from file        
         self.means = None
@@ -84,6 +85,7 @@ class ApproximateEpisodicGPSarsa:
         self.reward = None
         
         self._init_step = True
+        self.act_history = []
 
     def end_episode(self, final_reward):
         print '------END EPISODE------, final_reward=', final_reward
@@ -247,6 +249,10 @@ class ApproximateEpisodicGPSarsa:
 
     def get_act(self, belief_features, last_act_reward=None):
         self.b = belief_features
+
+        #Get the possible system acts in the current context
+        self.act_history.append(self.last_sys_act)
+        self.acts = self._get_acts_fun(belief_features, self.act_history)
 
         if self._first_episode:#First Episode
             print '--------first episode + first turn'
