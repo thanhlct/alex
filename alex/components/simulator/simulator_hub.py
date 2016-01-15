@@ -41,7 +41,7 @@ class SimulatorHub(Hub):
         #self.cfg = cfg
         dm_type = get_dm_type(cfg)
         self.dm = dm_factory(dm_type, cfg)
-        self.dm.new_dialogue()
+        #self.dm.new_dialogue()
 
         self.close_event = multiprocessing.Event()
 
@@ -81,6 +81,7 @@ class SimulatorHub(Hub):
         total_reward = 0
         while(True):
             print '%sTurn %d%s'%('-'*20, turn_index, '-'*20)
+            #pdb.set_trace()
             #print 'Dialogue state: ', dm.dialogue_state
             sys_da = dm.da_out()
             #sys_da = DialogueAct(sys_das[index])
@@ -114,16 +115,19 @@ class SimulatorHub(Hub):
         goal_reward = user.reward_final_goal()
         total_reward += goal_reward
         success = 0
+        user_satisfied = False
         if goal_reward==20:
             success = 1
+            user_satisfied = True
         success_text = 'success' if success else 'UNsuccess'
+        dm.end_dialogue(user_satisfied)
         print '%sDialogue %d: %s after %d turns, goal reward: %d, total reward: %d'%('-'*10,dialogue_id, success_text, turn_index, goal_reward, total_reward)
 
         self.cfg['Logging']['system_logger'].session_end()
         self.cfg['Logging']['session_logger'].session_end()
         return success, turn_index, total_reward
 
-    def run(self, episode=1000, asr_error=0):
+    def run(self, episode=100, asr_error=0):
         """Run the hub."""
         try:
             self.cfg['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
@@ -201,7 +205,7 @@ def set_asr_error(config, error):
     
     return config
   
-def evaluate_dm(config, episode=1):
+def evaluate_dm(config, episode=10000):
     close_event = multiprocessing.Event()
     config['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
     config['Logging']['system_logger'].info("""Starting...""")
@@ -212,7 +216,8 @@ def evaluate_dm(config, episode=1):
     config['Logging']['session_logger'].cancel_join_thread()
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
-    asr_errors = [15]
+    #asr_errors = [15, 30, 50, 90]
+    asr_errors = [90]
     for error in asr_errors:
         config = set_asr_error(config, error)
         print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)

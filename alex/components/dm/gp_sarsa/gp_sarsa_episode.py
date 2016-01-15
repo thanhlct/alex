@@ -47,6 +47,8 @@ class ApproximateEpisodicGPSarsa:
         self.save_file = self.config['storage_file']
         self._read()#read current parameters
 
+        self.debug=False
+
     def save(self):
         '''Save every thing to file for next re-run'''
         #Need to save: K, D, C, means
@@ -107,12 +109,12 @@ class ApproximateEpisodicGPSarsa:
         #Problem/Change:in the paper, (b, a) add to the first element of D. But it is not suitalbe with means, C, and kerel(b, a) etc
         self.D.append((self.b, self.a))#do we need concat in the first position?
         #self.D.insert(0, (self.b, self.a))
-        print 'add new representative point (%s, %s) to D' % (self.b, self.a)
+        if self.debug: print 'add new representative point (%s, %s) to D' % (self.b, self.a)
 
     def _update_K1(self):
         #line 14, 28
-        print '--update K^-1'
-        print 'g_comma=\n', self.g_comma.T
+        if self.debug: print '--update K^-1'
+        if self.debug: print 'g_comma=\n', self.g_comma.T
         self.K1 = self.delta*self.K1
         self.K1 = self.K1 + np.dot(self.g_comma,self.g_comma.T)
         
@@ -124,7 +126,7 @@ class ApproximateEpisodicGPSarsa:
         self.K1 = self.K1/float(self.delta)
     
     def _calculate_first_turn(self):
-        print 'calculate first turn, line 11-> 16'
+        if self.debug: print 'calculate first turn, line 11-> 16'
         #pdb.set_trace()
         self.c = np.zeros((len(self.D), 1))
         self.d = 0
@@ -170,7 +172,7 @@ class ApproximateEpisodicGPSarsa:
     def _calculate_from_second_turn(self, end_dialogue = False):
         #From line 26 to line 42
         #CHECK: v = 0, check result d = NaN
-        print 'Calculate from second turn, line 26->42'
+        if self.debug: print 'Calculate from second turn, line 26->42'
         #pdb.set_trace()
         if self.v1==0: #line 26
             #Problem: since if the first episode choose the request action, the self.means still equa empty, then move to here into the matrix product
@@ -179,7 +181,7 @@ class ApproximateEpisodicGPSarsa:
         else:
             self.d = (self.gamma*pow(self.sigma,2)/self.v1)*self.d + self.reward - np.dot(self.delta_k.T, self.means)
         #self.d = self.d[0,0]#take the number from matrix, don't really need it, but I like number is the number not a number is a matrix 1x1
-        print 'delta at second turn', self.delta
+        if self.debug: print 'delta at second turn', self.delta
         if self.delta>self.threshold_v and not end_dialogue:
             #Gasic'change: line 28 add new data point to D is move to almost end of this scope, since most calculation is based on old D.
             #self._add_ba_to_D()#line 28MOVI
@@ -217,7 +219,7 @@ class ApproximateEpisodicGPSarsa:
             #self.c = np.vstack((self.c, 0))
         else:#not exceed to add to distionary or is the terminal/end dialogue
             #line 35
-            print 'don''t add to D or last turn, line 35 -> 41'
+            if self.debug: print 'don''t add to D or last turn, line 35 -> 41'
             #line 35
             self.h = self.g - self.gamma*self.g_comma
             if self.v1==0:
@@ -231,14 +233,14 @@ class ApproximateEpisodicGPSarsa:
                 else:
                     self.v1 = (1 + pow(self.gamma,2))*pow(self.sigma, 2) + np.dot(self.delta_k.T, (self.c_comma + (self.gamma*pow(self.sigma, 2)/self.v1)*self.c)) - pow(self.gamma, 2)*pow(self.sigma, 4)/float(self.v1)
             else:#terminal turn
-                print 'terminal turn, line 39'
+                if self.debug: print 'terminal turn, line 39'
                 if self.v1==0:#line 39
                     self.v1 = pow(self.sigma, 2) + np.dot(self.delta_k.T, self.c_comma)
                 else:
                     self.v1 = pow(self.sigma, 2) + np.dot(self.delta_k.T, (self.c_comma + (self.gamma*pow(self.sigma, 2)/self.v1)*self.c)) - pow(self.gamma, 2)*pow(self.sigma, 4)/self.v1
         #last line 42
-        print 'Update means, C, c, g, CHECK'
-        print '(before update) c.T=', self.c.T
+        if self.debug: print 'Update means, C, c, g, CHECK'
+        if self.debug: print '(before update) c.T=', self.c.T
         #pdb.set_trace()
         #Problem:CHANGE: CHECK self.c -> self.c_comma: CORRECT, Gasic checked
         self.means = self.means + (self.c_comma/float(self.v1))*self.d
@@ -312,6 +314,8 @@ class ApproximateEpisodicGPSarsa:
         return ret
 
     def update_q(self, end_dialogue):
+        if not self.debug:
+            return
         print 'Info Summary:'
         if not end_dialogue:
             print '---B:', self.b
@@ -350,7 +354,7 @@ class ApproximateEpisodicGPSarsa:
         if random.random()<=self.epsilon:
             return self.rand_act()
         else:
-            print 'find the best act for belief', self.b
+            if self.debug: print 'find the best act for belief', self.b
             #pdb.set_trace()
             q_values = []
             for a in self.acts:

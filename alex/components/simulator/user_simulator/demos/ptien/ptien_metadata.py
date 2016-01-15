@@ -489,8 +489,11 @@ config = {
                             'active_prob':1.0,
                         },
                 ],
-               'help':[{'return_acts':[],
+               'help':[{'return_acts':['negate'],
                             'active_prob':1.0,
+                            'negate_overridden_properties':{
+                                'act_without_slot': True,
+                            }
                         },
                 ],
                 'silence':[{'return_acts':['inform'],
@@ -517,6 +520,9 @@ config = {
                 ],
                 'reqmore':[{'return_acts':['negate'],
                             'active_prob':0.7,
+                             'negate_overridden_properties':{
+                                'act_without_slot': True,
+                            }
                         },
                         {   'return_acts':['request'],
                             'active_prob':0.3,
@@ -540,6 +546,11 @@ config = {
                             }
                         },
                 ],
+                'cant_apply':[{'return_acts':['hangup'],
+                #'cant_apply':[{'return_acts':[],
+                        'active_prob':1.0,
+                    },
+                ],
                 'offer':{
                     0:[{'active_prob':1.0,
                          'ordered_return_acts':[
@@ -562,7 +573,7 @@ config = {
                                         'add_to_da_prob':0.0,
                                     },
                                 },#end of first way in the firs priority answer
-                                'case2':{'return_acts':['affirm', 'thankyou'],
+                                'case2':{'return_acts':['affirm', 'thankyou', 'bye'],
                                     'active_prob':0.4,
                                     'affirm_overridden_properties':{
                                         'add_to_da_prob':0.0,

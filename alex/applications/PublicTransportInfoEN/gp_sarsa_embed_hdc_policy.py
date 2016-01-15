@@ -166,11 +166,57 @@ class PTIENHDCPolicy(DialoguePolicy):
             fslot = [d1, d2, d3, d4, d5]
             print 'Feature for %s'%s, fslot
             features.extend(fslot)
-
-        print 'FEATURE DONE'        
-        import pdb
-        pdb.set_trace()
         return np.array(features)
+
+    def _extract_features_2(self, ds):
+        print '------Extract features form belief state:'
+        slots=['task', ('from_stop', 'from_street', 'from_city'), ('to_stop', 'to_street', 'to_city'), ('departure_time', 'departure_time_rel'), ('arrival_time', 'arrival_time_rel'),'vehicle',]
+        defaults = ['task', 'departure_time', 'departure_time_rel', 'arrival_time', 'arrival_time_rel', 'vehicle']
+        #slot_feature(D=5): {top first; the second  probability of not-none value; has default value, number of time system requested about the slot; cofirmed}
+        features = []
+        for s in slots:
+            eq_slots = s
+            if not isinstance(s, tuple):
+                eq_slots = [s]
+            fslot= None
+            for eq_s in eq_slots:
+                d1 = d2 = 0#top two not-none probabilities
+                if eq_s in ds:
+                    #print eq_s, ":", ds[eq_s].items()
+                    for v, p in ds[eq_s].items():
+                        if v != 'none':
+                            if d1==0:
+                                d1 = p
+                            else:
+                                d2 = p
+                                break
+                d3 = 0#has defatult value
+                if eq_s in defaults:
+                    d3 = 1
+                d4 = 0#number of times system asked about the slot
+                d5 = 0#the value has cofirnmed
+                fkey = 'f' + eq_s
+                if fkey in ds.slots.keys():
+                    if 'requested' in ds.slots[fkey].keys():
+                        d4 = ds.slots[fkey]['requested']
+                    if 'confirmed' in ds.slots[fkey].keys():
+                        d5 = ds.slots[fkey]['confirmed']
+                if fslot is None or d1>fslot[0]:
+                    fslot = [d1, d2, d3, d4, d5]
+                    
+            print '[%s]\t\t:'%eq_slots[0][0:5],
+            for f in fslot:
+                print '%.3f'%f,
+            print ''
+            features.extend(fslot)
+        return np.array(features)
+
+    def end_dialogue(self, user_satisfied):
+        if user_satisfied:
+            self.gp_sarsa.end_episode(self.success_reward)
+        else:
+            self.gp_sarsa.end_episode(self.unsuccess_reward) 
+        self.gp_sarsa.save()
 
     def get_da(self, dialogue_state):
         """The main policy decisions are made here. For each action, some set of conditions must be met. These
@@ -314,13 +360,51 @@ class PTIENHDCPolicy(DialoguePolicy):
         elif fact['user_wants_to_know_the_time']==False and fact['user_wants_to_know_the_weather']==False:
             #-----------------------------the GP-Sarsa take stage for the transport information
             print 'Going to GP-Sarsa'
-            belief_features = self._extract_features(dialogue_state)
+            ds = dialogue_state
+            belief_features = self._extract_features_2(dialogue_state)
             sys_da = self.gp_sarsa.get_act(belief_features, self.turn_reward)
-            #NOTE get feature, how to build full action for return acts from GP-Sarsa
+            #NOTE get feature done , NEXT how to build full action for return acts from GP-Sarsa
+            print 'GP-Sarsa: sys_da:', sys_da
             import pdb
-            pdb.set_trace()
-            
-
+            if sys_da=='request':
+                ret_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
+                #pdb.set_trace()
+            elif sys_da=='select':
+                ret_da = self.select_info(slots_tobe_selected)
+                #pdb.set_trace()
+            elif sys_da=='confirm':
+                ret_da = self.confirm_info(slots_tobe_confirmed)
+                #pdb.set_trace()
+            elif sys_da=='implconfirm':
+                changed_slots = self.fix_stop_street_slots(changed_slots)
+                ret_da = self.get_iconfirm_info(changed_slots)
+                #print 'implconfirm acts'
+                #pdb.set_trace()
+                req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
+                ret_da.extend(req_da)
+                ret_da = self.filter_iconfirms(ret_da)
+                #print 'implconfirm acts after add request'
+                #pdb.set_trace()
+            elif sys_da=='offer':
+                req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
+                ds.conn_info = conn_info
+                #ret_da = iconfirm_da
+                #ret_da.extend(self.get_directions(ds, check_conflict=True))
+                ret_da = self.get_directions(ds, check_conflict=True)
+                #pdb.set_trace()
+                #=============thanh: changes for evaluating, must remove to run normally======
+                ret_da = self._thanh_offer_route(ds)
+                if belief_features[5]==0 or belief_features[10]==0:
+                    ret_da = DialogueAct()
+                #-----------------------------------------------------------------------------
+            else:
+                raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
+            #print 'GP_Sarsa final acts:', ret_da
+            if len(ret_da)==0:
+                print 'GP-Sarsa return empty act?????'
+                ret_da = DialogueAct('cant_apply()')
+                #pdb.set_trace()
+            res_da = ret_da
         elif fact['there_is_something_to_be_selected']:#TODO: THANH
             # implicitly confirm all changed slots
             res_da = self.get_iconfirm_info(changed_slots)
@@ -432,13 +516,24 @@ class PTIENHDCPolicy(DialoguePolicy):
         defaults = {'task': 'find_connection', 'departure_time':'now', 'arrival_time':'now', 'vehicle':'dontcare'} 
         ret_da = DialogueAct()
         for s in slots:
-            value = ds[s].mpv()
+            value = 'none'
+            #print 'choo values for ', s
+            for v, p in ds[s].items():
+                #print v, p
+                if v=='none':
+                    continue
+                else:
+                    value = v
+                    break
             if value == 'none':
                 if s in defaults.keys():
                     value = defaults[s]
                 else:
                     continue
             ret_da.append(DialogueActItem('offer', s, value))
+        #print 'To offer:', ret_da
+        #import pdb
+        #pdb.set_trace()
         return ret_da
 
     def get_weather_res_da(self, ds, ludait, slots_being_requested, slots_being_confirmed,

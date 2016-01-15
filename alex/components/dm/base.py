@@ -148,6 +148,9 @@ class DialoguePolicy(object):
     def get_da(self, dialogue_state):
         pass
 
+    def end_dialogue(self, user_satisfied):
+        pass
+
 
 class DialogueManager(object):
     """
@@ -197,9 +200,9 @@ class DialogueManager(object):
         self.last_system_dialogue_act = self.policy.get_da(self.dialogue_state)
         return self.last_system_dialogue_act
 
-    def end_dialogue(self):
+    def end_dialogue(self, user_satisfied):
         """Ends the dialogue and post-process the data."""
-        pass
+        self.policy.end_dialogue(user_satisfied)
 
     def log_state(self):
         """Log the state of the dialogue state.

@@ -9,7 +9,7 @@ def kernel_function((b1, a1), (b2, a2)):
     return state_kernel(b1, b2, p=4, sigma=5)*action_kernel(a1, a2)
 
 def get_possible_acts(belief_features, sys_act_history):
-    acts = ['request', 'select', 'confirm', 'implconfim', 'offer']
+    acts = ['request', 'select', 'confirm', 'implconfirm', 'offer']
     return acts
 
 config = {
@@ -20,8 +20,8 @@ config = {
             'sigma': 5.916,
             'variance_scale': 1,
             'threshold_v': 0.015,
-            #'storage_file': 'gp_sara.params.pkl',
-            'storage_file': None,
+            'storage_file': 'gp_sara.params.pkl',
+            #'storage_file': None,
             'kernel_fun': kernel_function,
             'get_possible_sys_acts_fun': get_possible_acts,
         }, 
