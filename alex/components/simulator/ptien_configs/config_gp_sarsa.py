@@ -14,27 +14,29 @@ def get_possible_acts(belief_features, sys_act_history):
 
 config = {
     'DM': {
-        'PTIENHDCPolicy': {#for GP-Sarsa embed HDCPolicy
-            'accept_prob_ludait': 0.5,
-            'accept_prob_being_requested': 0.8,
-            'accept_prob_being_confirmed': 0.8,
-            'accept_prob_being_selected': 0.8,
-            'accept_prob_noninformed': 0.8,
-            'accept_prob': 0.8,#0.8 is original, change for GP-Sarsa
-            'confirm_prob':  0.0,#0.4 is original, chang efor gP_Sarsa
-            'select_prob': 0.0,#0.4 is original, change for GP-Sarsa
-            'min_change_prob': 0.1,
-        },
-        'gp_sarsa':{
-            'epsilon': -1,
-            'gamma': 0.9,
-            'sigma': 5.916,
-            'variance_scale': 1,
-            'threshold_v': 0.015,
-            #'storage_file': 'gp_sara.params.pkl',
-            'storage_file': None,
-            'kernel_fun': kernel_function,
-            'get_possible_sys_acts_fun': get_possible_acts,
+        'dialogue_policy':{
+            'PTIENHDCPolicy': {#for GP-Sarsa embed HDCPolicy
+                'accept_prob_ludait': 0.5,
+                'accept_prob_being_requested': 0.8,
+                'accept_prob_being_confirmed': 0.8,
+                'accept_prob_being_selected': 0.8,
+                'accept_prob_noninformed': 0.8,
+                'accept_prob': 0.8,#0.8 is original, change for GP-Sarsa
+                'confirm_prob':  0.0,#0.4 is original, chang efor gP_Sarsa
+                'select_prob': 0.0,#0.4 is original, change for GP-Sarsa
+                'min_change_prob': 0.1,
+            },
+            'gp_sarsa':{
+                'epsilon': -1,
+                'gamma': 0.9,
+                'sigma': 5.916,
+                'variance_scale': 1,
+                'threshold_v': 0.015,
+                'storage_file': 'gp_sara.params.pkl',
+                #'storage_file': None,
+                'kernel_fun': kernel_function,
+                'get_possible_sys_acts_fun': get_possible_acts,
+            },
         }, 
     },
 }

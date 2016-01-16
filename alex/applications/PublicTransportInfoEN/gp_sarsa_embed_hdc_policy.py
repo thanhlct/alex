@@ -60,7 +60,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         self.accept_prob = self.policy_cfg['accept_prob']
 
         #initilizing the GP-Sarsa Optimiser
-        self.gp_sarsa = ApproximateEpisodicGPSarsa(cfg['DM'])
+        self.gp_sarsa = ApproximateEpisodicGPSarsa(cfg['DM']['dialogue_policy'])
         self.turn_reward = -1
         self.success_reward = 20
         self.unsuccess_reward = 0
@@ -102,16 +102,21 @@ class PTIENHDCPolicy(DialoguePolicy):
         """
         new_da = DialogueAct()
         informs = []
+        requests = []
         iconfirms = defaultdict(int)
 
         for dai in da:
-            if dai.dat == 'inform' or dai.dat=='request':#THANH: change to filetr also request
+            if dai.dat == 'inform':
                 informs.append((dai.name, dai.value))
+            elif dai.dat == 'request':#THANH: change to filetr also request
+                requests.append(dai.name) 
             elif dai.dat == 'iconfirm':
                 iconfirms[(dai.name, dai.value)] += 1
 
         for dai in da:
             if dai.dat == 'iconfirm':
+                if dai.name in requests:
+                    continue
                 # filter slots explicitly informed
                 if (dai.name, dai.value) in informs:
                     continue
@@ -791,7 +796,8 @@ class PTIENHDCPolicy(DialoguePolicy):
         res_da = DialogueAct()
 
         #for slot in tobe_selected_slots:
-        for _, slot in sorted([(h.mpvp(), s)  for s, h in tobe_selected_slots.items()], reverse=False):#THANH: change to false select lowers prob
+        #for _, slot in sorted([(h.mpvp(), s)  for s, h in tobe_selected_slots.items()], reverse=False):#THANH: change to false select lowers prob
+        for _, slot in sorted([(h.topn(1)[0][1], s)  for s, h in tobe_selected_slots.items()], reverse=False):#THANH: change to false select lowers prob
             #val1, val2 = tobe_selected_slots[slot].tmpvs()
             #THANH
             topn = tobe_selected_slots[slot].topn(2)
