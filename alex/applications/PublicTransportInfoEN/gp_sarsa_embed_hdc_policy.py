@@ -105,7 +105,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         iconfirms = defaultdict(int)
 
         for dai in da:
-            if dai.dat == 'inform':
+            if dai.dat == 'inform' or dai.dat=='request':#THANH: change to filetr also request
                 informs.append((dai.name, dai.value))
             elif dai.dat == 'iconfirm':
                 iconfirms[(dai.name, dai.value)] += 1
@@ -136,87 +136,6 @@ class PTIENHDCPolicy(DialoguePolicy):
             new_da.append(dai)
 
         return new_da
-
-    def _extract_features(self, ds):
-        slots=['task', 'from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle',]
-        defaults = ['task', 'departure_time', 'departure_time_rel', 'arrival_time', 'arrival_time_rel', 'vehicle']
-        #slot_feature(D=5): {top first; the second  probability of not-none value; has default value, number of time system requested about the slot; cofirmed}
-        features = []
-        for s in slots:
-            d1 = d2 = 0#top two not-none probabilities
-            if s in ds:
-                for v, p in ds[s].items():
-                    if v != 'none':
-                        if d1==0:
-                            d1 = p
-                        else:
-                            d2 = p
-                            break
-            d3 = 0#has defatult value
-            if s in defaults:
-                d3 = 1
-            d4 = 0#number of times system asked about the slot
-            d5 = 0#the value has cofirnmed
-            fkey = 'f' + s
-            if fkey in ds.slots.keys():
-                if 'requested' in ds.slots[fkey].keys():
-                    d4 = ds.slots[fkey]['requested']
-                if 'confirmed' in ds.slots[fkey].keys():
-                    d5 = ds.slots[fkey]['confirmed']
-            fslot = [d1, d2, d3, d4, d5]
-            print 'Feature for %s'%s, fslot
-            features.extend(fslot)
-        return np.array(features)
-
-    def _extract_features_2(self, ds):
-        print '------Extract features form belief state:'
-        slots=['task', ('from_stop', 'from_street', 'from_city'), ('to_stop', 'to_street', 'to_city'), ('departure_time', 'departure_time_rel'), ('arrival_time', 'arrival_time_rel'),'vehicle',]
-        defaults = ['task', 'departure_time', 'departure_time_rel', 'arrival_time', 'arrival_time_rel', 'vehicle']
-        #slot_feature(D=5): {top first; the second  probability of not-none value; has default value, number of time system requested about the slot; cofirmed}
-        features = []
-        for s in slots:
-            eq_slots = s
-            if not isinstance(s, tuple):
-                eq_slots = [s]
-            fslot= None
-            for eq_s in eq_slots:
-                d1 = d2 = 0#top two not-none probabilities
-                if eq_s in ds:
-                    #print eq_s, ":", ds[eq_s].items()
-                    for v, p in ds[eq_s].items():
-                        if v != 'none':
-                            if d1==0:
-                                d1 = p
-                            else:
-                                d2 = p
-                                break
-                d3 = 0#has defatult value
-                if eq_s in defaults:
-                    d3 = 1
-                d4 = 0#number of times system asked about the slot
-                d5 = 0#the value has cofirnmed
-                fkey = 'f' + eq_s
-                if fkey in ds.slots.keys():
-                    if 'requested' in ds.slots[fkey].keys():
-                        d4 = ds.slots[fkey]['requested']
-                    if 'confirmed' in ds.slots[fkey].keys():
-                        d5 = ds.slots[fkey]['confirmed']
-                if fslot is None or d1>fslot[0]:
-                    fslot = [d1, d2, d3, d4, d5]
-                    
-            print '[%s]\t\t:'%eq_slots[0][0:5],
-            for f in fslot:
-                print '%.3f'%f,
-            print ''
-            features.extend(fslot)
-        return np.array(features)
-
-    def end_dialogue(self, user_satisfied):
-        if user_satisfied:
-            self.gp_sarsa.end_episode(self.success_reward)
-        else:
-            self.gp_sarsa.end_episode(self.unsuccess_reward) 
-        self.gp_sarsa.save()
 
     def get_da(self, dialogue_state):
         """The main policy decisions are made here. For each action, some set of conditions must be met. These
@@ -363,24 +282,35 @@ class PTIENHDCPolicy(DialoguePolicy):
             ds = dialogue_state
             belief_features = self._extract_features_2(dialogue_state)
             sys_da = self.gp_sarsa.get_act(belief_features, self.turn_reward)
-            #NOTE get feature done , NEXT how to build full action for return acts from GP-Sarsa
             print 'GP-Sarsa: sys_da:', sys_da
             import pdb
             if sys_da=='request':
-                ret_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
+                ret_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots, belief_features)
                 #pdb.set_trace()
             elif sys_da=='select':
+                #changed_slots = dialogue_state.get_changed_slots(0.0)#0.0 is not realy matter in this case, since only ask from_stop and to_stop
+                slots_tobe_selected = self.get_slots_tobe_selected(ds, self.policy_cfg['select_prob'], self.accept_prob)
+
+                #slots_tobe_selected = {k: v for k, v in slots_tobe_selected.items() if k in self.ontology.slots_system_selects()}
+                if 'task' in slots_tobe_selected.keys():
+                    slots_tobe_selected.pop('task')
+                print "slot tobe selected", slots_tobe_selected.keys()
                 ret_da = self.select_info(slots_tobe_selected)
                 #pdb.set_trace()
             elif sys_da=='confirm':
+                #change to build the confirm act
+                slots_tobe_confirmed = self.get_slots_tobe_confirmed(ds, self.policy_cfg['confirm_prob'], self.accept_prob)
+                slots_tobe_confirmed = {k: v for k, v in slots_tobe_confirmed.items() if k in self.ontology.slots_system_confirms()}
+                print "slot tobe confirm", slots_tobe_confirmed.keys()
                 ret_da = self.confirm_info(slots_tobe_confirmed)
                 #pdb.set_trace()
             elif sys_da=='implconfirm':
-                changed_slots = self.fix_stop_street_slots(changed_slots)
+                #changed_slots = self.fix_stop_street_slots(changed_slots)
+                changed_slots = dialogue_state.get_changed_slots(0.0)#0.0 is not realy matter in this case, since only ask from_stop and to_stop
                 ret_da = self.get_iconfirm_info(changed_slots)
                 #print 'implconfirm acts'
                 #pdb.set_trace()
-                req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
+                req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots, belief_features)
                 ret_da.extend(req_da)
                 ret_da = self.filter_iconfirms(ret_da)
                 #print 'implconfirm acts after add request'
@@ -399,7 +329,8 @@ class PTIENHDCPolicy(DialoguePolicy):
                 #-----------------------------------------------------------------------------
             else:
                 raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
-            #print 'GP_Sarsa final acts:', ret_da
+            print 'GP_Sarsa final acts:', ret_da
+            pdb.set_trace()
             if len(ret_da)==0:
                 print 'GP-Sarsa return empty act?????'
                 ret_da = DialogueAct('cant_apply()')
@@ -512,9 +443,10 @@ class PTIENHDCPolicy(DialoguePolicy):
         return res_da
 
     def _thanh_offer_route(self, ds):
-        slots=['task', 'from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle',]
+        slots=['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle',]
         defaults = {'task': 'find_connection', 'departure_time':'now', 'arrival_time':'now', 'vehicle':'dontcare'} 
         ret_da = DialogueAct()
+        ret_da.append(DialogueActItem('offer', 'task', 'find_connection'))
         for s in slots:
             value = 'none'
             #print 'choo values for ', s
@@ -838,8 +770,11 @@ class PTIENHDCPolicy(DialoguePolicy):
         """
         res_da = DialogueAct()
 
-        for _, slot in sorted([(h.mpvp(), s)  for s, h in tobe_confirmed_slots.items()], reverse=True):
-            dai = DialogueActItem("confirm", slot, tobe_confirmed_slots[slot].mpv())
+        for _, slot in sorted([(h.mpvp(), s)  for s, h in tobe_confirmed_slots.items()], reverse=False):#THANH: change to confirm slot lowest prob
+            #dai = DialogueActItem("confirm", slot, tobe_confirmed_slots[slot].mpv())
+            #THANH
+            dai = DialogueActItem("confirm", slot, tobe_confirmed_slots[slot].topn(1)[0][0])
+
             res_da.append(dai)
             #confirm explicitly only one slot at the time
             break
@@ -855,8 +790,13 @@ class PTIENHDCPolicy(DialoguePolicy):
         """
         res_da = DialogueAct()
 
-        for slot in tobe_selected_slots:
-            val1, val2 = tobe_selected_slots[slot].tmpvs()
+        #for slot in tobe_selected_slots:
+        for _, slot in sorted([(h.mpvp(), s)  for s, h in tobe_selected_slots.items()], reverse=False):#THANH: change to false select lowers prob
+            #val1, val2 = tobe_selected_slots[slot].tmpvs()
+            #THANH
+            topn = tobe_selected_slots[slot].topn(2)
+            (val1, _), (val2, _) = topn
+
             res_da.append(DialogueActItem("select", slot, val1))
             res_da.append(DialogueActItem("select", slot, val2))
             #select values only in one slot at the time
@@ -919,7 +859,7 @@ class PTIENHDCPolicy(DialoguePolicy):
                 val = 'none'
         return val
 
-    def gather_connection_info(self, ds, accepted_slots):
+    def gather_connection_info(self, ds, accepted_slots, belief_features=None):
         """Return a DA requesting further information needed to search
         for traffic directions and a dictionary containing the known information.
         Infers city names based on stop names and vice versa.
@@ -1046,6 +986,12 @@ class PTIENHDCPolicy(DialoguePolicy):
         if not from_info_complete and not to_info_complete and \
                         'departure_time' not in accepted_slots and 'time' not in accepted_slots and randbool(10):
             req_da.extend(DialogueAct('request(departure_time)'))
+        elif True and belief_features is not None:#THANH change to ask a slot without default values which has lowest probability
+            #NOTE have to change indexes if the feature change
+            if belief_features[5]<belief_features[10]:
+                req_da.extend(DialogueAct('request(from_stop)'))
+            else:
+                req_da.extend(DialogueAct('request(to_stop)'))
         elif not has_to_place:
             req_da.extend(DialogueAct('request(to_stop)'))
         elif not has_from_place:
@@ -1736,3 +1682,131 @@ class PTIENHDCPolicy(DialoguePolicy):
             changed_slots['to_city'] = D3DiscreteValue({to_city_value: 1.0, 'none': 0.0})
 
         return changed_slots
+
+#=============================THANH: methods for embe GP-Sarsa================================
+    def _extract_features(self, ds):
+        slots=['task', 'from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle',]
+        defaults = ['task', 'departure_time', 'departure_time_rel', 'arrival_time', 'arrival_time_rel', 'vehicle']
+        #slot_feature(D=5): {top first; the second  probability of not-none value; has default value, number of time system requested about the slot; cofirmed}
+        features = []
+        for s in slots:
+            d1 = d2 = 0#top two not-none probabilities
+            if s in ds:
+                for v, p in ds[s].items():
+                    if v != 'none':
+                        if d1==0:
+                            d1 = p
+                        else:
+                            d2 = p
+                            break
+            d3 = 0#has defatult value
+            if s in defaults:
+                d3 = 1
+            d4 = 0#number of times system asked about the slot
+            d5 = 0#the value has cofirnmed
+            fkey = 'f' + s
+            if fkey in ds.slots.keys():
+                if 'requested' in ds.slots[fkey].keys():
+                    d4 = ds.slots[fkey]['requested']
+                if 'confirmed' in ds.slots[fkey].keys():
+                    d5 = ds.slots[fkey]['confirmed']
+            fslot = [d1, d2, d3, d4, d5]
+            print 'Feature for %s'%s, fslot
+            features.extend(fslot)
+        return np.array(features)
+
+    def _extract_features_2(self, ds):
+        print '------Extract features form belief state:'
+        slots=['task', ('from_stop', 'from_street', 'from_city'), ('to_stop', 'to_street', 'to_city'), ('departure_time', 'departure_time_rel'), ('arrival_time', 'arrival_time_rel'),'vehicle',]
+        defaults = ['task', 'departure_time', 'departure_time_rel', 'arrival_time', 'arrival_time_rel', 'vehicle']
+        #slot_feature(D=5): {top first; the second  probability of not-none value; has default value, number of time system requested about the slot; cofirmed}
+        features = []
+        for s in slots:
+            eq_slots = s
+            if not isinstance(s, tuple):
+                eq_slots = [s]
+            fslot= None
+            for eq_s in eq_slots:
+                d1 = d2 = 0#top two not-none probabilities
+                if eq_s in ds:
+                    #print eq_s, ":", ds[eq_s].items()
+                    for v, p in ds[eq_s].items():
+                        if v != 'none':
+                            if d1==0:
+                                d1 = p
+                            else:
+                                d2 = p
+                                break
+                d3 = 0#has defatult value
+                if eq_s in defaults:
+                    d3 = 1
+                d4 = 0#number of times system asked about the slot
+                d5 = 0#the value has cofirnmed
+                fkey = 'f' + eq_s#the fkey must be f_slotname
+                if fkey in ds.slots.keys():
+                    if 'requested' in ds.slots[fkey].keys():
+                        d4 = ds.slots[fkey]['requested']
+                    if 'confirmed' in ds.slots[fkey].keys():
+                        d5 = ds.slots[fkey]['confirmed']
+                if fslot is None or d1>fslot[0]:
+                    fslot = [d1, d2, d3, d4, d5]
+                    
+            print '[%s]\t\t:'%eq_slots[0][0:5],
+            for f in fslot:
+                print '%.3f'%f,
+            print ''
+            features.extend(fslot)
+        return np.array(features)
+
+    def end_dialogue(self, user_satisfied):
+        if user_satisfied:
+            self.gp_sarsa.end_episode(self.success_reward)
+        else:
+            self.gp_sarsa.end_episode(self.unsuccess_reward) 
+        self.gp_sarsa.save()
+#============THANH=====redefine some routines to build suibalt actions
+    def get_slots_tobe_confirmed(self, ds, min_prob, max_prob):
+        """Returns all slots which have a probability of a non "none" value larger then some threshold and still not so
+        large to be considered as accepted.
+        """
+        tobe_confirmed_slots = {}
+
+        for slot in ds.slots:
+            if any([1 for x in ['rh_', 'ch_', 'sh_', "ludait"] if slot.startswith(x)]):
+                continue
+            if not isinstance(ds.slots[slot], D3DiscreteValue):
+                continue
+
+            #prob, value = self.slots[slot].mph()
+            topn = ds.slots[slot].topn(1)
+            if len(topn)<1:
+                continue
+            (value, prob) = topn[0]
+            
+            if value not in ['none', 'system-informed', None] and min_prob <= prob and prob < max_prob:
+                tobe_confirmed_slots[slot] = ds.slots[slot]
+
+        return tobe_confirmed_slots
+
+    def get_slots_tobe_selected(self, ds, min_prob, max_prob=0.8):
+        """Returns all slots which have a probability of the two most probable non "none" value larger then some threshold.
+        """
+        tobe_selected_slots = {}
+
+        for slot in ds.slots:
+            if any([1 for x in ['rh_', 'ch_', 'sh_', "ludait"] if slot.startswith(x)]):
+                continue
+            if not isinstance(ds.slots[slot], D3DiscreteValue):
+                continue
+
+            #(prob1, value1), (prob2, value2) = self.slots[slot].tmphs()
+            topn = ds.slots[slot].topn(2)
+            if len(topn)<2:
+                continue
+            (value1, prob1), (value2, prob2) = topn
+
+            if value1 not in ['none', 'system-informed', None] and prob1 >= min_prob and prob1<max_prob and \
+                value2 not in ['none', 'system-informed', None] and prob2 >= min_prob and prob2<max_prob:
+                tobe_selected_slots[slot] = ds.slots[slot]
+
+        return tobe_selected_slots
