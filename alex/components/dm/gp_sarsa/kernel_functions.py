@@ -3,10 +3,7 @@ Kernel Functions
 '''
 
 import numpy as np
-
 from distance_measures import squared_euclidean_distance
-
-import pdb
 
 def polyminal_kernel_fun(a, b, sigma=1, p=1):
     '''Poliminal Kernel, default sigma=1, p=1 is linear kernel'''

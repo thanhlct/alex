@@ -205,7 +205,7 @@ def set_asr_error(config, error):
     
     return config
   
-def evaluate_dm(config, episode=1000):
+def evaluate_dm(config, episode=1):
     close_event = multiprocessing.Event()
     config['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
     config['Logging']['system_logger'].info("""Starting...""")
@@ -217,7 +217,7 @@ def evaluate_dm(config, episode=1000):
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
     #asr_errors = [15, 30, 50, 90]
-    asr_errors = [15]*10
+    asr_errors = [15]*1
     for error in asr_errors:
         config = set_asr_error(config, error)
         print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)

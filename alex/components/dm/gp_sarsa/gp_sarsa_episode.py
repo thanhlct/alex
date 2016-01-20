@@ -47,7 +47,7 @@ class ApproximateEpisodicGPSarsa:
         self.save_file = self.config['storage_file']
         self._read()#read current parameters
 
-        self.debug=False
+        self.debug=self.config['debug']
 
     def save(self):
         '''Save every thing to file for next re-run'''
@@ -134,8 +134,9 @@ class ApproximateEpisodicGPSarsa:
         self.cov_ba = self.kernel_all((self.b, self.a))
         self.g = np.dot(self.K1, self.cov_ba)
         self.delta = self.kernel((self.b, self.a), (self.b, self.a))-np.dot(self.cov_ba.T, self.g)
+        if self.debug: print 'delta at first turn', self.delta
         if self.delta > self.threshold_v:
-            #print 'add new data point at first turn, check???'
+            if self.debug: print 'add new data point at first turn'
             #pdb.set_trace()
             #Problem/Fix/Guess=NoGasic: update K^-1 similar to line 28 with g' buidt from old D (with out new data point)
             #G_COMMA represent the how new point covariance with existed others
@@ -387,16 +388,27 @@ def get_config():
 def test1():
     print 'hello'
     gps = ApproximateEpisodicGPSarsa(config['DM'])
+    fs1 = [0.0]*30
+    fs2 = [0.0]*30
+    fs2[0] = 0.2
+    fs3 = [0.0]*30
+    fs3[0] = 0.2
+    fs3[25] = 0.1
+    fs3[20] = 0.1
+    fs3[12] = 0.1
+    fss = [fs1, fs2, fs3]
 
     for ep in range(1):
         print '===============Episode', ep
         gps.new_episode()
-        for turn in range(2):
+        for turn in range(3):
             print '------------Turn', turn
             fs = np.array([1,2,3,4,5,6])
+            fs = np.array(fss[turn])
             gps.get_act(fs, -1)
+            raw_input()
         gps.end_episode(20)
-    gps.save()
+    #gps.save()
     print 'bye'
 
 def main():

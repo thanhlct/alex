@@ -27,6 +27,7 @@ config = {
                 'min_change_prob': 0.1,
             },
             'gp_sarsa':{
+                'debug': False,
                 'epsilon': -1,
                 'gamma': 0.9,
                 'sigma': 5.916,

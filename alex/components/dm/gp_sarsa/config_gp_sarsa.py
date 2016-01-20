@@ -15,6 +15,7 @@ def get_possible_acts(belief_features, sys_act_history):
 config = {
     'DM': {
         'gp_sarsa':{
+            'debug': True,
             'epsilon': -1,
             'gamma': 0.9,
             'sigma': 5.916,
