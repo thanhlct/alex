@@ -86,7 +86,7 @@ class SimulatorHub(Hub):
             sys_da = dm.da_out()
             #sys_da = DialogueAct(sys_das[index])
             print '---sys_da:\t',sys_da
-            #pdb.set_trace()
+            pdb.set_trace()
             self.cfg['Logging']['session_logger'].turn("system")
             self.cfg['Logging']['session_logger'].dialogue_act("system", sys_da) 
 
@@ -205,7 +205,7 @@ def set_asr_error(config, error):
     
     return config
   
-def evaluate_dm(config, episode=1):
+def evaluate_dm(config, episode=1000):
     close_event = multiprocessing.Event()
     config['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
     config['Logging']['system_logger'].info("""Starting...""")

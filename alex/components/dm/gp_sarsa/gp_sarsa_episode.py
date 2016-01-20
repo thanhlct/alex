@@ -136,7 +136,7 @@ class ApproximateEpisodicGPSarsa:
         self.delta = self.kernel((self.b, self.a), (self.b, self.a))-np.dot(self.cov_ba.T, self.g)
         if self.debug: print 'delta at first turn', self.delta
         if self.delta > self.threshold_v:
-            if self.debug: print 'add new data point at first turn'
+            #if self.debug: print 'add new data point at first turn'
             #pdb.set_trace()
             #Problem/Fix/Guess=NoGasic: update K^-1 similar to line 28 with g' buidt from old D (with out new data point)
             #G_COMMA represent the how new point covariance with existed others

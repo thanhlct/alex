@@ -1745,6 +1745,15 @@ class PTIENHDCPolicy(DialoguePolicy):
                 print '%.3f'%f,
             print ''
             features.extend(fslot)
+        #------indicators features
+        indicators = [0,]
+        if features[2]>0 and features[4]>0:#offer is applicable
+            indicators[0] = 1
+        print '[%s]\t\t:'%'indis',
+        for v in indicators:
+            print '%.3f'%v,
+        print ''     
+        features.extend(indicators)
         return np.array(features)
 
     def _extract_features1(self, ds):
