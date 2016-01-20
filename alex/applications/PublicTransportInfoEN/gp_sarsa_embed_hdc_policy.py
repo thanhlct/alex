@@ -1700,6 +1700,28 @@ class PTIENHDCPolicy(DialoguePolicy):
             self.gp_sarsa.end_episode(self.unsuccess_reward)
         self.gp_sarsa.save()
 
+    def _get_indicators(self, ds, features):
+        #TODO: HERE , call get slot to be select, confirm two times
+        indicators = [0, 0, 0]
+        if features[2]>0 and features[4]>0:#offer is applicable
+            indicators[0] = 1
+
+        slots_tobe_selected = self.get_slots_tobe_selected(ds, self.policy_cfg['select_prob'], self.accept_prob)
+        #slots_tobe_selected = {k: v for k, v in slots_tobe_selected.items() if k in self.ontology.slots_system_selects()}
+        if 'task' in slots_tobe_selected.keys():
+            slots_tobe_selected.pop('task')
+        #print "FBuild: slot tobe selected", slots_tobe_selected.keys()
+        if len(slots_tobe_selected)>0:
+            indicators[1] = 1
+ 
+        slots_tobe_confirmed = self.get_slots_tobe_confirmed(ds, self.policy_cfg['confirm_prob'], self.accept_prob)
+        slots_tobe_confirmed = {k: v for k, v in slots_tobe_confirmed.items() if k in self.ontology.slots_system_confirms()}
+        #print "FBuild: slot tobe confirm", slots_tobe_confirmed.keys()
+        if len(slots_tobe_confirmed)>0:
+            indicators[2] = 1
+        
+        return indicators
+
     def _extract_features(self, ds):
         '''Features including only probabilities of top two hypothesis.'''
         print '------Extract features form belief state:'
@@ -1746,9 +1768,7 @@ class PTIENHDCPolicy(DialoguePolicy):
             print ''
             features.extend(fslot)
         #------indicators features
-        indicators = [0,]
-        if features[2]>0 and features[4]>0:#offer is applicable
-            indicators[0] = 1
+        indicators = self._get_indicators(ds, features)
         print '[%s]\t\t:'%'indis',
         for v in indicators:
             print '%.3f'%v,

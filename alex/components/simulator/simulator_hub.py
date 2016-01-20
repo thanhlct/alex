@@ -86,7 +86,7 @@ class SimulatorHub(Hub):
             sys_da = dm.da_out()
             #sys_da = DialogueAct(sys_das[index])
             print '---sys_da:\t',sys_da
-            pdb.set_trace()
+            #pdb.set_trace()
             self.cfg['Logging']['session_logger'].turn("system")
             self.cfg['Logging']['session_logger'].dialogue_act("system", sys_da) 
 
@@ -217,7 +217,7 @@ def evaluate_dm(config, episode=1000):
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
     #asr_errors = [15, 30, 50, 90]
-    asr_errors = [15]*1
+    asr_errors = [15]*15
     for error in asr_errors:
         config = set_asr_error(config, error)
         print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)
