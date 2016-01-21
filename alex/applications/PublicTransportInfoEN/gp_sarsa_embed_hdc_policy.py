@@ -315,11 +315,12 @@ class PTIENHDCPolicy(DialoguePolicy):
                 #changed_slots = self.fix_stop_street_slots(changed_slots)
                 changed_slots = dialogue_state.get_changed_slots(0.0)#0.0 is not realy matter in this case, since only ask from_stop and to_stop
                 ret_da = self.get_iconfirm_info(changed_slots)
-                #print 'implconfirm acts'
+                print '-*implconfirm acts:', ret_da
                 #pdb.set_trace()
                 req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots, belief_features)
                 ret_da.extend(req_da)
                 ret_da = self.filter_iconfirms(ret_da)
+                #TODO: Check sometims should be implconfirm, slots are available, but not implconfirm, only request???
                 #print 'implconfirm acts after add request'
                 #pdb.set_trace()
             elif sys_da=='offer':
@@ -336,7 +337,7 @@ class PTIENHDCPolicy(DialoguePolicy):
                 #-----------------------------------------------------------------------------
             else:
                 raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
-            print 'GP_Sarsa final acts:', ret_da
+            #print 'GP_Sarsa final acts:', ret_da
             #pdb.set_trace()
             if len(ret_da)==0:
                 print 'GP-Sarsa return empty act?????'
@@ -1711,13 +1712,13 @@ class PTIENHDCPolicy(DialoguePolicy):
         if 'task' in slots_tobe_selected.keys():
             slots_tobe_selected.pop('task')
         #print "FBuild: slot tobe selected", slots_tobe_selected.keys()
-        if len(slots_tobe_selected)>0:
+        if len(slots_tobe_selected)>0:#select is appliable
             indicators[1] = 1
  
         slots_tobe_confirmed = self.get_slots_tobe_confirmed(ds, self.policy_cfg['confirm_prob'], self.accept_prob)
         slots_tobe_confirmed = {k: v for k, v in slots_tobe_confirmed.items() if k in self.ontology.slots_system_confirms()}
         #print "FBuild: slot tobe confirm", slots_tobe_confirmed.keys()
-        if len(slots_tobe_confirmed)>0:
+        if len(slots_tobe_confirmed)>0:#confirm is appliable
             indicators[2] = 1
         
         return indicators
