@@ -1,3 +1,5 @@
+import random
+
 from alex.components.simulator.base import UserSimulator
 from alex.utils.database.python_database import PythonDatabase
 from alex.components.slu.da import DialogueActItem, DialogueActConfusionNetwork, DialogueAct
@@ -333,8 +335,11 @@ class SimpleUserSimulator(UserSimulator):
                             break#only break the inner loop
             #da_out.extend(da_items)
         if out_of_patience:
-            da_out = DialogueAct(self.config['out_of_patience_act'])
-            print '!!!!ANGRY...'
+            if random.random()>0.5:
+                da_out = DialogueAct(self.config['out_of_patience_act'])
+                print '!!!!ANGRY...'
+            else:
+                print '!!Almost ANGRY...'
         return da_out
 
     def _get_act_out_description(self, act_out, specific_answer):

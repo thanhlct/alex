@@ -77,7 +77,7 @@ config = {
     'user_simulator':{
         'SimpleUserSimulator':{
             'debug': True,
-            'patience_level':6,#minimum 1,the number of repeated ask the same thing to get angry and hang up, set to 0 mean never hang up 
+            'patience_level':6,#minimum 1,the number of repeated ask the same thing to get angry and hang up, set to 0 mean never hang up
             'out_of_patience_act':'hangup()',
             'metadata':{
             'slots': ['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street',
