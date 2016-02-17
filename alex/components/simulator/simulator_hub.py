@@ -162,6 +162,7 @@ class SimulatorHub(Hub):
                 except Exception as e:
                     print '*******---System Error at Dialogue %d:'%(dialogue_count)
                     traceback.print_exc()
+                    print repr(traceback.print_exc())
                     print '-'*50
                     error_count += 1
                     rewards.append(0)#0 is the reward of unsuccessful dialogue

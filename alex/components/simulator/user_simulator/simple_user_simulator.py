@@ -607,7 +607,10 @@ class SimpleUserSimulator(UserSimulator):
         #print '--combined slots4', lst
         #process litmited slots
         if 'limited_slots' in act_out_des.keys():
-            lst = matlab.subtract(lst, act_out_des['limited_slots'])
+            limits = act_out_des['limited_slots']
+            limits = matlab.subtract(limits, act_in['slots'])#limited slots will be used when system ask
+            #lst = matlab.subtract(lst, act_out_des['limited_slots'])
+            lst = matlab.subtract(lst, limits)
 
         #process status included
         if 'status_included' in act_out_des.keys():

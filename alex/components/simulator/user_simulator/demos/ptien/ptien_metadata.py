@@ -115,7 +115,7 @@ config = {
                             ('vehicle',):0.5,
                             },
                         ],
-                    'equivalent_slots':[('from_borough', 'from_stop', 'from_city', 'from_street'), ('to_borough', 'to_stop', 'to_city', 'to_street'),
+                    'equivalent_slots':[('from_stop', 'from_street', 'from_borough', 'from_city'), ('to_stop', 'to_street', 'to_borough', 'to_city'),
                                         ('arrival_time', 'arrival_time_rel'), ('departure_time', 'departure_time_rel'),
                                     ],
                     'sys_unaskable_slots':['number_transfer', 'duration', 'distance',],
@@ -200,7 +200,7 @@ config = {
                     'value_included': True,
                     'slot_from': 'sys_da', #in normal case, list of slots will be informed is taken from system dialogue request act, or from goal
                     'value_from': 'goal', #in normal case, where to get values for selected slots
-                    'limited_slots': [], #list of slot cant combine
+                    'limited_slots': ['from_borough', 'to_borough'], #list of slot cant combine, except syste ask directly
                     'accept_used_slots': False,
                     'use_slot_sequence': False,
                 },
@@ -568,6 +568,7 @@ config = {
                                         'inform_overridden_properties':{
                                             'slot_from': 'goal',#take all slots from goal as combinable
                                             'status_included': 'unmentioned',#keep only slot which was not mentioned in this turn
+                                            'limited_slots': [],
                                             #NOTE Should whe support multiple status setting such as unmentioned + incorrect (not save that infor now!
                                         },
                                 },
@@ -606,6 +607,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
+                                            'limited_slots': [],
                                             #'use_slot_sequence': True,
                                         },
                                 },
@@ -615,6 +617,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
+                                            'limited_slots': [],
                                             #'use_slot_sequence': True,
                                         },
                                 },

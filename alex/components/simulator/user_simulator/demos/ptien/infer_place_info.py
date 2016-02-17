@@ -8,10 +8,10 @@ def add_place_info(goal):
     infer = InferInfo()
     final_goal = infer.infer_info(goal)
     if final_goal != goal:
-        print '***---Goal change....'
+        print '***---Goal is added info....'
         print '---Original goal', goal
         print '---Final goal:', final_goal
-        pdb.set_trace()
+        #pdb.set_trace()
     return final_goal
 
 class InferInfo(object):

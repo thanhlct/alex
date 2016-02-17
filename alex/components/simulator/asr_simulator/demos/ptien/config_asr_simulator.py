@@ -35,6 +35,7 @@ config = {
                     as_project_path('applications/PublicTransportInfoEN/data/thanh_data/cities.txt'),
                     as_project_path('applications/PublicTransportInfoEN/data/thanh_data/time_relative.txt'),
                     as_project_path('applications/PublicTransportInfoEN/data/thanh_data/places.txt'),
+                    as_project_path('applications/PublicTransportInfoEN/data/thanh_data/boroughs.txt'),
                     ],
                     
         },
@@ -152,6 +153,8 @@ config = {
             },
             'slot_table_field_mapping':{'from_stop':[('stops','stop')],
                                         'to_stop':[('stops', 'stop')],
+                                        'from_borough':[('boroughs', 'borough')],
+                                        'to_borough':[('boroughs', 'borough')],
                                         'from_city':[('cities', 'city')],
                                         'to_city':[('cities', 'city')],
                                         'from_street':[('streets', 'street')],
