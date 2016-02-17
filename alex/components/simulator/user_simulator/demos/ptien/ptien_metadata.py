@@ -1,4 +1,5 @@
 from alex.utils.sample_distribution import sample_from_list
+from infer_place_info import add_place_info
 
 def values_generator1(goal, slot):
     '''Generate all values for a slot'''
@@ -13,6 +14,10 @@ def alternative_value_fun():
 
 def reward_last_turn(goal, last_da):
     return -1
+
+def post_process_final_goal(goal):
+    goal= add_place_info(goal)
+    return goal
 
 def reward_final_goal(goal, turns):
     #Successful diaogue: 20; Unsuccessful: 0
@@ -119,8 +124,8 @@ config = {
                     #'add_fixed_slot_to_goal': True,
                     'active_prob':1.0,#probability of observing the task being active
                     'same_table_slot_keys':[],#defining when serveral slots connected to a row in a table and we would like to get them linked together
-                    'goal_post_process_fun': None,#post process function to refine the sampled goal, which will be defined for specific semantic relations
-                    'goal_slot_relax_fun': None,#support function, relax the value of a slot given curretn goal, e.g. more late arrival, departure sooner
+                    'goal_post_process_fun': post_process_final_goal,#post process function to refine the sampled goal, which will be defined for specific semantic relations
+                    'goal_slot_relax_fun': None,#support function, relax the value of a slot given curretn goal, e.g. more late arrival, departure sooner, not used yet, for this purpose will be pushed into action handler
                     'reward_last_da_fun': reward_last_turn,
                     'reward_final_goal_fun': reward_final_goal,
                     'end_dialogue_post_process_fun': None,

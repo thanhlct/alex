@@ -37,6 +37,9 @@ def sample_dirichlet_from_dict(dt):
 
 def sample_from_list(lst, num=1, repeat=False):
     '''Sample num number of elemetns in given list lst, which a value may be chosen repeatedly when the flag repeat set to True'''
+    if isinstance(lst, set):
+        lst = list(lst)
+
     if num>len(lst) and not repeat:
         raise ValueError('Number of element required is exceed the size of given list while repeatation wasn\'t allowed')
     ret = []

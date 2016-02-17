@@ -996,13 +996,14 @@ class PTIENHDCPolicy(DialoguePolicy):
         if not from_info_complete and not to_info_complete and \
                         'departure_time' not in accepted_slots and 'time' not in accepted_slots and randbool(10):
             req_da.extend(DialogueAct('request(departure_time)'))
-        elif True and belief_features is not None:#THANH change to ask a slot without default values which has lowest probability
+        elif False and belief_features is not None:#THANH change to ask a slot without default values which has lowest probability
             #NOTE have to change indexes if the feature change
             if belief_features[2]<belief_features[4]:
                 req_da.extend(DialogueAct('request(from_stop)'))
             else:
                 req_da.extend(DialogueAct('request(to_stop)'))
         elif not has_to_place:
+            #TODO: Always ask to_stop where user want to go from city to city???
             req_da.extend(DialogueAct('request(to_stop)'))
         elif not has_from_place:
             req_da.extend(DialogueAct('request(from_stop)'))

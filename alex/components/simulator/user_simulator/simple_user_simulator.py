@@ -145,7 +145,8 @@ class SimpleUserSimulator(UserSimulator):
     
         fun = get_dict_value(goal_des,'goal_post_process_fun')
         if fun is not None:
-            goal = fun(self, goal)
+            #goal = fun(self, goal)
+            goal = fun(goal)
 
         #for debug:
         #self.goal_id = 0
