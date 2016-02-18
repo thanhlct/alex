@@ -337,8 +337,8 @@ class PTIENHDCPolicy(DialoguePolicy):
                 #-----------------------------------------------------------------------------
             else:
                 raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
-            #print 'GP_Sarsa final acts:', ret_da
-            #pdb.set_trace()
+            print 'GP_Sarsa final acts:', ret_da
+            pdb.set_trace()
             if len(ret_da)==0:
                 print 'GP-Sarsa return empty act?????'
                 ret_da = DialogueAct('cant_apply()')
@@ -451,7 +451,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         return res_da
 
     def _thanh_offer_route(self, ds):
-        slots=['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle',]
+        slots=['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle', 'from_borough', 'to_borough']
         defaults = {'task': 'find_connection', 'departure_time':'now', 'arrival_time':'now', 'vehicle':'dontcare'} 
         ret_da = DialogueAct()
         ret_da.append(DialogueActItem('offer', 'task', 'find_connection'))
@@ -996,7 +996,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         if not from_info_complete and not to_info_complete and \
                         'departure_time' not in accepted_slots and 'time' not in accepted_slots and randbool(10):
             req_da.extend(DialogueAct('request(departure_time)'))
-        elif False and belief_features is not None:#THANH change to ask a slot without default values which has lowest probability
+        elif True and belief_features is not None:#THANH change to ask a slot without default values which has lowest probability
             #NOTE have to change indexes if the feature change
             if belief_features[2]<belief_features[4]:
                 req_da.extend(DialogueAct('request(from_stop)'))
@@ -1725,6 +1725,8 @@ class PTIENHDCPolicy(DialoguePolicy):
         return indicators
 
     def _extract_features(self, ds):
+        #TODO: HERE, attache new feature by combine (fromStop/FromStreet and 2 number features for each from_borough, from_city (good for bot infer only one value and in the case user say also two value from hypothesis
+        #TODO: what we get from palces_inferred???
         '''Features including only probabilities of top two hypothesis.'''
         print '------Extract features form belief state:'
         slots=['task', ('from_stop', 'from_street', 'from_city'), ('to_stop', 'to_street', 'to_city'), ('departure_time', 'departure_time_rel'), ('arrival_time', 'arrival_time_rel'),'vehicle',]
@@ -1902,3 +1904,118 @@ class PTIENHDCPolicy(DialoguePolicy):
                 tobe_selected_slots[slot] = ds.slots[slot]
 
         return tobe_selected_slots
+
+    def places_inferred(self, ds, accepted_slots):
+        # retrieve the slot variables
+        from_city_val = self.get_accepted_mpv(ds, 'from_city', accepted_slots)
+        from_borough_val = self.get_accepted_mpv(ds, 'from_borough', accepted_slots)
+        from_stop_val = self.get_accepted_mpv(ds, 'from_stop', accepted_slots)
+        from_street_val = self.get_accepted_mpv(ds, 'from_street', accepted_slots)
+        from_street2_val = self.get_accepted_mpv(ds, 'from_street2', accepted_slots)
+        to_city_val = self.get_accepted_mpv(ds, 'to_city', accepted_slots)
+        to_borough_val = self.get_accepted_mpv(ds, 'to_borough', accepted_slots)
+        to_stop_val = self.get_accepted_mpv(ds, 'to_stop', accepted_slots)
+        to_street_val = self.get_accepted_mpv(ds, 'to_street', accepted_slots)
+        to_street2_val = self.get_accepted_mpv(ds, 'to_street2', accepted_slots)
+        vehicle_val = self.get_accepted_mpv(ds, 'vehicle', accepted_slots)
+        max_transfers_val = self.get_accepted_mpv(ds, 'num_transfers', accepted_slots)
+
+        # infer cities based on stops
+        from_cities, to_cities = None, None
+        stop_city_inferred = False
+        if from_stop_val != 'none' and from_city_val == 'none':
+            from_cities = self.ontology.get_compatible_vals('stop_city', from_stop_val)
+            if len(from_cities) == 1:
+                from_city_val = from_cities.pop()
+                stop_city_inferred = True
+        if to_stop_val != 'none' and to_city_val == 'none':
+            to_cities = self.ontology.get_compatible_vals('stop_city', to_stop_val)
+            if len(to_cities) == 1:
+                to_city_val = to_cities.pop()
+                stop_city_inferred = True
+
+        # infer cities based on stops
+        from_boroughs, to_boroughs = None, None
+        stop_borough_inferred = False
+        if from_stop_val != 'none' and from_borough_val == 'none':
+            from_boroughs = self.ontology.get_compatible_vals('stop_borough', from_stop_val)
+            if len(from_boroughs) == 1:
+                from_borough_val = from_boroughs.pop()
+                stop_borough_inferred = True
+        if to_stop_val != 'none' and to_borough_val == 'none':
+            to_boroughs = self.ontology.get_compatible_vals('stop_borough', to_stop_val)
+            if len(to_boroughs) == 1:
+                to_borough_val = to_boroughs.pop()
+                stop_borough_inferred = True
+
+        # infer boroughs based on streets
+        from_boroughs_st, to_boroughs_st = None, None
+        street_borough_inferred = False
+        if to_street_val != 'none' and to_borough_val == 'none':
+            to_boroughs_st = self.ontology.get_compatible_vals('street_borough', to_street_val)
+            if len(to_boroughs_st) == 1:
+                to_borough_val = to_boroughs_st.pop()
+                street_borough_inferred = True
+        if from_street_val != 'none' and from_borough_val == 'none':
+            from_boroughs_st = self.ontology.get_compatible_vals('street_borough', from_street_val)
+            if len(from_boroughs_st) == 1:
+                from_borough_val = from_boroughs_st.pop()
+                street_borough_inferred = True
+
+
+        # infer cities based on each other
+        if from_stop_val != 'none' and from_city_val == 'none' and to_city_val in from_cities:
+            from_city_val = to_city_val
+        elif to_stop_val != 'none' and to_city_val == 'none' and from_city_val in to_cities:
+            to_city_val = from_city_val
+
+        # infer boroughs based on each other
+        # from stops
+        if from_stop_val != 'none' and from_borough_val == 'none' and to_borough_val in from_boroughs:
+            from_borough_val = to_borough_val
+        elif to_stop_val != 'none' and to_borough_val == 'none' and from_borough_val in to_boroughs:
+            to_borough_val = from_borough_val
+        # from streets
+        if from_street_val != 'none' and from_borough_val == 'none' and to_borough_val in from_boroughs_st:
+            from_borough_val = to_borough_val
+        elif to_street_val != 'none' and to_borough_val == 'none' and from_borough_val in to_boroughs_st:
+            to_borough_val = from_borough_val
+
+        # try to infer cities from intersection
+        if to_cities is not None and from_cities is not None and from_city_val == 'none' and to_city_val == 'none':
+            intersect_c = [c for c in from_cities if c in to_cities]
+            if len(intersect_c) == 1:
+                from_city_val = intersect_c.pop()
+                to_city_val = from_city_val
+                stop_city_inferred = True
+
+        # try infer boroughs from intersection
+        if to_boroughs is not None and from_boroughs is not None and from_borough_val == 'none' and to_borough_val == 'none':
+            intersect_b = [b for b in from_boroughs if b in to_boroughs]
+            if len(intersect_b) == 1:
+                from_borough_val = intersect_b.pop()
+                to_borough_val = from_borough_val
+                stop_borough_inferred = True
+        if to_boroughs_st is not None and from_boroughs_st is not None and from_borough_val == 'none' and to_borough_val == 'none':
+            intersect_bs = [b for b in from_boroughs_st if b in to_boroughs_st]
+            if len(intersect_bs) == 1:
+                from_borough_val = intersect_bs.pop()
+                to_borough_val = from_borough_val
+                street_borough_inferred = True
+
+        # place can be specified by street or stop and area by city or borough or another street
+        has_from_place = from_stop_val != 'none' or from_street_val != 'none' or from_city_val not in ['none', 'New York']
+        has_from_area = from_borough_val !='none' or from_street2_val != 'none' or from_city_val != 'none'
+        from_info_complete = has_from_place and has_from_area
+                             
+        has_to_place = to_stop_val != 'none' or to_street_val != 'none' or to_city_val not in ['none', 'New York']
+        has_to_area = to_borough_val !='none' or to_street2_val != 'none' or to_city_val != 'none'
+
+        # hack for from CITY to CITY and allowing New York as one of them
+        if (has_to_area and has_from_area) and from_city_val != to_city_val:
+            has_to_place = True
+            has_from_place = True
+
+        to_info_complete = has_to_place and has_to_area
+
+        return from_info_complete, to_info_complete, from_stop_val, from_borough_val, from_city_val, to_stop_val, to_borough_val, to_city_val

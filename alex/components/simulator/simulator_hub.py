@@ -223,7 +223,7 @@ def set_asr_error(config, error):
 
     return config
   
-def evaluate_dm(config, episode=1000):
+def evaluate_dm(config, episode=1):
     close_event = multiprocessing.Event()
     config['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
     config['Logging']['system_logger'].info("""Starting...""")
@@ -234,8 +234,8 @@ def evaluate_dm(config, episode=1000):
     config['Logging']['session_logger'].cancel_join_thread()
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
-    asr_errors = [0, 15, 30, 50, 70]
-    asr_errors = [90]*1
+    #asr_errors = [0, 15, 30, 50, 70, 90]
+    asr_errors = [15]*1
     for error in asr_errors:
         config = set_asr_error(config, error)
         print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)
@@ -270,7 +270,7 @@ if __name__ == '__main__':
     if args.configs is None:
         args.configs = ['./ptien_configs/ptien.cfg', './ptien_configs/ptien_hdc_slu.cfg','./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/ptien/config_asr_simulator.py', './ptien_configs/config_gp_sarsa.py']
         #TODO Remove the confir for gp-sarsa to uses the handcrafted policy
-        args.configs.remove('./ptien_configs/config_gp_sarsa.py')
+        #args.configs.remove('./ptien_configs/config_gp_sarsa.py')
     cfg = Config.load_configs(args.configs, log=False)
 
     #shub = SimulatorHub(cfg)
