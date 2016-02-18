@@ -375,7 +375,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         return res_da
 
     def _thanh_offer_route(self, ds):
-        slots=['task', 'from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle',]
+        slots=['task', 'from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street', 'departure_time', 'arrival_time', 'departure_time_rel', 'arrival_time_rel','vehicle', 'from_borough', 'to_borough']
         defaults = {'task': 'find_connection', 'departure_time':'now', 'arrival_time':'now', 'vehicle':'dontcare'} 
         ret_da = DialogueAct()
         for s in slots:

@@ -56,6 +56,8 @@ class InferInfo(object):
                 stop_city_inferred = True
             elif len(from_cities)>1:
                 self.goal['from_city']= sample_from_list(from_cities)
+                #from_city_val = sample_from_list(from_cities)
+                stop_city_inferred = True
         if to_stop_val != 'none' and to_city_val == 'none':
             to_cities = self.ontology.get_compatible_vals('stop_city', to_stop_val)
             if len(to_cities) == 1:
@@ -63,6 +65,8 @@ class InferInfo(object):
                 stop_city_inferred = True
             elif len(from_cities)>1:
                 self.goal['to_city']= sample_from_list(to_cities)
+                #to_city_val = sample_from_list(to_cities)
+                stop_city_inferred = True
                 
         # infer cities based on stops
         from_boroughs, to_boroughs = None, None
@@ -74,13 +78,17 @@ class InferInfo(object):
                 stop_borough_inferred = True
             elif len(from_boroughs)>1:
                 self.goal['from_borough']= sample_from_list(from_boroughs)
+                #from_borough_val = sample_from_list(from_boroughs)
+                stop_borough_inferred = True
         if to_stop_val != 'none' and to_borough_val == 'none':
             to_boroughs = self.ontology.get_compatible_vals('stop_borough', to_stop_val)
             if len(to_boroughs) == 1:
                 to_borough_val = to_boroughs.pop()
                 stop_borough_inferred = True
             elif len(to_boroughs)>1:
-                self.goal['to_borough']= sample_from_list(to_boroughs)
+                #self.goal['to_borough']= sample_from_list(to_boroughs)
+                to_borough_val = sample_from_list(to_boroughs)
+                stop_borough_inferred = True
 
         # infer boroughs based on streets
         from_boroughs_st, to_boroughs_st = None, None
@@ -92,6 +100,8 @@ class InferInfo(object):
                 street_borough_inferred = True
             elif len(to_boroughs_st)>1:
                 self.goal['to_borough']= sample_from_list(to_boroughs_st)
+                #to_borough_val = sample_from_list(to_boroughs_st)
+                street_borough_inferred = True
         if from_street_val != 'none' and from_borough_val == 'none':
             from_boroughs_st = self.ontology.get_compatible_vals('street_borough', from_street_val)
             if len(from_boroughs_st) == 1:
@@ -99,6 +109,8 @@ class InferInfo(object):
                 street_borough_inferred = True
             elif len(from_boroughs_st)>1:
                 self.goal['from_borough']= sample_from_list(from_boroughs_st)
+                #from_borough_val= sample_from_list(from_boroughs_st)
+                street_borough_inferred = True
 
         # infer cities based on each other
         if from_stop_val != 'none' and from_city_val == 'none' and to_city_val in from_cities:
@@ -154,5 +166,10 @@ class InferInfo(object):
             has_from_place = True
 
         to_info_complete = has_to_place and has_to_area
+        
+        #self.goal['from_borough'] = from_borough_val
+        #self.goal['to_borough'] = to_borough_val
+        #self.goal['from_city'] = from_city_val
+        #self.goal['to_city'] = to_city_val
 
         return self.goal

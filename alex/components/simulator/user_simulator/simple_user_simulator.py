@@ -270,7 +270,12 @@ class SimpleUserSimulator(UserSimulator):
         #if len(das)==1:
         #    das = das[0]
         #print das[0]
-        #pdb.set_trace()
+        
+        #post process user acts
+        goal_des = self.metadata['goals'][self.goal_id]
+        if 'act_post_process_fun' in goal_des and goal_des['act_post_process_fun'] is not None:
+            das = goal_des['act_post_process_fun'](das)
+
         turn['user_da']= das
         self.turns.append(turn)
       

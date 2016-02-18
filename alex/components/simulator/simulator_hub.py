@@ -162,7 +162,7 @@ class SimulatorHub(Hub):
                 except Exception as e:
                     print '*******---System Error at Dialogue %d:'%(dialogue_count)
                     traceback.print_exc()
-                    print repr(traceback.print_exc())
+                    print traceback.format_exc()
                     print '-'*50
                     error_count += 1
                     rewards.append(0)#0 is the reward of unsuccessful dialogue
@@ -203,10 +203,27 @@ def set_asr_error(config, error):
     config_asr['default']['default_confusion_matrix']['confusion_types']['correct'] = 1.0-error/100.0
     config_asr['default']['default_confusion_matrix']['confusion_types']['onlist'] = half_error
     config_asr['default']['default_confusion_matrix']['confusion_types']['offlist'] = half_error
-    
+
+    if error==0:
+        config_asr['act_confusion']['affirm']['confusion_matrix']['max_length'] = 1
+        config_asr['act_confusion']['negate']['confusion_matrix']['max_length'] = 1
+        config_asr['act_confusion']['default']['confusion_matrix']['probability_generator']['correct']['onlist'] = 0.0
+
+        config_asr['default']['default_confusion_matrix']['max_length'] = 1
+        config_asr['default']['default_confusion_matrix']['probability_generator']['correct']['onlist'] = 0.0
+        config_asr['default']['default_confusion_matrix']['probability_generator']['correct']['offlist'] = 0.0
+    else:
+        config_asr['act_confusion']['affirm']['confusion_matrix']['max_length'] = 2
+        config_asr['act_confusion']['negate']['confusion_matrix']['max_length'] = 2
+        config_asr['act_confusion']['default']['confusion_matrix']['probability_generator']['correct']['onlist'] = 1.0
+
+        config_asr['default']['default_confusion_matrix']['max_length'] = 5
+        config_asr['default']['default_confusion_matrix']['probability_generator']['correct']['onlist'] = 1.0
+        config_asr['default']['default_confusion_matrix']['probability_generator']['correct']['offlist'] = 3.0
+
     return config
   
-def evaluate_dm(config, episode=2000):
+def evaluate_dm(config, episode=1000):
     close_event = multiprocessing.Event()
     config['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
     config['Logging']['system_logger'].info("""Starting...""")
@@ -217,8 +234,8 @@ def evaluate_dm(config, episode=2000):
     config['Logging']['session_logger'].cancel_join_thread()
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
-    #asr_errors = [0, 15, 30, 50, 70]
-    asr_errors = [15]*1
+    asr_errors = [0, 15, 30, 50, 70]
+    #asr_errors = [15]*1
     for error in asr_errors:
         config = set_asr_error(config, error)
         print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)
@@ -252,6 +269,8 @@ if __name__ == '__main__':
 
     if args.configs is None:
         args.configs = ['./ptien_configs/ptien.cfg', './ptien_configs/ptien_hdc_slu.cfg','./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/ptien/config_asr_simulator.py', './ptien_configs/config_gp_sarsa.py']
+        #TODO Remove the confir for gp-sarsa to uses the handcrafted policy
+        args.configs.remove('./ptien_configs/config_gp_sarsa.py')
     cfg = Config.load_configs(args.configs, log=False)
 
     #shub = SimulatorHub(cfg)

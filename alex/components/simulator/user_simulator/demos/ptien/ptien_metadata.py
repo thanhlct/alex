@@ -1,5 +1,9 @@
 from alex.utils.sample_distribution import sample_from_list
+from alex.utils.sample_distribution import sample_a_prob
+import alex.utils.matlab_functions as matlab
+
 from infer_place_info import add_place_info
+
 
 def values_generator1(goal, slot):
     '''Generate all values for a slot'''
@@ -12,12 +16,50 @@ def alternative_value_fun():
     a = ['next', 'prev', 'last', '1', '2', '3', '4', 'next hour']
     return sample_from_list(a)
 
-def reward_last_turn(goal, last_da):
-    return -1
+def post_process_act(das):
+    das = das[0]
+    #print 'in das:', das
+    #import pdb
+    da_des = get_dialogue_act_metadata(das)
+    #FILTER from/to borough out of user act if this turn doesn' include from/to street, stop and also keep inform borough with prob. of 0.5
+    if 'inform' in da_des and 'from_borough' in da_des['inform']['slots'] and len(da_des['inform']['slots'])>1:
+        lst = matlab.subtract(['from_stop', 'from_street'], da_des['inform']['slots'])
+        prob = 1.0
+        if len(lst)<2:
+            prob=0.5
+        if is_only_borough(da_des):
+            prob = 0.0
+        if sample_a_prob(prob):
+            das.dais.remove('inform(from_borough="' + da_des['inform']['slot_value']['from_borough'] + '")')
+            print 'remove from_borough'
+            #pdb.set_trace()
+
+    if 'inform' in da_des and 'to_borough' in da_des['inform']['slots'] and len(da_des['inform']['slots'])>1:
+        lst = matlab.subtract(['to_stop', 'to_street'], da_des['inform']['slots'])
+        prob = 1.0
+        if len(lst)<2:
+            prob=0.5
+        if is_only_borough(da_des):
+            prob = 0.0
+        if sample_a_prob(prob):
+            das.dais.remove('inform(to_borough="' + da_des['inform']['slot_value']['to_borough'] + '")')
+            print 'remove to_borough'
+            #pdb.set_trace()
+
+    return [das]
+
+def is_only_borough(des):
+    if len(des['inform']['slots'])==2 and matlab.is_equal(['from_brough', 'to_borough'], des['inform']['slots']):
+        return True
+    else:
+        return False
 
 def post_process_final_goal(goal):
     goal= add_place_info(goal)
     return goal
+
+def reward_last_turn(goal, last_da):
+    return -1
 
 def reward_final_goal(goal, turns):
     #Successful diaogue: 20; Unsuccessful: 0
@@ -36,6 +78,7 @@ def reward_final_goal(goal, turns):
     last_offer = get_dialogue_act_metadata(last_offer)['offer']['slot_value']
     for k, v in goal.items():
         if v != get_slot_value(last_offer, k):
+            print 'WRONG: ', k, '~',  v
             reward=failure_reward
             break
     return reward
@@ -115,7 +158,8 @@ config = {
                             ('vehicle',):0.5,
                             },
                         ],
-                    'equivalent_slots':[('from_stop', 'from_street', 'from_borough', 'from_city'), ('to_stop', 'to_street', 'to_borough', 'to_city'),
+                    'equivalent_slots':[#('from_stop', 'from_street', 'from_borough', 'from_city'), ('to_stop', 'to_street', 'to_borough', 'to_city'),
+                                        ('from_stop', 'from_street', 'from_city'), ('to_stop', 'to_street', 'to_city'),
                                         ('arrival_time', 'arrival_time_rel'), ('departure_time', 'departure_time_rel'),
                                     ],
                     'sys_unaskable_slots':['number_transfer', 'duration', 'distance',],
@@ -125,6 +169,7 @@ config = {
                     'active_prob':1.0,#probability of observing the task being active
                     'same_table_slot_keys':[],#defining when serveral slots connected to a row in a table and we would like to get them linked together
                     'goal_post_process_fun': post_process_final_goal,#post process function to refine the sampled goal, which will be defined for specific semantic relations
+                    'act_post_process_fun': post_process_act,#post process function to refine user act
                     'goal_slot_relax_fun': None,#support function, relax the value of a slot given curretn goal, e.g. more late arrival, departure sooner, not used yet, for this purpose will be pushed into action handler
                     'reward_last_da_fun': reward_last_turn,
                     'reward_final_goal_fun': reward_final_goal,
@@ -200,7 +245,7 @@ config = {
                     'value_included': True,
                     'slot_from': 'sys_da', #in normal case, list of slots will be informed is taken from system dialogue request act, or from goal
                     'value_from': 'goal', #in normal case, where to get values for selected slots
-                    'limited_slots': ['from_borough', 'to_borough'], #list of slot cant combine, except syste ask directly
+                    #'limited_slots': ['from_borough', 'to_borough'], #list of slot cant combine, except syste ask directly
                     'accept_used_slots': False,
                     'use_slot_sequence': False,
                 },
@@ -568,7 +613,7 @@ config = {
                                         'inform_overridden_properties':{
                                             'slot_from': 'goal',#take all slots from goal as combinable
                                             'status_included': 'unmentioned',#keep only slot which was not mentioned in this turn
-                                            'limited_slots': [],
+                                            #'limited_slots': [],
                                             #NOTE Should whe support multiple status setting such as unmentioned + incorrect (not save that infor now!
                                         },
                                 },
@@ -607,7 +652,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'limited_slots': [],
+                                            #'limited_slots': [],
                                             #'use_slot_sequence': True,
                                         },
                                 },
@@ -617,7 +662,7 @@ config = {
                                             'slot_from': 'sys_da',
                                             'status_included': 'incorrect',
                                             'value_from': 'goal',
-                                            'limited_slots': [],
+                                            #'limited_slots': [],
                                             #'use_slot_sequence': True,
                                         },
                                 },

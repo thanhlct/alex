@@ -36,3 +36,6 @@ def is_subset(a, b):
         return False
     else:
         return True
+
+def is_equal(a, b):
+    return is_subset(a, b) and is_subset(b, a)
