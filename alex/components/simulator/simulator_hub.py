@@ -234,7 +234,7 @@ def evaluate_dm(config, episode=1):
     config['Logging']['session_logger'].cancel_join_thread()
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
-    #asr_errors = [0, 15, 30, 50, 70, 90]
+    asr_errors = [0, 15, 30, 50, 70, 90]
     asr_errors = [15]*1
     for error in asr_errors:
         config = set_asr_error(config, error)

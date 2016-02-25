@@ -17,16 +17,17 @@ def alternative_value_fun():
     return sample_from_list(a)
 
 def post_process_act(das):
+    #return das
     das = das[0]
     #print 'in das:', das
     #import pdb
     da_des = get_dialogue_act_metadata(das)
     #FILTER from/to borough out of user act if this turn doesn' include from/to street, stop and also keep inform borough with prob. of 0.5
     if 'inform' in da_des and 'from_borough' in da_des['inform']['slots'] and len(da_des['inform']['slots'])>1:
-        lst = matlab.subtract(['from_stop', 'from_street'], da_des['inform']['slots'])
-        prob = 1.0
-        if len(lst)<2:
-            prob=0.5
+        lst = matlab.subtract(['from_stop'], da_des['inform']['slots'])
+        prob = 0.7
+        if len(lst)<1:
+            prob=0.3
         if is_only_borough(da_des):
             prob = 0.0
         if sample_a_prob(prob):
@@ -35,11 +36,11 @@ def post_process_act(das):
             #pdb.set_trace()
 
     if 'inform' in da_des and 'to_borough' in da_des['inform']['slots'] and len(da_des['inform']['slots'])>1:
-        lst = matlab.subtract(['to_stop', 'to_street'], da_des['inform']['slots'])
-        prob = 1.0
-        if len(lst)<2:
-            prob=0.5
-        if is_only_borough(da_des):
+        lst = matlab.subtract(['to_stop'], da_des['inform']['slots'])
+        prob = 0.7#70% remove borough from inform
+        if len(lst)<1:#has to_stop, remove with 30%
+            prob=0.3
+        if is_only_borough(da_des):#only borough don't remove
             prob = 0.0
         if sample_a_prob(prob):
             das.dais.remove('inform(to_borough="' + da_des['inform']['slot_value']['to_borough'] + '")')
@@ -49,7 +50,9 @@ def post_process_act(das):
     return [das]
 
 def is_only_borough(des):
-    if len(des['inform']['slots'])==2 and matlab.is_equal(['from_brough', 'to_borough'], des['inform']['slots']):
+    if len(des['inform']['slots'])==2 and matlab.is_equal(['from_borough', 'to_borough'], des['inform']['slots']):
+        return True
+    elif len(des['inform']['slots'])==1 and ('from_borough' in des['inform']['slots'] or 'to_borough' in des['inform']['slots']):
         return True
     else:
         return False

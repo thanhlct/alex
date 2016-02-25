@@ -703,6 +703,7 @@ class SimpleUserSimulator(UserSimulator):
             elif status=='incorrect' and correct_value is not None and correct_value!= act_in['slot_value'][s]:
                 lst.append(s)
             elif status=='unmentioned' and s not in act_in['slots']:#unmetioned in only this turn, not from begining
+                '''
                 not_found = True
                 eq_slots = self._get_equivalent_slots(s)
                 for eq_s in eq_slots:
@@ -711,6 +712,8 @@ class SimpleUserSimulator(UserSimulator):
                         break
                 if not_found:
                     lst.append(s)
+                '''
+                lst.append(s)
             else:
                 if status not in ['correct', 'incorrect', 'unmentioned']:
                     raise NotImplementedError('status_included=%s unhandled yet'%status)

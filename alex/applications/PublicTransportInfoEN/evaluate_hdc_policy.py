@@ -384,6 +384,7 @@ class PTIENHDCPolicy(DialoguePolicy):
                 if s in defaults.keys():
                     value = defaults[s]
                 else:
+                    #value= 'none'
                     continue
             ret_da.append(DialogueActItem('offer', s, value))
         return ret_da
