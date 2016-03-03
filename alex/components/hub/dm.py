@@ -79,10 +79,11 @@ class DM(multiprocessing.Process):
                     
                     return False
 
-                if command.parsed['__name__'] == 'prepare_new_dialogue':
-                    self.dm.new_dialogue()
+                #if command.parsed['__name__'] == 'prepare_new_dialogue':
+                    #self.dm.new_dialogue()
 
                 if command.parsed['__name__'] == 'new_dialogue':
+                    self.dm.new_dialogue()#thanh change???
                     self.epilogue_state = None
 
                     self.cfg['Logging']['session_logger'].turn("system")

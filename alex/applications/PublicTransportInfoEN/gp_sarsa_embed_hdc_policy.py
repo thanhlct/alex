@@ -332,9 +332,11 @@ class PTIENHDCPolicy(DialoguePolicy):
                 ret_da = self.get_directions(ds, check_conflict=True)
                 #pdb.set_trace()
                 #=============thanh: changes for evaluating, must remove to run normally======
+                '''
                 ret_da = self._thanh_offer_route(ds)
                 if belief_features[2]==0 or belief_features[4]==0:
                     ret_da = DialogueAct()
+                '''
                 #-----------------------------------------------------------------------------
             else:
                 raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
@@ -1731,7 +1733,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         return changed_slots
 
 #=============================THANH: methods for embe GP-Sarsa================================
-    def end_dialogue(self, user_satisfied):
+    def end_dialogue(self, user_satisfied=True):
         if user_satisfied:
             self.gp_sarsa.end_episode(self.success_reward)
         else:

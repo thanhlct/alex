@@ -200,7 +200,7 @@ class DialogueManager(object):
         self.last_system_dialogue_act = self.policy.get_da(self.dialogue_state)
         return self.last_system_dialogue_act
 
-    def end_dialogue(self, user_satisfied):
+    def end_dialogue(self, user_satisfied=True):
         """Ends the dialogue and post-process the data."""
         self.policy.end_dialogue(user_satisfied)
 
