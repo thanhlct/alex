@@ -332,19 +332,18 @@ class PTIENHDCPolicy(DialoguePolicy):
                 #ret_da = self.get_directions(ds, check_conflict=True)
                 #pdb.set_trace()
                 #=============thanh: changes for evaluating, must remove to run normally======
-                '''
                 ret_da = self._thanh_offer_route(ds)
                 if belief_features[2]==0 or belief_features[4]==0:
                     ret_da = DialogueAct()
-                '''
+                else:
                 #-----------------------------------------------------------------------------
-                changed_slots = self.fix_stop_street_slots(changed_slots)
-                res_da = self.get_iconfirm_info(changed_slots)
-                # talk about public transport
-                t_da = self.get_connection_res_da(dialogue_state, last_user_dai_type, slots_being_requested, slots_being_confirmed,
+                    changed_slots = self.fix_stop_street_slots(changed_slots)
+                    res_da = self.get_iconfirm_info(changed_slots)
+                    # talk about public transport
+                    t_da = self.get_connection_res_da(dialogue_state, last_user_dai_type, slots_being_requested, slots_being_confirmed,
                                               accepted_slots, changed_slots, has_state_changed)
-                res_da.extend(t_da)
-                ret_da = self.filter_iconfirms(res_da)
+                    res_da.extend(t_da)
+                    ret_da = self.filter_iconfirms(res_da)
             else:
                 raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
             #print 'GP_Sarsa final acts:', ret_da
@@ -354,6 +353,7 @@ class PTIENHDCPolicy(DialoguePolicy):
                 ret_da = DialogueAct('cant_apply()')
                 #pdb.set_trace()
             res_da = ret_da
+            print '-*final_acts:', res_da
         elif fact['there_is_something_to_be_selected']:#TODO: THANH
             # implicitly confirm all changed slots
             res_da = self.get_iconfirm_info(changed_slots)

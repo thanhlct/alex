@@ -347,6 +347,7 @@ class ApproximateEpisodicGPSarsa:
         if variance <0:
             #TODO:Problem: remove, fix
             #variance = abs(variance)
+            print 'Thanh ???'
             pdb.set_trace()
         return np.random.normal(mean, self.variance_scale*pow(variance,0.5))
         #return mean

@@ -10,6 +10,7 @@ import random
 import urllib2
 import json
 from collections import deque
+import ssl
 
 from alex.components.slu.da import DialogueAct, DialogueActItem, DialogueActConfusionNetwork
 from alex.components.hub.messages import Command, SLUHyp, DMDA
@@ -182,7 +183,8 @@ class DM(multiprocessing.Process):
             attempts += 1
             # pull the URL
             url = url_template.format(code=code, logdir=system_logger.get_session_dir_name())
-            data = urllib2.urlopen(url).read()
+            gcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+            data = urllib2.urlopen(url, context=gcontext).read()
             data = json.loads(data, encoding='UTF-8')
 
         if attempts >= 10:
@@ -206,9 +208,9 @@ class DM(multiprocessing.Process):
 
         :return the name of the activity or None
         """
-        #TODO: Thanh only ask final question or code, not both
         self.cfg['Logging']['system_logger'].info("FQ IS " + str(self.cfg['DM']['epilogue'].get('final_question')))
-        if self.cfg['DM']['epilogue']['final_question']:
+        #Thanh: change for  only ask final question or code, not both
+        if self.epilogue_state==None and self.cfg['DM']['epilogue']['final_question']:
             self.epilogue_final_question()
             return 'final_question'
         elif self.cfg['DM']['epilogue']['final_code_url']:
@@ -219,21 +221,32 @@ class DM(multiprocessing.Process):
 
         return None
 
+    def set_dialogue_satisfied(self, slu_hyp):
+        da = slu_hyp.get_best_nonnull_da()
+        print 'Yes/no satify:', da.dat 
+
     def read_slu_hypotheses_write_dialogue_act(self):
         # read SLU hypothesis
         if self.slu_hypotheses_in.poll():
             # read SLU hypothesis
             data_slu = self.slu_hypotheses_in.recv()
 
-            if self.epilogue_state:
+            #change for get bot yest no sattifiys and code
+            if self.epilogue_state=='final_question' and self.cfg['DM']['epilogue']['final_code_url']==None:#Thanh: only ask final question, not code
                 # we have got another turn, now we can hang up.
-                #TODO: Thanh get yest/no yere
-                print '=*****==== get Yes for satisfy here', data_slu
+                self.set_dialogue_satisfied(data_slu.hyp)#update final rewar for gp-sarsa
                 self.cfg['Logging']['session_logger'].turn("system")
                 self.dm.log_state()
                 self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
                 self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
                 self.commands.send(Command('hangup()', 'DM', 'HUB'))
+            elif self.epilogue_state=='final_question' and self.cfg['DM']['epilogue']['final_code_url']:
+                self.epilogue_state = self.epilogue()
+                self.set_dialogue_satisfied(data_slu.hyp)#update final rewar for gp-sarsa
+                if not self.epilogue_state:
+                    self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
+                    self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
+                    self.commands.send(Command('hangup()', 'DM', 'HUB'))
             elif isinstance(data_slu, SLUHyp):
                 # reset measuring of the user silence
                 self.last_user_da_time = time.time()
@@ -322,4 +335,5 @@ class DM(multiprocessing.Process):
         """
         if self.cfg['DM']['epilogue']['final_question'] is None and self.cfg['DM']['epilogue']['final_code_url'] is not None:
             url = self.cfg['DM']['epilogue']['final_code_url'].format(code='test', logdir='')
-            urllib2.urlopen(url)
+            gcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+            urllib2.urlopen(url, context=gcontext)
