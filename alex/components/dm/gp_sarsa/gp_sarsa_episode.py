@@ -52,7 +52,7 @@ class ApproximateEpisodicGPSarsa:
     def save(self):
         '''Save every thing to file for next re-run'''
         #Need to save: K, D, C, means
-        if self.save_file is not None and False:
+        if self.save_file is not None:
             print '**Save the learned knowledge to file [%s]...'%self.save_file
             params = {'D': self.D, 'means': self.means, 'K1': self.K1, 'C': self.C }
             object_to_file(params, self.save_file)

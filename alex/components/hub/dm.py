@@ -206,7 +206,7 @@ class DM(multiprocessing.Process):
 
         :return the name of the activity or None
         """
-
+        #TODO: Thanh only ask final question or code, not both
         self.cfg['Logging']['system_logger'].info("FQ IS " + str(self.cfg['DM']['epilogue'].get('final_question')))
         if self.cfg['DM']['epilogue']['final_question']:
             self.epilogue_final_question()
@@ -227,6 +227,8 @@ class DM(multiprocessing.Process):
 
             if self.epilogue_state:
                 # we have got another turn, now we can hang up.
+                #TODO: Thanh get yest/no yere
+                print '=*****==== get Yes for satisfy here', data_slu
                 self.cfg['Logging']['session_logger'].turn("system")
                 self.dm.log_state()
                 self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)

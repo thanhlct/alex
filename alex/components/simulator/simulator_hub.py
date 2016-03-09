@@ -196,7 +196,7 @@ def set_asr_error(config, error):
     config_asr = config['asr_simulator']['SimpleASRSimulator']
     error = error/100.0
     half_error = (float(error)/2.0)
-    #'''
+    '''
     config_asr['act_confusion']['affirm']['confusion_matrix']['confusion_types']['correct'] = 1.0-half_error
     config_asr['act_confusion']['affirm']['confusion_matrix']['confusion_types']['onlist'] = half_error
     config_asr['act_confusion']['negate']['confusion_matrix']['confusion_types']['correct'] = 1.0-half_error
@@ -211,10 +211,13 @@ def set_asr_error(config, error):
     config_asr['act_confusion']['negate']['confusion_matrix']['confusion_types']['correct'] = 1.0-error
     config_asr['act_confusion']['negate']['confusion_matrix']['confusion_types']['onlist'] = error
 
-    config_asr['default']['default_confusion_matrix']['confusion_types']['correct'] = 1.0-error-half_error
-    config_asr['default']['default_confusion_matrix']['confusion_types']['onlist'] = half_error
+    config_asr['default']['default_confusion_matrix']['confusion_types']['correct'] = max(1.0-error-half_error, 0)
+    print 'correct', config_asr['default']['default_confusion_matrix']['confusion_types']['correct']
+    config_asr['default']['default_confusion_matrix']['confusion_types']['onlist'] = half_error if error + half_error<=1.0 else 1.0-error
+    print 'onlist', config_asr['default']['default_confusion_matrix']['confusion_types']['onlist']
     config_asr['default']['default_confusion_matrix']['confusion_types']['offlist'] = error
-    '''
+    print 'offlist', config_asr['default']['default_confusion_matrix']['confusion_types']['offlist']
+    #'''
 
     if error==0:
         config_asr['act_confusion']['affirm']['confusion_matrix']['max_length'] = 1
@@ -246,8 +249,8 @@ def evaluate_dm(config, episode=1000):
     config['Logging']['session_logger'].cancel_join_thread()
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
-    asr_errors = [0, 15, 30, 50, 70, 90]
-    #asr_errors = [15]*1
+    asr_errors = [0, 15, 30, 50, 60, 70, 90]
+    asr_errors = [90]*1
     for error in asr_errors:
         config = set_asr_error(config, error)
         print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)
@@ -282,7 +285,7 @@ if __name__ == '__main__':
     if args.configs is None:
         args.configs = ['./ptien_configs/ptien.cfg', './ptien_configs/ptien_hdc_slu.cfg','./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/ptien/config_asr_simulator.py', './ptien_configs/config_gp_sarsa.py']
         #TODO Remove the confir for gp-sarsa to uses the handcrafted policy
-        args.configs.remove('./ptien_configs/config_gp_sarsa.py')
+        #args.configs.remove('./ptien_configs/config_gp_sarsa.py')
     cfg = Config.load_configs(args.configs, log=False)
 
     #shub = SimulatorHub(cfg)

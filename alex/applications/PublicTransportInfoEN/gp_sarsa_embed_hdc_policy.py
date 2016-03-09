@@ -1918,7 +1918,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         tobe_confirmed_slots = {}
 
         for slot in ds.slots:
-            if any([1 for x in ['rh_', 'ch_', 'sh_', "ludait"] if slot.startswith(x)]):
+            if any([1 for x in ['rh_', 'ch_', 'sh_', "ludait", 'lta_'] if slot.startswith(x)]):
                 continue
             if not isinstance(ds.slots[slot], D3DiscreteValue):
                 continue
@@ -1940,7 +1940,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         tobe_selected_slots = {}
 
         for slot in ds.slots:
-            if any([1 for x in ['rh_', 'ch_', 'sh_', "ludait"] if slot.startswith(x)]):
+            if any([1 for x in ['rh_', 'ch_', 'sh_', "ludait", 'lta_'] if slot.startswith(x)]):
                 continue
             if not isinstance(ds.slots[slot], D3DiscreteValue):
                 continue

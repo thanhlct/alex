@@ -31,7 +31,7 @@ config = {
                 'epsilon': -1,
                 'gamma': 0.9,
                 'sigma': 5.916,
-                'variance_scale': 1,
+                'variance_scale': 1,#old value =1, best =3
                 'threshold_v': 0.015,
                 'storage_file': 'gp_sara.params.pkl',
                 #'storage_file': None,
