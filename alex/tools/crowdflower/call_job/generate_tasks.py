@@ -20,6 +20,7 @@ import codecs
 import sys
 from argparse import ArgumentParser
 
+import autopath
 from alex.components.slu.da import DialogueAct, DialogueActItem
 from alex.utils.config import as_project_path
 from alex.components.nlg.template import TemplateNLG
@@ -84,7 +85,7 @@ QUESTIONS = [[DialogueActItem('request', 'duration')],
 
 CFG = {'NLG': {'debug': True,
                'type': 'Template',
-               'Template': {'model': as_project_path('tools/crowdflower/task_templates.cfg'),
+               'Template': {'model': as_project_path('tools/crowdflower/call_job/task_templates.cfg'),
                             'ontology': as_project_path('applications/PublicTransportInfoEN/data/ontology.py'),
                             # 'preprocessing_cls': PTIENNLGPreprocessing,
                             },

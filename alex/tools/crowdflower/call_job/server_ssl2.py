@@ -79,6 +79,7 @@ Usage
 import codecs
 import json
 from BaseHTTPServer import BaseHTTPRequestHandler
+from SimpleHTTPServer import SimpleHTTPRequestHandler
 from urlparse import urlparse
 import os
 import SocketServer
@@ -89,13 +90,20 @@ import ssl
 import sys
 
 DEFAULT_PORT = 443
-DEFAULT_CODES_PATH = "./codes"
-DEFAULT_LOG_PATH = "./log"
-DEFAULT_TASKS_PATH = "./tasks"
-MYDIR = os.path.dirname(__file__)
-DEFAULT_KEY_PATH = os.path.join(MYDIR, 'server.key')
-DEFAULT_CERT_PATH = os.path.join(MYDIR, 'server.crt')
-DEFAULT_TIMEOUT = -1
+MYDIR = os.path.dirname('/root/root_store/thanh_pro/git_clone/alex/alex/tools/crowdflower/call_job/')
+#DEFAULT_CODES_PATH = "./codes.txt"
+DEFAULT_CODES_PATH = os.path.join(MYDIR,'codes.txt')
+#DEFAULT_LOG_PATH = "./log.txt"
+DEFAULT_LOG_PATH = os.path.join(MYDIR, 'log.txt')
+#DEFAULT_TASKS_PATH = "./tasks.txt"
+DEFAULT_TASKS_PATH = os.path.join(MYDIR, 'tasks.txt')
+#MYDIR = os.path.dirname(__file__)
+#DEFAULT_KEY_PATH = os.path.join(MYDIR, 'ptien_ml.key')
+DEFAULT_KEY_PATH = os.path.join(MYDIR, 'ptien_ml.key')
+#DEFAULT_CERT_PATH = os.path.join(MYDIR, 'ptien_ml.crt')
+DEFAULT_CERT_PATH = os.path.join(MYDIR, 'ptien_ml.crt')
+print DEFAULT_CERT_PATH 
+DEFAULT_TIMEOUT = 15#change to -1 for never expire
 DEFAULT_ALLOW_IP = '0.0.0.0-255.255.255.255'
 
 
@@ -122,13 +130,19 @@ class IPRange(object):
         return self.lo <= addr and addr <= self.hi
 
 
-class Handler(BaseHTTPRequestHandler):
+#class Handler(BaseHTTPRequestHandler):
+class Handler(SimpleHTTPRequestHandler):
 
     # set a timeout so that the server never hangs (this should be vastly more than enough
     # for handling a single request, with no file access blocking etc.)
     timeout = 30
-
+    
+    '''
     def do_GET(self):
+        return super(Handler, self).do_GET(self)
+    '''
+
+    def do_POST(self):
         """Main method that handles a GET request from the client."""
         response = ""
         data = ""
@@ -198,6 +212,8 @@ class Handler(BaseHTTPRequestHandler):
         if data:
             ret['data'] = data
         self.wfile.write(json.dumps(ret))
+        #response = '\n'.join(['6A364DB36962F3D0C265223AD45734319668D2AE', 'comodoca.com'])
+        #self.wfile.write(response)
         # self.request.sendall(json.dumps({'response':response}))
 
 
@@ -222,7 +238,8 @@ class SSLTCPServer(SocketServer.TCPServer):
                                       keyfile=self.key_file,
                                       certfile=self.cert_file,
                                       cert_reqs=ssl.CERT_NONE,
-                                      ssl_version=ssl.PROTOCOL_TLSv1,
+                                      #ssl_version=ssl.PROTOCOL_TLSv1,
+                                      ssl_version=ssl.PROTOCOL_SSLv23,
                                       server_side=True)
 
         # start serving
