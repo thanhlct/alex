@@ -6,4 +6,4 @@
 	./ptien_configs/google.cfg\
 	./ptien_configs/voicerss.cfg\
 	./ptien_configs/config_gp_sarsa.py\
-	./private/sip-account2.cfg\
+	./private/sip-account1.cfg\

@@ -131,6 +131,15 @@ class DM(multiprocessing.Process):
                     self.dm.log_state()
 
                     print '----Time out: ', self.epilogue_state, silence_time
+                    #'''Thanh
+                    if self.epilogue_state == 'give_code':
+                        # an cant_apply act have been chosen
+                        self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
+                        self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
+                        self.commands.send(Command('hangup()', 'DM', 'HUB'))
+                        return False
+                    #'''
+                        
                     if self.epilogue_state and float(silence_time) > 5.0: 
                         if self.epilogue_state == 'final_question' and self.final_question_repeated<2:
                             da = DialogueAct('say(text="{text}")'.format(text="Sorry, did you get useful information?"))
@@ -144,6 +153,7 @@ class DM(multiprocessing.Process):
                             self.commands.send(Command('hangup()', 'DM', 'HUB'))
                     else:
                         da = self.dm.da_out()
+                        #if da[0].dat == 'cant_apply':
 
                         if self.cfg['DM']['debug']:
                             s = []
@@ -222,10 +232,11 @@ class DM(multiprocessing.Process):
             self.final_question_repeated=0
             return 'final_question'
         elif self.cfg['DM']['epilogue']['final_code_url']:
-            if self.dm.dialogue_state.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
+            if self.epilogue_state!='give_code' and self.dm.dialogue_state.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
                 self.epilogue_final_apology()
             else:
                 self.epilogue_final_code()
+            #return 'code_given'
 
         return None
 
@@ -236,6 +247,27 @@ class DM(multiprocessing.Process):
             self.dm.set_final_reward(True)
         else:
             self.dm.set_final_reward(False)
+
+    def cant_apply_act_handler(self):
+        self.dm.set_final_reward(False)
+        self.dm.end_dialogue()
+        da = DialogueAct('say(text="{text}")'.format(text="Sorry, Alex has dumped itself into an error during optimization, Let's start over"))
+        self.cfg['Logging']['session_logger'].dialogue_act("system", da)
+        self.commands.send(DMDA(da, 'DM', 'HUB'))
+
+        self.dm.new_dialogue()
+
+        '''#given code after Alex error choose wrong action
+        if self.cfg['DM']['epilogue']['final_code_url']:
+            self.epilogue_state ='give_code'
+            self.epilogue_state = self.epilogue()
+            #self.epilogue_state ='final_question'
+
+        self.epilogue_da = DialogueAct('bye()')
+        self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
+        self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
+        self.commands.send(Command('hangup()', 'DM', 'HUB'))
+        '''
 
     def read_slu_hypotheses_write_dialogue_act(self):
         # read SLU hypothesis
@@ -271,6 +303,9 @@ class DM(multiprocessing.Process):
                 self.dm.log_state()
 
                 da = self.dm.da_out()
+                if da[0].dat == 'cant_apply':
+                    self.cant_apply_act_handler()    
+                    return
 
                 # do not communicate directly with the NLG, let the HUB decide
                 # to do work. The generation of the output must by synchronised with the input.

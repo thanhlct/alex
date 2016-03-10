@@ -126,7 +126,7 @@ def parse_command(command):
         # there are no parameters
         return d
 
-    command_svs = split_by(command_svs, ',', '', '', '"')
+    command_svs = split_by(command_svs, ',', '', '', '"')#Thanh fix select(..) select(...)
 
     for command_sv in command_svs:
         i = split_by(command_sv, '=', '', '', '"')
@@ -138,7 +138,8 @@ def parse_command(command):
             # There is a slot name and a value.
             d[i[0]] = i[1][1:-1]
         else:
-            raise Exception("Parsing error in: %s: %s" % (command, str(i)))
+            pass #Thanh change to see
+            #raise Exception("Parsing error in: %s: %s" % (command, str(i)))
 
     return d
 

@@ -90,6 +90,8 @@ class ApproximateEpisodicGPSarsa:
         self.act_history = []
 
     def end_episode(self, final_reward):
+        if self.last_b==None and self.last_a==None:
+            return   
         print '------END EPISODE------, final_reward=', final_reward
         #need to set reward, b' at the end dialogue don't used anywhere
         #a part of line 18
@@ -99,10 +101,6 @@ class ApproximateEpisodicGPSarsa:
         self.delta = 0
         self.delta_k = self.kernel_all((self.last_b, self.last_a))
         self._calculate_from_second_turn(True)
-
-##            #TODO: Reward: in a general dialogue, we probably only have satisfied or unhappy as feedback or user
-##            #TODO: Reward:it the prediction of system also not inclued in last turn as in this example
-##            self.update_q()
 
     def _add_ba_to_D(self):
         #line 14, 28 in the algorithm

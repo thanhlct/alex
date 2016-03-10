@@ -361,13 +361,13 @@ class PTIENHDCPolicy(DialoguePolicy):
                 #pdb.set_trace()
             res_da = ret_da
             print '-*final_acts:', res_da
-        elif fact['there_is_something_to_be_selected']:#TODO: THANH
+            '''
             # implicitly confirm all changed slots
             res_da = self.get_iconfirm_info(changed_slots)
             # select between two values for a slot that is not certain
             res_da.extend(self.select_info(slots_tobe_selected))
             res_da = self.filter_iconfirms(res_da)
-
+            '''
         elif fact['there_is_something_to_be_confirmed']:#TODO: THANH
             # implicitly confirm all changed slots
             res_da = self.get_iconfirm_info(changed_slots)
