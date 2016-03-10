@@ -325,18 +325,24 @@ class PTIENHDCPolicy(DialoguePolicy):
                 #print 'implconfirm acts after add request'
                 #pdb.set_trace()
             elif sys_da=='offer':
-                #req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
-                #ds.conn_info = conn_info
-                #ret_da = iconfirm_da
-                #ret_da.extend(self.get_directions(ds, check_conflict=True))
+                req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
+                ds.conn_info = conn_info
+                ret_da = iconfirm_da
+                changed_slots = self.fix_stop_street_slots(changed_slots)
+                iconfirm2  = self.get_iconfirm_info(changed_slots)
+                ret_da.extend(iconfirm2)
+                ret_da.extend(self.get_directions(ds, check_conflict=True))
                 #ret_da = self.get_directions(ds, check_conflict=True)
+                ret_da = self.filter_iconfirms(ret_da)
                 #pdb.set_trace()
                 #=============thanh: changes for evaluating, must remove to run normally======
-                ret_da = self._thanh_offer_route(ds)
+                #ret_da = self._thanh_offer_route(ds)
                 if belief_features[2]==0 or belief_features[4]==0:
                     ret_da = DialogueAct()
                 else:
                 #-----------------------------------------------------------------------------
+                    pass
+                    '''
                     changed_slots = self.fix_stop_street_slots(changed_slots)
                     res_da = self.get_iconfirm_info(changed_slots)
                     # talk about public transport
@@ -344,6 +350,7 @@ class PTIENHDCPolicy(DialoguePolicy):
                                               accepted_slots, changed_slots, has_state_changed)
                     res_da.extend(t_da)
                     ret_da = self.filter_iconfirms(res_da)
+                    '''
             else:
                 raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
             #print 'GP_Sarsa final acts:', ret_da

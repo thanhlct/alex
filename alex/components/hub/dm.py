@@ -130,11 +130,18 @@ class DM(multiprocessing.Process):
                     self.cfg['Logging']['session_logger'].turn("system")
                     self.dm.log_state()
 
-                    if self.epilogue_state and float(silence_time) > 5.0:
-                        # a user was silent for too long, therefore hung up
-                        self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
-                        self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
-                        self.commands.send(Command('hangup()', 'DM', 'HUB'))
+                    print '----Time out: ', self.epilogue_state, silence_time
+                    if self.epilogue_state and float(silence_time) > 5.0: 
+                        if self.epilogue_state == 'final_question' and self.final_question_repeated<2:
+                            da = DialogueAct('say(text="{text}")'.format(text="Sorry, did you get useful information?"))
+                            self.final_question_repeated += 1
+                            self.cfg['Logging']['session_logger'].dialogue_act("system", da)
+                            self.commands.send(DMDA(da, 'DM', 'HUB'))
+                        else:
+                            # a user was silent for too long, therefore hung up
+                            self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
+                            self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
+                            self.commands.send(Command('hangup()', 'DM', 'HUB'))
                     else:
                         da = self.dm.da_out()
 
@@ -184,7 +191,7 @@ class DM(multiprocessing.Process):
             # pull the URL
             url = url_template.format(code=code, logdir=system_logger.get_session_dir_name())
             gcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-            data = urllib2.urlopen(url, context=gcontext).read()
+            data = urllib2.urlopen(url, context=gcontext, data='').read()
             data = json.loads(data, encoding='UTF-8')
 
         if attempts >= 10:
@@ -212,6 +219,7 @@ class DM(multiprocessing.Process):
         #Thanh: change for  only ask final question or code, not both
         if self.epilogue_state==None and self.cfg['DM']['epilogue']['final_question']:
             self.epilogue_final_question()
+            self.final_question_repeated=0
             return 'final_question'
         elif self.cfg['DM']['epilogue']['final_code_url']:
             if self.dm.dialogue_state.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
@@ -223,7 +231,11 @@ class DM(multiprocessing.Process):
 
     def set_dialogue_satisfied(self, slu_hyp):
         da = slu_hyp.get_best_nonnull_da()
-        print 'Yes/no satify:', da.dat 
+        print '---user satisfied:', da[0].dat
+        if da[0].dat == 'affirm':
+            self.dm.set_final_reward(True)
+        else:
+            self.dm.set_final_reward(False)
 
     def read_slu_hypotheses_write_dialogue_act(self):
         # read SLU hypothesis
@@ -336,4 +348,4 @@ class DM(multiprocessing.Process):
         if self.cfg['DM']['epilogue']['final_question'] is None and self.cfg['DM']['epilogue']['final_code_url'] is not None:
             url = self.cfg['DM']['epilogue']['final_code_url'].format(code='test', logdir='')
             gcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-            urllib2.urlopen(url, context=gcontext)
+            urllib2.urlopen(url, context=gcontext, data='')

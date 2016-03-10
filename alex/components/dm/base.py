@@ -184,6 +184,8 @@ class DialogueManager(object):
         self.dialogue_state = self.dialogue_state_class(self.cfg, self.ontology)
         self.policy = self.dialogue_policy_class(self.cfg, self.ontology)
         self.last_system_dialogue_act = None
+        self.user_satisfied = False
+        self.in_conversation = True
 
     def da_in(self, da, utterance=None):
         """
@@ -200,9 +202,14 @@ class DialogueManager(object):
         self.last_system_dialogue_act = self.policy.get_da(self.dialogue_state)
         return self.last_system_dialogue_act
 
-    def end_dialogue(self, user_satisfied=True):
+    def set_final_reward(self, satisfied):
+        self.user_satisfied=satisfied
+
+    def end_dialogue(self):
         """Ends the dialogue and post-process the data."""
-        self.policy.end_dialogue(user_satisfied)
+        if self.in_conversation:
+            self.policy.end_dialogue(self.user_satisfied)
+            self.in_conversation = False
 
     def log_state(self):
         """Log the state of the dialogue state.
