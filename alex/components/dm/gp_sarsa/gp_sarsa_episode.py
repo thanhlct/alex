@@ -90,7 +90,7 @@ class ApproximateEpisodicGPSarsa:
         self.act_history = []
 
     def end_episode(self, final_reward):
-        if self.last_b==None and self.last_a==None:
+        if self.last_b is None or self.last_a is None:
             return   
         print '------END EPISODE------, final_reward=', final_reward
         #need to set reward, b' at the end dialogue don't used anywhere
