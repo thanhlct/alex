@@ -251,7 +251,7 @@ class DM(multiprocessing.Process):
     def cant_apply_act_handler(self):
         self.dm.set_final_reward(False)
         self.dm.end_dialogue()
-        da = DialogueAct('say(text="{text}")'.format(text="Sorry, Alex has dumped itself into an error during optimization, Let's start over"))
+        da = DialogueAct('say(text="{text}")'.format(text="Sorry, Alex has dumped itself into an error during optimization, Let's start over!"))
         self.cfg['Logging']['session_logger'].dialogue_act("system", da)
         self.commands.send(DMDA(da, 'DM', 'HUB'))
 
