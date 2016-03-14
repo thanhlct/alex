@@ -242,7 +242,7 @@ class VoiceHub(Hub):
 
                                 dm_commands.send(Command('new_dialogue()', 'HUB', 'DM'))
                                 m.append('CALL ACCEPTED')
-
+                            
                             m.append('=' * 120)
                             m.append('')
                             self.cfg['Logging']['system_logger'].info('\n'.join(m))
@@ -352,6 +352,10 @@ class VoiceHub(Hub):
                             # flush nlg, when flushed, tts will be flushed
                             nlg_commands.send(Command('flush()', 'HUB', 'NLG'))
 
+                        if command.parsed['__name__'] == "fake_a_call":
+                            self.cfg['Analytics'].track_event('vhub', 'system_hangup')
+                            self.fake_a_call(remote_uri, call_db, dm_commands)
+
                     elif isinstance(command, DMDA):
                         # record the time of the last system generated dialogue act
                         s_last_dm_activity_time = time.time()
@@ -382,6 +386,7 @@ class VoiceHub(Hub):
 
                     if isinstance(command, TTSText):
                         vio_commands.send(command)
+                        #TODO: Thanh change for error dialogue, dont send slient, not made the change yet
                     if isinstance(command, Command):
                         if command.parsed['__name__'] == "flushed":
                             # flush tts, when flushed, vio will be flushed
@@ -470,3 +475,54 @@ class VoiceHub(Hub):
         print 'Exiting: %s. Setting close event' % multiprocessing.current_process().name
         self.close_event.set()
 
+    def fake_a_call(self, remote_uri, call_db, dm_commands):
+        self.cfg['Logging']['system_logger'].session_start(remote_uri)
+        self.cfg['Logging']['session_logger'].session_start(self.cfg['Logging']['system_logger'].get_session_dir_name())
+
+        self.cfg['Logging']['system_logger'].session_system_log('config = ' + unicode(self.cfg))
+        self.cfg['Logging']['session_logger'].config('config = ' + unicode(self.cfg))
+        self.cfg['Logging']['session_logger'].header(self.cfg['Logging']["system_name"], self.cfg['Logging']["version"])
+        self.cfg['Logging']['session_logger'].input_source("voip")
+
+        self.cfg['Analytics'].start_session(remote_uri)
+        self.cfg['Analytics'].track_event('vhub', 'incoming_call', remote_uri) 
+        
+        self.cfg['Analytics'].track_event('vhub', 'call_connecting', remote_uri)
+       
+        num_all_calls, total_time, last_period_num_calls, last_period_total_time, last_period_num_short_calls  = call_db.get_uri_stats(remote_uri)
+
+        m = []
+        m.append('')
+        m.append('=' * 120)
+        m.append('Incoming call from :          %s' % remote_uri)
+        m.append('-' * 120)
+        m.append('Total calls:                  %d' % num_all_calls)
+        m.append('Total time (min):             %0.1f' % (total_time/60.0, ))
+        m.append('Last period short calls:      %d' % last_period_num_short_calls)
+        m.append('Last period total calls:      %d' % last_period_num_calls)
+        m.append('Last period total time (min): %0.1f' % (last_period_total_time/60.0, ))
+        m.append('-' * 120)
+
+        # init the system
+        call_connected = True
+
+        call_start = time.time()
+        number_of_turns = 0
+
+        s_voice_activity = False
+        s_last_voice_activity_time = 0
+        u_voice_activity = False
+        u_last_voice_activity_time = time.time()
+        u_last_input_timeout = time.time()
+        hangup = False
+
+        dm_commands.send(Command('new_dialogue()', 'HUB', 'DM'))
+        m.append('CALL ACCEPTED')
+
+        m.append('=' * 120)
+        m.append('')
+        self.cfg['Logging']['system_logger'].info('\n'.join(m))
+
+        call_db.track_confirmed_call(remote_uri)
+        self.cfg['Analytics'].track_event('vhub', 'call_confirmed', remote_uri)
+ 

@@ -197,11 +197,12 @@ class DialogueManager(object):
         self.dialogue_state.update(da, self.last_system_dialogue_act)
         print '---------ASR input-----------'
         print da
-        #print self.dialogue_state
+        print self.dialogue_state
 
     def da_out(self):
         """Produces output dialogue act."""
         self.last_system_dialogue_act = self.policy.get_da(self.dialogue_state)
+        print '----**Vao day:', self.last_system_dialogue_act
         return self.last_system_dialogue_act
 
     def set_final_reward(self, satisfied):
