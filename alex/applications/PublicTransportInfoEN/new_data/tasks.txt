@@ -1,4 +1,0 @@
-task
-find_platform
-find_connection
-weather
