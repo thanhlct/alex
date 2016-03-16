@@ -195,12 +195,15 @@ class DialogueManager(object):
         When the dialogue act is received an update of the state is performed.
         """
         self.dialogue_state.update(da, self.last_system_dialogue_act)
-        print '---------ASR input-----------'
+        print '---------ASR input-debug-----------'
         print da
-        #print self.dialogue_state
+        print '---------current belief-debug-----------'
+        print self.dialogue_state
+        print '---------ASR input-debug-----------'
 
     def da_out(self):
         """Produces output dialogue act."""
+
         self.last_system_dialogue_act = self.policy.get_da(self.dialogue_state)
         return self.last_system_dialogue_act
 
