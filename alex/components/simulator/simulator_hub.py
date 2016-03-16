@@ -40,9 +40,7 @@ def initilize(config):
     db = PythonDatabase(cfg)
     g_user = SimpleUserSimulator(cfg, db)
     g_asr = SimpleASRSimulator(cfg, db)
-
     
-
 class SimulatorHub(Hub):
     """SimulatorHub simulates dialogues between an user simulator and a dialogue manager.
     

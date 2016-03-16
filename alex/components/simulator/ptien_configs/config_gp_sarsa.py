@@ -22,8 +22,8 @@ config = {
                 'accept_prob_being_selected': 0.8,
                 'accept_prob_noninformed': 0.8,
                 'accept_prob': 0.8,#0.8 is original, change for GP-Sarsa
-                'confirm_prob':  0.2,#0.4 is original, chang efor gP_Sarsa
-                'select_prob': 0.2,#0.4 is original, change for GP-Sarsa
+                'confirm_prob':  0.1,#0.4 is original, chang efor gP_Sarsa
+                'select_prob': 0.1,#0.4 is original, change for GP-Sarsa
                 'min_change_prob': 0.1,
             },
             'gp_sarsa':{
