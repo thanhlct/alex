@@ -51,6 +51,10 @@ class DM(multiprocessing.Process):
         random.shuffle(self.codes)
         self.test_code_server_connection()
 
+        #Thanh:
+        self.dialogue_error=0
+        self.minimum_dialogue_error=2#to get the Code
+
     def process_pending_commands(self):
         """Process all pending commands.
 
@@ -131,7 +135,7 @@ class DM(multiprocessing.Process):
                     self.dm.log_state()
 
                     print '----Time out: ', self.epilogue_state, silence_time
-                    #'''Thanh
+                    '''Thanh
                     if self.epilogue_state == 'give_code':
                         # an cant_apply act have been chosen
                         self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
@@ -232,10 +236,18 @@ class DM(multiprocessing.Process):
             self.final_question_repeated=0
             return 'final_question'
         elif self.cfg['DM']['epilogue']['final_code_url']:
-            if self.epilogue_state!='give_code' and self.dm.dialogue_state.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
+            if self.dialogue_error<=self.minimum_dialogue_error and self.epilogue_state!='give_code' and self.dm.dialogue_state.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
                 self.epilogue_final_apology()
             else:
                 self.epilogue_final_code()
+                '''
+                if self.dialogue_error<=self.minimum_dialogue_error:
+                    self.dialogue_error=0
+                    self.epilogue_final_apology()
+                else:
+                    self.dialogue_error=0
+                    self.epilogue_final_code()
+                '''
             #return 'code_given'
 
         return None
@@ -250,12 +262,19 @@ class DM(multiprocessing.Process):
 
     def cant_apply_act_handler(self):
         self.dm.set_final_reward(False)
-        self.dm.end_dialogue()
-        da = DialogueAct('say(text="{text}")'.format(text="Sorry, Alex has dumped itself into an error during optimization, Let's start over!"))
+        self.dm.end_dialogue() 
+        self.dialogue_error +=1
+        if self.dialogue_error<=self.minimum_dialogue_error:
+            print "Vao 1:", self.dialogue_error
+            da = DialogueAct('say(text="{text}")'.format(text="Wow, Great, Alex has learned something very important and need to start over!"))
+        else:
+            print "Vao 2:", self.dialogue_error
+            da = DialogueAct('say(text="{text}")&help(inform="hangup")&say(text="{text1}")'.format(text="Thanks! Alex has learned a lot from you. Now, Alex needs start over again. However,", text1='But Alex would love to learn more.'))
+
         self.cfg['Logging']['session_logger'].dialogue_act("system", da)
         self.commands.send(DMDA(da, 'DM', 'HUB'))
-
-        self.dm.new_dialogue()
+        
+        self.commands.send(Command('fake_a_call()', 'DM', 'HUB'))
 
         '''#given code after Alex error choose wrong action
         if self.cfg['DM']['epilogue']['final_code_url']:

@@ -104,7 +104,8 @@ DEFAULT_KEY_PATH = os.path.join(MYDIR, 'ptien_ml.key')
 DEFAULT_CERT_PATH = os.path.join(MYDIR, 'ptien_ml.crt')
 print DEFAULT_CERT_PATH 
 DEFAULT_TIMEOUT = 15#change to -1 for never expire
-DEFAULT_ALLOW_IP = '0.0.0.0-255.255.255.255'
+#DEFAULT_ALLOW_IP = '0.0.0.0-255.255.255.255'
+DEFAULT_ALLOW_IP = '147.251.253.33-147.251.253.80'
 
 
 class IPRange(object):
@@ -274,8 +275,16 @@ class SSLTCPServer(SocketServer.TCPServer):
         """Return a HMTL representation for a random task (out of tasks stored in `self.task`)."""
         das, sents = random.choice(self.tasks)
         text = ''
+        i = 1
         for sent in sents.split('\t'):
-            text += '<p>' + sent + '</p>\n'
+            text += '<p><b>- Stage %d:</b> '%i + sent + '</p>\n'
+            i +=1
+            #Thanh: Get only main task
+            '''
+            text += '<li><strong>' + sent + '</strong></li>'
+            text += '<li>If the system offer you a wrong/not found/incompatibility connection, you might try to correct the system (e.g. No, I want to go from Central Park in New York)</li>'
+            '''
+        text += '<p><i>Fianlly, please remember to end the call with <b>"Thank you. Good bye!"</b> and then give feedback to the system by <b>answering "yes" or "no" clearly to the question</b> "Have you obtained desired information?"</i></p>'
         return text, das
 
     def read_codes(self):

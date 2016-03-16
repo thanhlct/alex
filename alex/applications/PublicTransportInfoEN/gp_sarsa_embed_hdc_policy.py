@@ -218,8 +218,9 @@ class PTIENHDCPolicy(DialoguePolicy):
             'there_is_something_to_be_confirmed': bool(slots_tobe_confirmed),
             'user_wants_to_know_the_time': 'current_time' in
                                            slots_being_requested,
+            #'user_wants_to_know_the_weather': dialogue_state[
             'user_wants_to_know_the_weather': dialogue_state[
-                'lta_task'].test('weather', self.accept_prob),
+                'task'].test('weather', self.accept_prob),
             'user_wants_to_find_the_platform': dialogue_state[
                 'lta_task'].test('find_platform', self.accept_prob),
         }
