@@ -28,6 +28,21 @@ import numpy as np
 
 from alex.components.hub.messages import Command, ASRHyp, SLUHyp
 
+#------------------------------------------ for final results
+sucess_rate = 0
+mean_turn_number = 0
+mean_total_reward = 0
+g_user = None
+g_asr = None
+
+def initilize(config):
+    global g_user, g_asr
+    db = PythonDatabase(cfg)
+    g_user = SimpleUserSimulator(cfg, db)
+    g_asr = SimpleASRSimulator(cfg, db)
+
+    
+
 class SimulatorHub(Hub):
     """SimulatorHub simulates dialogues between an user simulator and a dialogue manager.
     
@@ -129,6 +144,7 @@ class SimulatorHub(Hub):
         return success, turn_index, total_reward
 
     def run(self, episode=100, asr_error=0):
+        global success_rate, mean_turn_number, mean_total_reward
         """Run the hub."""
         try:
             self.cfg['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
@@ -142,9 +158,13 @@ class SimulatorHub(Hub):
             cfg['Logging']['session_logger'].cancel_join_thread()
             '''
 
+            '''
             db = PythonDatabase(cfg)
             user = SimpleUserSimulator(cfg, db)
             asr = SimpleASRSimulator(cfg, db)
+            '''
+            user = g_user
+            asr = g_asr
             dm = self.dm
 
             turn_counts = []
@@ -177,6 +197,10 @@ class SimulatorHub(Hub):
             lines.append('-Averaging turn number/dialogue: %.3f (std=%.3f)'%(np.mean(turn_counts), np.std(turn_counts)))
             lines.append('-Averaging total reward /dialogue: %.3f (std=%.3f)'%(np.mean(rewards), np.std(rewards)))
             lines.append('-'*66)
+            
+            success_rate = rate
+            mean_turn_number = np.mean(turn_counts)
+            mean_total_reward = np.mean(rewards)
 
             print '\n'.join(lines)
             #pdb.set_trace() 
@@ -239,7 +263,7 @@ def set_asr_error(config, error):
 
     return config
   
-def evaluate_dm(config, episode=200):
+def evaluate_dm(config, episode=1000):
     close_event = multiprocessing.Event()
     config['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
     config['Logging']['system_logger'].info("""Starting...""")
@@ -251,7 +275,7 @@ def evaluate_dm(config, episode=200):
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
     asr_errors = [0, 15, 30, 50, 60, 70, 90]
-    asr_errors = [40]*1
+    asr_errors = [30]*1
     for error in asr_errors:
         config = set_asr_error(config, error)
         print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)
@@ -259,9 +283,35 @@ def evaluate_dm(config, episode=200):
         shub = SimulatorHub(config)
         shub.run(episode, error)
 
-    time.sleep(3)
+    #time.sleep(3)
     print 'Exiting: %s. Setting close event' % multiprocessing.current_process().name
     close_event.set()
+
+def delete_file(file_path):
+    import os
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+#def repeated_evaluation(config, repeat_number=10, episode=1000, split=20)
+def repeated_evaluation(config, repeat_number=10, episode=1000, split=20):
+    import numpy as np
+    d = episode/split
+    success = np.zeros((d, repeat_number))
+    turn = np.zeros((d, repeat_number))
+    reward = np.zeros((d, repeat_number))
+    for r in range(repeat_number):
+        print '=============repeated', r, '========='
+        delete_file('gp_sara.params.pkl')
+        for i in range(d):
+            evaluate_dm(config, split)
+            success[i, r] =  success_rate
+            reward[i, r] =  mean_total_reward
+            turn[i, r] =  mean_turn_number
+
+    pdb.set_trace()
+    np.savetxt('success.csv', success, delimiter=',', fmt='%f')
+    np.savetxt('reward.csv', reward, delimiter=',', fmt='%f')
+    np.savetxt('turn.csv', turn, delimiter=',', fmt='%f')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -288,8 +338,10 @@ if __name__ == '__main__':
         #TODO Remove the confir for gp-sarsa to uses the handcrafted policy
         #args.configs.remove('./ptien_configs/config_gp_sarsa.py')
     cfg = Config.load_configs(args.configs, log=False)
+    initilize(cfg)
 
     #shub = SimulatorHub(cfg)
 
     #shub.run()
-    evaluate_dm(cfg)
+    #evaluate_dm(cfg)
+    repeated_evaluation(cfg)
