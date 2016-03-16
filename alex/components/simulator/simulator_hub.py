@@ -120,7 +120,8 @@ class SimulatorHub(Hub):
             success = 1
             user_satisfied = True
         success_text = 'success' if success else 'UNsuccess'
-        dm.end_dialogue(user_satisfied)
+        dm.set_final_reward(user_satisfied)
+        dm.end_dialogue()
         print '%sDialogue %d: %s after %d turns, goal reward: %d, total reward: %d'%('-'*10,dialogue_id, success_text, turn_index, goal_reward, total_reward)
 
         self.cfg['Logging']['system_logger'].session_end()
@@ -238,7 +239,7 @@ def set_asr_error(config, error):
 
     return config
   
-def evaluate_dm(config, episode=1000):
+def evaluate_dm(config, episode=200):
     close_event = multiprocessing.Event()
     config['Logging']['system_logger'].info("Simulator Hub\n" + "=" * 120)
     config['Logging']['system_logger'].info("""Starting...""")
@@ -250,7 +251,7 @@ def evaluate_dm(config, episode=1000):
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
     asr_errors = [0, 15, 30, 50, 60, 70, 90]
-    asr_errors = [90]*1
+    asr_errors = [40]*1
     for error in asr_errors:
         config = set_asr_error(config, error)
         print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)

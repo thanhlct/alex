@@ -1942,7 +1942,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         return tobe_confirmed_slots
 
     def get_slots_tobe_selected(self, ds, min_prob, max_prob=0.8):
-        """Returns all slots which have a probability of the two most probable non "none" value larger then some threshold.
+        """Thanh Returns all slots which have a probability of the two most probable non "none" value larger then some threshold.
         """
         tobe_selected_slots = {}
 
