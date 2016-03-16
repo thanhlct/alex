@@ -236,15 +236,18 @@ class DM(multiprocessing.Process):
             self.final_question_repeated=0
             return 'final_question'
         elif self.cfg['DM']['epilogue']['final_code_url']:
-            if self.dialogue_error==0 and self.epilogue_state!='give_code' and self.dm.dialogue_state.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
+            if self.dialogue_error<=self.minimum_dialogue_error and self.epilogue_state!='give_code' and self.dm.dialogue_state.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
                 self.epilogue_final_apology()
             else:
+                self.epilogue_final_code()
+                '''
                 if self.dialogue_error<=self.minimum_dialogue_error:
                     self.dialogue_error=0
                     self.epilogue_final_apology()
                 else:
                     self.dialogue_error=0
                     self.epilogue_final_code()
+                '''
             #return 'code_given'
 
         return None

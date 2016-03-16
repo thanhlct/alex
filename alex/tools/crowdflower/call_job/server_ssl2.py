@@ -284,7 +284,7 @@ class SSLTCPServer(SocketServer.TCPServer):
             text += '<li><strong>' + sent + '</strong></li>'
             text += '<li>If the system offer you a wrong/not found/incompatibility connection, you might try to correct the system (e.g. No, I want to go from Central Park in New York)</li>'
             '''
-        text += '<p><i>Fianlly, please remember to end the call with <b>"Thanh you. Good bye!"</b> and then give feedback to the system by <b>answering "yes" or "no" clearly to the question</b> "Have you obtained desired information?"</i></p>'
+        text += '<p><i>Fianlly, please remember to end the call with <b>"Thank you. Good bye!"</b> and then give feedback to the system by <b>answering "yes" or "no" clearly to the question</b> "Have you obtained desired information?"</i></p>'
         return text, das
 
     def read_codes(self):
