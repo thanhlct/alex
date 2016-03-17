@@ -197,8 +197,8 @@ class DialogueManager(object):
         self.dialogue_state.update(da, self.last_system_dialogue_act)
         print '---------ASR input-debug-----------'
         print da
-        print '---------current belief-debug-----------'
-        print self.dialogue_state
+        #print '---------current belief-debug-----------'
+        #print self.dialogue_state
         print '---------ASR input-debug-----------'
 
     def da_out(self):

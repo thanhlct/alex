@@ -326,6 +326,7 @@ class PTIENHDCPolicy(DialoguePolicy):
                 #print 'implconfirm acts after add request'
                 #pdb.set_trace()
             elif sys_da=='offer':
+                '''
                 req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
                 ds.conn_info = conn_info
                 ret_da = iconfirm_da
@@ -335,6 +336,7 @@ class PTIENHDCPolicy(DialoguePolicy):
                 ret_da.extend(self.get_directions(ds, check_conflict=True))
                 #ret_da = self.get_directions(ds, check_conflict=True)
                 ret_da = self.filter_iconfirms(ret_da)
+                '''
                 #pdb.set_trace()
                 #=============thanh: changes for evaluating, must remove to run normally======
                 #ret_da = self._thanh_offer_route(ds)
@@ -342,8 +344,8 @@ class PTIENHDCPolicy(DialoguePolicy):
                     ret_da = DialogueAct()
                 else:
                 #-----------------------------------------------------------------------------
-                    pass
-                    '''
+                    #pass
+                    #'''
                     changed_slots = self.fix_stop_street_slots(changed_slots)
                     res_da = self.get_iconfirm_info(changed_slots)
                     # talk about public transport
@@ -351,7 +353,7 @@ class PTIENHDCPolicy(DialoguePolicy):
                                               accepted_slots, changed_slots, has_state_changed)
                     res_da.extend(t_da)
                     ret_da = self.filter_iconfirms(res_da)
-                    '''
+                    #'''
             else:
                 raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
             #print 'GP_Sarsa final acts:', ret_da
@@ -417,27 +419,15 @@ class PTIENHDCPolicy(DialoguePolicy):
         """
         # output DA
         res_da = None
-
         if ludait == "reqalts":
             # NLG("There is nothing else in the database.")
             # NLG("The next connection is ...")
             res_da = self.get_an_alternative(ds)
             ds["ludait"].reset()
-            #=============thanh: changes for evaluating, must remove to run normally======
-            print 'first one'
-            #import pdb
-            #pdb.set_trace()
-            #res_da = self._thanh_offer_route(ds)
-            #import pdb
-            #pdb.set_trace()
-            #-----------------------------------------------------------------------------
         elif "alternative" in accepted_slots:
             # Search for traffic direction and/or present the requested directions already found, take into account additional requests (dep_time etc.)
             res_da = self.get_requested_alternative(ds, slots_being_requested, accepted_slots)
             ds["alternative"].reset()
-            print 'second one'
-            #import pdb
-            #pdb.set_trace()
 
         elif slots_being_requested:
             # inform about all requested slots
@@ -450,17 +440,12 @@ class PTIENHDCPolicy(DialoguePolicy):
         else:
             # gather known information about the connection
             req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
-            if len(req_da) == 0:
+            if len(req_da) == 0 or True:
                 if state_changed:
                     # we know everything we need -> start searching
                     ds.conn_info = conn_info
                     res_da = iconfirm_da
                     res_da.extend(self.get_directions(ds, check_conflict=True))
-                    #=============thanh: changes for evaluating, must remove to run normally======
-                    #res_da = self._thanh_offer_route(ds)
-                    #import pdb
-                    #pdb.set_trace()
-                    #-----------------------------------------------------------------------------
                 else:
                     res_da = self.backoff_action(ds)
             else:

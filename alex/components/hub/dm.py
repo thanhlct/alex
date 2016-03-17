@@ -240,6 +240,7 @@ class DM(multiprocessing.Process):
                 self.epilogue_final_apology()
             else:
                 self.epilogue_final_code()
+                self.dialogue_error=0
                 '''
                 if self.dialogue_error<=self.minimum_dialogue_error:
                     self.dialogue_error=0
