@@ -353,6 +353,9 @@ class VoiceHub(Hub):
                             nlg_commands.send(Command('flush()', 'HUB', 'NLG'))
 
                         if command.parsed['__name__'] == "fake_a_call":
+                            #TODO, added two eseesion_end bellow, check what system does when fake a call, if there is still to many log to screen, just commentout the print 
+                            #self.cfg['Logging']['system_logger'].session_end()
+                            #self.cfg['Logging']['session_logger'].session_end()
                             self.cfg['Analytics'].track_event('vhub', 'system_hangup')
                             self.fake_a_call(remote_uri, call_db, dm_commands)
 

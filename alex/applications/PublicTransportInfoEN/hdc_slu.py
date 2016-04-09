@@ -916,8 +916,11 @@ class PTIENHDCSLU(SLUInterface):
                 (len(u) == 1 and dai.any_word_in("can\'t hear you"))):
             cn.add_merge(1.0, DialogueActItem('notunderstood'))
 
-        if (dai.any_word_in("yes yeah sure correct") and
-                not dai.any_word_in("end over option offer surrender")):
+        if (dai.all_words_in("yes i do") or #THANH
+                dai.all_words_in("yes i did") or
+                dai.all_words_in("correct") or
+                (dai.any_word_in("yes yeah sure correct") and
+                not dai.any_word_in("end over option offer surrender"))):
             cn.add_merge(1.0, DialogueActItem("affirm"))
 
         if not dai.any_phrase_in(['not from', 'not care']):
@@ -925,7 +928,9 @@ class PTIENHDCSLU(SLUInterface):
                     dai.phrase_in('do not want') or
                     len(u) == 2 and dai.all_words_in("not want") or
                     len(u) == 3 and dai.all_words_in("yes do not") or
-                    dai.all_words_in("is wrong")):
+                    dai.all_words_in("is wrong") or #THANH
+                    dai.all_words_in("no i did not") or dai.all_words_in("no i didn\'t") or
+                    dai.all_words_in("wrong") or dai.all_words_in("no i do not") or dai.all_words_in("no i don\'t")):
                 cn.add_merge(1.0, DialogueActItem("negate"))
 
         if dai.any_word_in('thanks thankyou thank cheers'):
@@ -1193,12 +1198,14 @@ class PTIENHDCSLU(SLUInterface):
                 self.parse_street(abutterance, res_cn)
             if 'STOP' in category_labels:
                 self.parse_stop(abutterance, res_cn)
+            '''
             if 'BOROUGH' in category_labels:
                 self.parse_borough(abutterance, res_cn)
             if 'CITY' in category_labels:
                 self.parse_city(abutterance, res_cn)
             if 'STATE' in category_labels:
                 self.parse_state(abutterance, res_cn)
+            '''
             if 'NUMBER' in category_labels:
                 self.parse_number(abutterance)
                 if any([word.startswith("TIME") for word in abutterance]):

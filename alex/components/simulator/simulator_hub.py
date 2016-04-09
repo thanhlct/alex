@@ -273,7 +273,7 @@ def evaluate_dm(config, episode=1000):
 
     #asr_errors = [10, 15, 20, 30, 40, 50, 70, 90]
     asr_errors = [0, 15, 30, 50, 60, 70, 90]
-    asr_errors = [60]*1
+    asr_errors = [50]*1
     for error in asr_errors:
         config = set_asr_error(config, error)
         print '%s\n%sASR error rate set to [%d%%]\n%s'%('='*80, '*'*25, error, '='*80)

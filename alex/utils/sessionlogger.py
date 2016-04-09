@@ -372,6 +372,8 @@ class SessionLogger(multiprocessing.Process):
             self._rec_started[fname].writeframes(bytearray(data_rec))
         except KeyError:
             raise SessionLoggerException("rec_write: missing rec element %s" % fname)
+        except:
+            pass
 
     @etime('seslog_rec_end')
     @catch_ioerror
@@ -589,6 +591,7 @@ class SessionLogger(multiprocessing.Process):
                 fh.write(data)
 
     def run(self):
+        thanh = False
         try:
             set_proc_name("Alex_SessionLogger")
             last_session_start_time = 0
@@ -656,18 +659,18 @@ class SessionLogger(multiprocessing.Process):
                         raise
                     except SessionLoggerException as e:
                         if cmd == 'rec_write':
-                            print "Exception when logging:", cmd
-                            print e
+                            if thanh: print "Exception when logging:", cmd
+                            if thanh: print e
                         else:
-                            print "Exception when logging:", cmd, args, kw
-                            print e
+                            if thanh: print "Exception when logging:", cmd, args, kw
+                            if thanh: print e
                     except SessionClosedException:
-                        print "Exception when logging:", cmd, args, kw
-                        print e
+                        if thanh: print "Exception when logging:", cmd, args, kw
+                        if thanh: print e
 
                 d = (time.time() - s[0], time.clock() - s[1])
                 if d[0] > 0.200:
-                    print "EXEC Time inner loop: SessionLogger t = {t:0.4f} c = {c:0.4f}\n".format(t=d[0], c=d[1])
+                    if thanh: print "EXEC Time inner loop: SessionLogger t = {t:0.4f} c = {c:0.4f}\n".format(t=d[0], c=d[1])
 
         except KeyboardInterrupt:
             print 'KeyboardInterrupt exception in: %s' % multiprocessing.current_process().name

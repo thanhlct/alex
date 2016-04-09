@@ -53,7 +53,8 @@ class DM(multiprocessing.Process):
 
         #Thanh:
         self.dialogue_error=0
-        self.minimum_dialogue_error=2#to get the Code
+        self.minimum_dialogue_error=3#to get the Code
+        self.num_repeat_final_question=10#maximum number of request the feedback
 
     def process_pending_commands(self):
         """Process all pending commands.
@@ -145,9 +146,9 @@ class DM(multiprocessing.Process):
                     #'''
                         
                     if self.epilogue_state and float(silence_time) > 5.0: 
-                        if self.epilogue_state == 'final_question' and self.final_question_repeated<2:
-                            da = DialogueAct('say(text="{text}")'.format(text="Sorry, did you get useful information?"))
-                            self.final_question_repeated += 1
+                        if self.epilogue_state == 'final_question': # and self.final_question_repeated<16:
+                            da = DialogueAct('say(text="{text}")'.format(text="Sorry, did you get the correct information?"))
+                            #self.final_question_repeated += 1
                             self.cfg['Logging']['session_logger'].dialogue_act("system", da)
                             self.commands.send(DMDA(da, 'DM', 'HUB'))
                         else:
@@ -236,7 +237,9 @@ class DM(multiprocessing.Process):
             self.final_question_repeated=0
             return 'final_question'
         elif self.cfg['DM']['epilogue']['final_code_url']:
-            if self.dialogue_error<=self.minimum_dialogue_error and self.epilogue_state!='give_code' and self.dm.dialogue_state.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
+            #if self.dialogue_error<=self.minimum_dialogue_error and self.epilogue_state!='give_code' and self.dm.dialogue_state.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
+            print '--Dialogue error %d, current total turn: %d'%(self.dialogue_error, self.turn_number)
+            if self.dialogue_error<self.minimum_dialogue_error and self.turn_number < self.cfg['DM']['epilogue']['final_code_min_turn_count']:
                 self.epilogue_final_apology()
             else:
                 self.epilogue_final_code()
@@ -256,20 +259,24 @@ class DM(multiprocessing.Process):
     def set_dialogue_satisfied(self, slu_hyp):
         da = slu_hyp.get_best_nonnull_da()
         print '---user satisfied:', da[0].dat
-        if da[0].dat == 'affirm':
+        if da.has_dat('affirm'):
             self.dm.set_final_reward(True)
-        else:
+            return True
+        elif da.has_dat('negate'):
             self.dm.set_final_reward(False)
+            return True
+        self.final_question_repeated +=1
+        return False
 
     def cant_apply_act_handler(self):
         self.dm.set_final_reward(False)
         self.dm.end_dialogue() 
         self.dialogue_error +=1
-        if self.dialogue_error<=self.minimum_dialogue_error:
-            print "Vao 1:", self.dialogue_error
+        if self.dialogue_error<self.minimum_dialogue_error:
+            print "Vao 1::", self.dialogue_error
             da = DialogueAct('say(text="{text}")'.format(text="Wow, Great, Alex has learned something very important and need to start over!"))
         else:
-            print "Vao 2:", self.dialogue_error
+            print "Vao 2::", self.dialogue_error
             da = DialogueAct('say(text="{text}")&help(inform="hangup")&say(text="{text1}")'.format(text="Thanks! Alex has learned a lot from you. Now, Alex needs start over again. However,", text1='But Alex would love to learn more.'))
 
         self.cfg['Logging']['session_logger'].dialogue_act("system", da)
@@ -288,6 +295,11 @@ class DM(multiprocessing.Process):
         self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
         self.commands.send(Command('hangup()', 'DM', 'HUB'))
         '''
+    
+    def _ask_feedback_again(self):
+        da = DialogueAct('say(text="Please answer clearly ,Yes I did, if you got the correct information, otherwise say, No I didn\'t")')
+        self.cfg['Logging']['session_logger'].dialogue_act("system", da)
+        self.commands.send(DMDA(da, 'DM', 'HUB'))
 
     def read_slu_hypotheses_write_dialogue_act(self):
         # read SLU hypothesis
@@ -298,19 +310,24 @@ class DM(multiprocessing.Process):
             #change for get bot yest no sattifiys and code
             if self.epilogue_state=='final_question' and self.cfg['DM']['epilogue']['final_code_url']==None:#Thanh: only ask final question, not code
                 # we have got another turn, now we can hang up.
-                self.set_dialogue_satisfied(data_slu.hyp)#update final rewar for gp-sarsa
-                self.cfg['Logging']['session_logger'].turn("system")
-                self.dm.log_state()
-                self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
-                self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
-                self.commands.send(Command('hangup()', 'DM', 'HUB'))
-            elif self.epilogue_state=='final_question' and self.cfg['DM']['epilogue']['final_code_url']:
-                self.epilogue_state = self.epilogue()
-                self.set_dialogue_satisfied(data_slu.hyp)#update final rewar for gp-sarsa
-                if not self.epilogue_state:
+                if self.set_dialogue_satisfied(data_slu.hyp) or self.final_question_repeated>=self.num_repeat_final_question:#update final reward for gp-sarsa, if get affirm or negate
+                    self.cfg['Logging']['session_logger'].turn("system")
+                    self.dm.log_state()
                     self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
                     self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
                     self.commands.send(Command('hangup()', 'DM', 'HUB'))
+                else:
+                    self._ask_feedback_again()
+                    
+            elif self.epilogue_state=='final_question' and self.cfg['DM']['epilogue']['final_code_url']:
+                if self.set_dialogue_satisfied(data_slu.hyp) or self.final_question_repeated>=self.num_repeat_final_question:#:#update final rewar for gp-sarsa
+                    self.epilogue_state = self.epilogue()
+                    if not self.epilogue_state:
+                        self.cfg['Logging']['session_logger'].dialogue_act("system", self.epilogue_da)
+                        self.commands.send(DMDA(self.epilogue_da, 'DM', 'HUB'))
+                        self.commands.send(Command('hangup()', 'DM', 'HUB'))
+                else:
+                    self._ask_feedback_again()
             elif isinstance(data_slu, SLUHyp):
                 # reset measuring of the user silence
                 self.last_user_da_time = time.time()
@@ -330,6 +347,7 @@ class DM(multiprocessing.Process):
                 # do not communicate directly with the NLG, let the HUB decide
                 # to do work. The generation of the output must by synchronised with the input.
                 if da.has_dat("bye"):
+                    self.turn_number = self.dm.dialogue_state.turn_number
                     self.epilogue_state = self.epilogue()
                     self.epilogue_da = da
 
@@ -400,7 +418,8 @@ class DM(multiprocessing.Process):
             if our server is down this call will fail and the VM will crash. this is more sensible to CF people,
             otherwise CF contributor would do the job without getting paid.
         """
-        if self.cfg['DM']['epilogue']['final_question'] is None and self.cfg['DM']['epilogue']['final_code_url'] is not None:
+        #if self.cfg['DM']['epilogue']['final_question'] is None and self.cfg['DM']['epilogue']['final_code_url'] is not None:
+        if self.cfg['DM']['epilogue']['final_code_url'] is not None:
             url = self.cfg['DM']['epilogue']['final_code_url'].format(code='test', logdir='')
             gcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
             urllib2.urlopen(url, context=gcontext, data='')

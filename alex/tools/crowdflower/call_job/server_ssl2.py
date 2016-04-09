@@ -277,14 +277,11 @@ class SSLTCPServer(SocketServer.TCPServer):
         text = ''
         i = 1
         for sent in sents.split('\t'):
+            text += '<p>' + sent + '</p>\n<p></p>'
+            break
             text += '<p><b>- Stage %d:</b> '%i + sent + '</p>\n'
             i +=1
             #Thanh: Get only main task
-            '''
-            text += '<li><strong>' + sent + '</strong></li>'
-            text += '<li>If the system offer you a wrong/not found/incompatibility connection, you might try to correct the system (e.g. No, I want to go from Central Park in New York)</li>'
-            '''
-        text += '<p><i>Fianlly, please remember to end the call with <b>"Thank you. Good bye!"</b> and then give feedback to the system by <b>answering "yes" or "no" clearly to the question</b> "Have you obtained desired information?"</i></p>'
         return text, das
 
     def read_codes(self):

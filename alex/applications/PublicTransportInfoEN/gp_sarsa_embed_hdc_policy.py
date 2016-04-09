@@ -287,6 +287,9 @@ class PTIENHDCPolicy(DialoguePolicy):
             #-----------------------------the GP-Sarsa take stage for the transport information
             print 'Going to GP-Sarsa'
             ds = dialogue_state
+            #print '------------DS--------'
+            #print ds
+            #print '------------DS--------'
             belief_features = self._extract_features(dialogue_state)
             sys_da = self.gp_sarsa.get_act(belief_features, self.turn_reward)
             print 'GP-Sarsa: sys_da:', sys_da
@@ -440,8 +443,8 @@ class PTIENHDCPolicy(DialoguePolicy):
         else:
             # gather known information about the connection
             req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
-            if len(req_da) == 0 or True:
-                if state_changed:
+            if True or len(req_da) == 0:
+                if True or state_changed:
                     # we know everything we need -> start searching
                     ds.conn_info = conn_info
                     res_da = iconfirm_da
@@ -912,7 +915,6 @@ class PTIENHDCPolicy(DialoguePolicy):
         to_street2_val = self.get_top1_value(ds, 'to_street2')
         vehicle_val = self.get_top1_value(ds, 'vehicle')
         max_transfers_val = self.get_top1_value(ds, 'num_transfers')
-        #'''
 
         # infer cities based on stops
         from_cities, to_cities = None, None
@@ -1733,7 +1735,7 @@ class PTIENHDCPolicy(DialoguePolicy):
         return changed_slots
 
 #=============================THANH: methods for embe GP-Sarsa================================
-    def end_dialogue(self, user_satisfied=True):
+    def end_dialogue(self, user_satisfied=False):
         if user_satisfied:
             self.gp_sarsa.end_episode(self.success_reward)
         else:
@@ -1975,6 +1977,9 @@ class PTIENHDCPolicy(DialoguePolicy):
         to_street2_val = self.get_top1_value(ds, 'to_street2')
         vehicle_val = self.get_top1_value(ds, 'vehicle')
         max_transfers_val = self.get_top1_value(ds, 'num_transfers')
+        #default New York
+        #from_city_val = 'New York'
+        #to_city_val = 'New York'
 
         if from_city_val!='none':
             infers[0] = 1
