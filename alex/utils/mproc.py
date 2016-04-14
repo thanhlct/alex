@@ -264,7 +264,7 @@ class SystemLogger(object):
         if self.output_dir:
             if (SystemLogger.levels[lvl] >= SystemLogger.levels[self.file_log_level]):
                 # Log to the global log.
-                log_fname = os.path.join(self.output_dir, 'system.log')
+                log_fname = os.path.join(self.output_dir, 'system.log.txt')
                 with codecs.open(log_fname, "a+", encoding='utf8', buffering=0) as log_file:
                     fcntl.lockf(log_file, fcntl.LOCK_EX)
                     log_file.write(msg)
@@ -274,7 +274,7 @@ class SystemLogger(object):
         if self.current_session_log_dir_name.value:
             if (session_system_log or SystemLogger.levels[lvl] >= SystemLogger.levels[self.file_log_level]):
                 # Log to the call-specific log.
-                session_log_fname = os.path.join(self.current_session_log_dir_name.value, 'system.log')
+                session_log_fname = os.path.join(self.current_session_log_dir_name.value, 'system.log.txt')
                 with codecs.open(session_log_fname, "a+", encoding='utf8', buffering=0) as session_log_file:
                     fcntl.lockf(session_log_file, fcntl.LOCK_EX)
                     session_log_file.write(msg)

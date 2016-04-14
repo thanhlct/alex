@@ -150,7 +150,11 @@ class VoiceHub(Hub):
 
                         if command.parsed['__name__'] == "incoming_call":
                             self.cfg['Logging']['system_logger'].session_start(command.parsed['remote_uri'])
-                            self.cfg['Logging']['session_logger'].session_start(self.cfg['Logging']['system_logger'].get_session_dir_name())
+                            #self.cfg['Logging']['session_logger'].session_start(self.cfg['Logging']['system_logger'].get_session_dir_name())
+                            #THANH:
+                            dir_name = self.cfg['Logging']['system_logger'].get_session_dir_name()
+                            print '===***===log directory: ', dir_name
+                            self.cfg['Logging']['session_logger'].session_start(dir_name)
 
                             self.cfg['Logging']['system_logger'].session_system_log('config = ' + unicode(self.cfg))
                             self.cfg['Logging']['session_logger'].config('config = ' + unicode(self.cfg))

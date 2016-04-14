@@ -284,12 +284,96 @@ class PTIENHDCPolicy(DialoguePolicy):
             dialogue_state["ludait"].reset()
 
         elif fact['user_wants_to_know_the_time']==False and fact['user_wants_to_know_the_weather']==False:
-            #THANH, ask system repeat itself when chosen uncorrect act
-            res_da = None
-            while res_da is None or res_da.has_dat('cant_apply'):
-                print '---GP-Sarsa choose: something wrong, cant_apply'
-                res_da = self.get_gp_res_da(dialogue_state, changed_slots, accepted_slots, last_user_dai_type, slots_being_requested, slots_being_confirmed, has_state_changed)
+            #-----------------------------the GP-Sarsa take stage for the transport information
+            print 'Going to GP-Sarsa'
+            ds = dialogue_state
+            #print '------------DS--------'
+            #print ds
+            #print '------------DS--------'
+            belief_features = self._extract_features(dialogue_state)
+            sys_da = self.gp_sarsa.get_act(belief_features, self.turn_reward)
+            print 'GP-Sarsa: sys_da:', sys_da
+            import pdb
+            if sys_da=='request':
+                ret_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots, belief_features)
+                #pdb.set_trace()
+            elif sys_da=='select':
+                #changed_slots = dialogue_state.get_changed_slots(0.0)#0.0 is not realy matter in this case, since only ask from_stop and to_stop
+                #slots_tobe_selected = self.get_slots_tobe_selected(ds, self.policy_cfg['select_prob'], 1.0)
+                slots_tobe_selected = self.get_slots_tobe_selected(ds, self.policy_cfg['select_prob'], self.accept_prob)
 
+                #slots_tobe_selected = {k: v for k, v in slots_tobe_selected.items() if k in self.ontology.slots_system_selects()}
+                if 'task' in slots_tobe_selected.keys():
+                    slots_tobe_selected.pop('task')
+                print "slot tobe selected", slots_tobe_selected.keys()
+                ret_da = self.select_info(slots_tobe_selected)
+                #pdb.set_trace()
+            elif sys_da=='confirm':
+                #change to build the confirm act
+                #slots_tobe_confirmed = self.get_slots_tobe_confirmed(ds, self.policy_cfg['confirm_prob'], 1.0)
+                slots_tobe_confirmed = self.get_slots_tobe_confirmed(ds, self.policy_cfg['confirm_prob'], self.accept_prob)
+                slots_tobe_confirmed = {k: v for k, v in slots_tobe_confirmed.items() if k in self.ontology.slots_system_confirms()}
+                print "slot tobe confirm", slots_tobe_confirmed.keys()
+                ret_da = self.confirm_info(slots_tobe_confirmed)
+                #pdb.set_trace()
+            elif sys_da=='implconfirm':
+                #changed_slots = self.fix_stop_street_slots(changed_slots)
+                changed_slots = dialogue_state.get_changed_slots(0.0)#0.0 is not realy matter in this case, since only ask from_stop and to_stop
+                ret_da = self.get_iconfirm_info(changed_slots)
+                print '-*implconfirm acts:', ret_da
+                #pdb.set_trace()
+                req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots, belief_features)
+                ret_da.extend(req_da)
+                ret_da = self.filter_iconfirms(ret_da)
+                #TODO: Check sometims should be implconfirm, slots are available, but not implconfirm, only request???
+                #print 'implconfirm acts after add request'
+                #pdb.set_trace()
+            elif sys_da=='offer':
+                '''
+                req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
+                ds.conn_info = conn_info
+                ret_da = iconfirm_da
+                changed_slots = self.fix_stop_street_slots(changed_slots)
+                iconfirm2  = self.get_iconfirm_info(changed_slots)
+                ret_da.extend(iconfirm2)
+                ret_da.extend(self.get_directions(ds, check_conflict=True))
+                #ret_da = self.get_directions(ds, check_conflict=True)
+                ret_da = self.filter_iconfirms(ret_da)
+                '''
+                #pdb.set_trace()
+                #=============thanh: changes for evaluating, must remove to run normally======
+                #ret_da = self._thanh_offer_route(ds)
+                if belief_features[2]==0 or belief_features[4]==0:
+                    ret_da = DialogueAct()
+                else:
+                #-----------------------------------------------------------------------------
+                    #pass
+                    #'''
+                    changed_slots = self.fix_stop_street_slots(changed_slots)
+                    res_da = self.get_iconfirm_info(changed_slots)
+                    # talk about public transport
+                    t_da = self.get_connection_res_da(dialogue_state, last_user_dai_type, slots_being_requested, slots_being_confirmed,
+                                              accepted_slots, changed_slots, has_state_changed)
+                    res_da.extend(t_da)
+                    ret_da = self.filter_iconfirms(res_da)
+                    #'''
+            else:
+                raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
+            #print 'GP_Sarsa final acts:', ret_da
+            #pdb.set_trace()
+            if len(ret_da)==0:
+                print 'GP-Sarsa return empty act?????'
+                ret_da = DialogueAct('cant_apply()')
+                #pdb.set_trace()
+            res_da = ret_da
+            print '-*final_acts:', res_da
+            '''
+            # implicitly confirm all changed slots
+            res_da = self.get_iconfirm_info(changed_slots)
+            # select between two values for a slot that is not certain
+            res_da.extend(self.select_info(slots_tobe_selected))
+            res_da = self.filter_iconfirms(res_da)
+            '''
         elif fact['there_is_something_to_be_confirmed']:#TODO: THANH
             # implicitly confirm all changed slots
             res_da = self.get_iconfirm_info(changed_slots)
@@ -328,99 +412,6 @@ class PTIENHDCPolicy(DialoguePolicy):
         # record the system dialogue acts
         self.system_das.append(self.last_system_dialogue_act)
         return self.last_system_dialogue_act
-
-    def get_gp_res_da(self, dialogue_state, changed_slots, accepted_slots, last_user_dai_type, slots_being_requested, slots_being_confirmed, has_state_changed):
-        #-----------------------------the GP-Sarsa take stage for the transport information
-        print 'Going to GP-Sarsa'
-        ds = dialogue_state
-        #print '------------DS--------'
-        #print ds
-        #print '------------DS--------'
-        belief_features = self._extract_features(dialogue_state)
-        sys_da = self.gp_sarsa.get_act(belief_features, self.turn_reward)
-        print 'GP-Sarsa: sys_da:', sys_da
-        import pdb
-        if sys_da=='request':
-            ret_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots, belief_features)
-            #pdb.set_trace()
-        elif sys_da=='select':
-            #changed_slots = dialogue_state.get_changed_slots(0.0)#0.0 is not realy matter in this case, since only ask from_stop and to_stop
-            #slots_tobe_selected = self.get_slots_tobe_selected(ds, self.policy_cfg['select_prob'], 1.0)
-            slots_tobe_selected = self.get_slots_tobe_selected(ds, self.policy_cfg['select_prob'], self.accept_prob)
-
-            #slots_tobe_selected = {k: v for k, v in slots_tobe_selected.items() if k in self.ontology.slots_system_selects()}
-            if 'task' in slots_tobe_selected.keys():
-                slots_tobe_selected.pop('task')
-            print "slot tobe selected", slots_tobe_selected.keys()
-            ret_da = self.select_info(slots_tobe_selected)
-            #pdb.set_trace()
-        elif sys_da=='confirm':
-            #change to build the confirm act
-            #slots_tobe_confirmed = self.get_slots_tobe_confirmed(ds, self.policy_cfg['confirm_prob'], 1.0)
-            slots_tobe_confirmed = self.get_slots_tobe_confirmed(ds, self.policy_cfg['confirm_prob'], self.accept_prob)
-            slots_tobe_confirmed = {k: v for k, v in slots_tobe_confirmed.items() if k in self.ontology.slots_system_confirms()}
-            print "slot tobe confirm", slots_tobe_confirmed.keys()
-            ret_da = self.confirm_info(slots_tobe_confirmed)
-            #pdb.set_trace()
-        elif sys_da=='implconfirm':
-            #changed_slots = self.fix_stop_street_slots(changed_slots)
-            changed_slots = dialogue_state.get_changed_slots(0.0)#0.0 is not realy matter in this case, since only ask from_stop and to_stop
-            ret_da = self.get_iconfirm_info(changed_slots)
-            print '-*implconfirm acts:', ret_da
-            #pdb.set_trace()
-            req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots, belief_features)
-            ret_da.extend(req_da)
-            ret_da = self.filter_iconfirms(ret_da)
-            #TODO: Check sometims should be implconfirm, slots are available, but not implconfirm, only request???
-            #print 'implconfirm acts after add request'
-            #pdb.set_trace()
-        elif sys_da=='offer':
-            '''
-             req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
-            ds.conn_info = conn_info
-            ret_da = iconfirm_da
-            changed_slots = self.fix_stop_street_slots(changed_slots)
-            iconfirm2  = self.get_iconfirm_info(changed_slots)
-            ret_da.extend(iconfirm2)
-            ret_da.extend(self.get_directions(ds, check_conflict=True))
-            #ret_da = self.get_directions(ds, check_conflict=True)
-            ret_da = self.filter_iconfirms(ret_da)
-            '''
-            #pdb.set_trace()
-            #=============thanh: changes for evaluating, must remove to run normally======
-            #ret_da = self._thanh_offer_route(ds)
-            if belief_features[2]==0 or belief_features[4]==0:
-                ret_da = DialogueAct()
-            else:
-            #-----------------------------------------------------------------------------
-                #pass
-                #'''
-                changed_slots = self.fix_stop_street_slots(changed_slots)
-                res_da = self.get_iconfirm_info(changed_slots)
-                # talk about public transport
-                t_da = self.get_connection_res_da(dialogue_state, last_user_dai_type, slots_being_requested, slots_being_confirmed,
-                                              accepted_slots, changed_slots, has_state_changed)
-                res_da.extend(t_da)
-                ret_da = self.filter_iconfirms(res_da)
-                #'''
-        else:
-            raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
-        #print 'GP_Sarsa final acts:', ret_da
-        #pdb.set_trace()
-        if len(ret_da)==0:
-            print 'GP-Sarsa return empty act?????'
-            ret_da = DialogueAct('cant_apply()')
-            #pdb.set_trace()
-        res_da = ret_da
-        print '-*final_acts:', res_da
-        '''
-        # implicitly confirm all changed slots
-        res_da = self.get_iconfirm_info(changed_slots)
-        # select between two values for a slot that is not certain
-        res_da.extend(self.select_info(slots_tobe_selected))
-        res_da = self.filter_iconfirms(res_da)
-        '''
-        return res_da
 
     def get_connection_res_da(self, ds, ludait, slots_being_requested, slots_being_confirmed,
                               accepted_slots, changed_slots, state_changed):

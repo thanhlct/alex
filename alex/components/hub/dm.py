@@ -53,7 +53,7 @@ class DM(multiprocessing.Process):
 
         #Thanh:
         self.dialogue_error=0
-        self.minimum_dialogue_error=3#to get the Code
+        self.minimum_dialogue_error=2#to get the Code
         self.num_repeat_final_question=10#maximum number of request the feedback
 
     def process_pending_commands(self):
@@ -158,7 +158,6 @@ class DM(multiprocessing.Process):
                             self.commands.send(Command('hangup()', 'DM', 'HUB'))
                     else:
                         da = self.dm.da_out()
-                        #if da[0].dat == 'cant_apply':
 
                         if self.cfg['DM']['debug']:
                             s = []
@@ -269,6 +268,13 @@ class DM(multiprocessing.Process):
         return False
 
     def cant_apply_act_handler(self):
+        #plan to change to ask user repeat!!!, but did system repeat itself
+        da = DialogueAct('say(text="{text}")'.format(text="Wow, you never hear the message! Alex would never be this line of code!"))
+        self.cfg['Logging']['session_logger'].dialogue_act("system", da)
+        self.commands.send(DMDA(da, 'DM', 'HUB'))
+        #self.commands.send(Command('fake_a_call()', 'DM', 'HUB'))
+
+        '''Start new dialogue, when chosen wrong connection
         self.dm.set_final_reward(False)
         self.dm.end_dialogue() 
         self.dialogue_error +=1
@@ -283,6 +289,8 @@ class DM(multiprocessing.Process):
         self.commands.send(DMDA(da, 'DM', 'HUB'))
         
         self.commands.send(Command('fake_a_call()', 'DM', 'HUB'))
+        '''
+
 
         '''#given code after Alex error choose wrong action
         if self.cfg['DM']['epilogue']['final_code_url']:
@@ -297,7 +305,12 @@ class DM(multiprocessing.Process):
         '''
     
     def _ask_feedback_again(self):
+        feedback_request = self.final_question_repeated%2
         da = DialogueAct('say(text="Please answer clearly ,Yes I did, if you got the correct information, otherwise say, No I didn\'t")')
+
+        if feedback_request == 0:
+            da = DialogueAct('say(text="You might also answer, Yes I do, if you got the correct connection, or say, No I don\'t, for otherwise")')
+
         self.cfg['Logging']['session_logger'].dialogue_act("system", da)
         self.commands.send(DMDA(da, 'DM', 'HUB'))
 
@@ -340,7 +353,8 @@ class DM(multiprocessing.Process):
                 self.dm.log_state()
 
                 da = self.dm.da_out()
-                if da[0].dat == 'cant_apply':
+
+                if da.has_dat('cant_apply'):
                     self.cant_apply_act_handler()    
                     return
 
