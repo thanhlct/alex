@@ -284,15 +284,11 @@ class PTIENHDCPolicy(DialoguePolicy):
             dialogue_state["ludait"].reset()
 
         elif fact['user_wants_to_know_the_time']==False and fact['user_wants_to_know_the_weather']==False:
-            #THANH, ask user repeat when chosen uncorrect act
-            res_da = self.get_gp_res_da(dialogue_state, changed_slots, accepted_slots, last_user_dai_type, slots_being_requested, slots_being_confirmed, has_state_changed)
-
-            if res_da.has_dat('cant_apply'):
-                #res_da = DialogueAct("notunderstood()")
-                res_da = DialogueAct("invalid_act()")
-                #if randbool(5):
-                    #res_da.extend(self.get_limited_context_help(dialogue_state))
-                dialogue_state["ludait"].reset()
+            #THANH, ask system repeat itself when chosen uncorrect act
+            res_da = None
+            while res_da is None or res_da.has_dat('cant_apply'):
+                if res_da is not None: print '---GP-Sarsa choose: something wrong, cant_apply'
+                res_da = self.get_gp_res_da(dialogue_state, changed_slots, accepted_slots, last_user_dai_type, slots_being_requested, slots_being_confirmed, has_state_changed)
 
             if res_da.has_dat('apology'):#for the case has both, from_stop, from_street when from_street is correct
                 if str(res_da).find('inform(stops_conflict="thesame")')>=0: #need to start over, system could not usually got it
@@ -301,9 +297,7 @@ class PTIENHDCPolicy(DialoguePolicy):
 
             sda = str(res_da)
             if sda.find('FINAL_DEST')>=0 and sda.count('inform')==1 and sda.find('inform(walk_to="FINAL_DEST")')>=0:
-                res_da.extend(DialogueAct('say(text="Your trip takes only five minutes")'))
-
-            print '-**final_acts:', res_da
+                res_da.extend(DialogueAct('say(text="Your trip takes only several minutes")'))
 
         elif fact['there_is_something_to_be_confirmed']:#TODO: THANH
             # implicitly confirm all changed slots
@@ -427,7 +421,7 @@ class PTIENHDCPolicy(DialoguePolicy):
             ret_da = DialogueAct('cant_apply()')
             #pdb.set_trace()
         res_da = ret_da
-        print '-*final_gp_acts:', res_da
+        print '-*final_acts:', res_da
         '''
         # implicitly confirm all changed slots
         res_da = self.get_iconfirm_info(changed_slots)

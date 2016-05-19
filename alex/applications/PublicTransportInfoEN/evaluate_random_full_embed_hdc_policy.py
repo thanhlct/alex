@@ -22,7 +22,7 @@ from .directions import GoogleDirectionsFinder, Travel
 from alex.applications.utils.weather import OpenWeatherMapWeatherFinder, WeatherPoint
 
 from alex.components.dm.gp_sarsa.gp_sarsa_episode import ApproximateEpisodicGPSarsa
-from alex.utils.sample_distribution import sample_a_prob
+from alex.utils.sample_distribution import sample_a_prob, sample_from_list
 import numpy as np
 
 def randbool(n):
@@ -61,11 +61,11 @@ class PTIENHDCPolicy(DialoguePolicy):
         self.accept_prob = self.policy_cfg['accept_prob']
 
         #initilizing the GP-Sarsa Optimiser
-        self.gp_sarsa = ApproximateEpisodicGPSarsa(cfg['DM']['dialogue_policy'])
+        #self.gp_sarsa = ApproximateEpisodicGPSarsa(cfg['DM']['dialogue_policy'])
         self.turn_reward = -1
         self.success_reward = 20
         self.unsuccess_reward = 0
-        self.gp_sarsa.new_episode()
+        #self.gp_sarsa.new_episode()
 
     def reset_on_change(self, ds, changed_slots):
         """Reset slots which depends on changed slots.
@@ -284,26 +284,11 @@ class PTIENHDCPolicy(DialoguePolicy):
             dialogue_state["ludait"].reset()
 
         elif fact['user_wants_to_know_the_time']==False and fact['user_wants_to_know_the_weather']==False:
-            #THANH, ask user repeat when chosen uncorrect act
-            res_da = self.get_gp_res_da(dialogue_state, changed_slots, accepted_slots, last_user_dai_type, slots_being_requested, slots_being_confirmed, has_state_changed)
-
-            if res_da.has_dat('cant_apply'):
-                #res_da = DialogueAct("notunderstood()")
-                res_da = DialogueAct("invalid_act()")
-                #if randbool(5):
-                    #res_da.extend(self.get_limited_context_help(dialogue_state))
-                dialogue_state["ludait"].reset()
-
-            if res_da.has_dat('apology'):#for the case has both, from_stop, from_street when from_street is correct
-                if str(res_da).find('inform(stops_conflict="thesame")')>=0: #need to start over, system could not usually got it
-                    dialogue_state.restart()
-                    dialogue_state["ludait"].reset()
-
-            sda = str(res_da)
-            if sda.find('FINAL_DEST')>=0 and sda.count('inform')==1 and sda.find('inform(walk_to="FINAL_DEST")')>=0:
-                res_da.extend(DialogueAct('say(text="Your trip takes only five minutes")'))
-
-            print '-**final_acts:', res_da
+            #THANH, ask system repeat itself when chosen uncorrect act
+            res_da = None
+            while res_da is None or res_da.has_dat('cant_apply'):
+                if res_da is not None: print '---GP-Sarsa choose: something wrong, cant_apply'
+                res_da = self.get_gp_res_da(dialogue_state, changed_slots, accepted_slots, last_user_dai_type, slots_being_requested, slots_being_confirmed, has_state_changed)
 
         elif fact['there_is_something_to_be_confirmed']:#TODO: THANH
             # implicitly confirm all changed slots
@@ -344,6 +329,33 @@ class PTIENHDCPolicy(DialoguePolicy):
         self.system_das.append(self.last_system_dialogue_act)
         return self.last_system_dialogue_act
 
+    def _get_slot_equivalent_in_ds(self, slot, ds):
+        eq_slots=[('from_stop', 'from_street', 'from_city'), ('to_stop', 'to_street', 'to_city'), ('departure_time', 'departure_time_rel'), ('arrival_time', 'arrival_time_rel')]
+        best_s = None
+        best_score = 0.0
+        for eqs in eq_slots:
+            if slot in eqs:
+                for s in eqs:
+                    if s in ds:
+                        top = ds[s].topn(1)
+                        if len(top)>0:
+                            score = top[0][1]
+                        else:
+                            continue
+                        if score>best_score:
+                            best_s = s
+        print '--Choose slot:', best_s
+        return best_s
+
+    def get_random_act(self):
+        acts = ['request_from', 'request_to', 'request_time', 'request_vehicle',
+            'confirm_from', 'confirm_to', 'confirm_time', 'confirm_vehicle',
+            'implconfirm_from', 'implconfirm_to', 'implconfirm_time', 'implconfirm_vehicle',
+            'select_from', 'select_to', 'select_time', 'select_vehicle',
+            'offer',]
+        #acts = ['request', 'select', 'confirm', 'implconfirm', 'offer']
+        return sample_from_list(acts)
+
     def get_gp_res_da(self, dialogue_state, changed_slots, accepted_slots, last_user_dai_type, slots_being_requested, slots_being_confirmed, has_state_changed):
         #-----------------------------the GP-Sarsa take stage for the transport information
         print 'Going to GP-Sarsa'
@@ -352,8 +364,128 @@ class PTIENHDCPolicy(DialoguePolicy):
         #print ds
         #print '------------DS--------'
         belief_features = self._extract_features(dialogue_state)
-        sys_da = self.gp_sarsa.get_act(belief_features, self.turn_reward)
-        print 'GP-Sarsa: sys_da:', sys_da
+        #sys_da = self.gp_sarsa.get_act(belief_features, self.turn_reward)
+        sys_da = self.get_random_act() 
+        print 'Random: sys_da:', sys_da
+
+        if sys_da == 'request_from':
+            ret_da = DialogueAct('request(from_stop)')
+        elif sys_da == 'request_to':
+            ret_da = DialogueAct('request(to_stop)')
+        elif sys_da == 'request_time':
+            ret_da = DialogueAct('request(departure_time)')
+        elif sys_da == 'request_vehicle':
+            ret_da = DialogueAct('request(vehicle)')
+
+        elif sys_da == 'confirm_from':
+            if belief_features[2]!=0:
+                slot = 'from_stop'
+                slot = self._get_slot_equivalent_in_ds(slot, ds)
+                slots = {}
+                slots[slot] = ds.slots[slot]
+                ret_da = self.confirm_info(slots)
+            else:
+                ret_da = DialogueAct()
+        elif sys_da == 'confirm_to':
+            if belief_features[4]!=0:
+                slot = 'to_stop'
+                slot = self._get_slot_equivalent_in_ds(slot, ds)
+                slots = {}
+                slots[slot] = ds.slots[slot]
+                ret_da = self.confirm_info(slots)
+            else:
+                ret_da = DialogueAct()
+        elif sys_da == 'confirm_time':
+            if belief_features[6]!=0:
+                slot = 'departure_time'
+                slot = self._get_slot_equivalent_in_ds(slot, ds)
+                slots = {}
+                slots[slot] = ds.slots[slot]
+                ret_da = self.confirm_info(slots)
+            else:
+                ret_da = DialogueAct()
+        elif sys_da == 'confirm_vehicle':
+            if belief_features[10]!=0:
+                slot = 'vehicle'
+                slots = {}
+                slots[slot] = ds.slots[slot]
+                ret_da = self.confirm_info(slots)
+            else:
+                ret_da = DialogueAct()
+
+        elif sys_da == 'implconfirm_from':
+            ret_da = self.get_iconfirm_info(changed_slots)
+            ret_da.extend(DialogueAct('request(from_stop)'))
+            ret_da = self.filter_iconfirms(ret_da)
+        elif sys_da == 'implconfirm_to':
+            ret_da = self.get_iconfirm_info(changed_slots)
+            ret_da.extend(DialogueAct('request(to_stop)'))
+            ret_da = self.filter_iconfirms(ret_da)
+        elif sys_da == 'implconfirm_time':
+            ret_da = self.get_iconfirm_info(changed_slots)
+            ret_da.extend(DialogueAct('request(departure_time)'))
+            ret_da = self.filter_iconfirms(ret_da)
+        elif sys_da == 'implconfirm_vehicle':
+            ret_da = self.get_iconfirm_info(changed_slots)
+            ret_da.extend(DialogueAct('request(vehicle)'))
+            ret_da = self.filter_iconfirms(ret_da)
+     
+        elif sys_da == 'select_from':
+            if belief_features[2]!=0 and belief_features[3]!=0:
+                slot = 'from_stop'
+                slot = self._get_slot_equivalent_in_ds(slot, ds)
+                slots = {}
+                slots[slot] = ds.slots[slot]
+                ret_da = self.select_info(slots)
+            else:
+                ret_da = DialogueAct()
+        elif sys_da == 'select_to':
+            if belief_features[4]!=0 and belief_features[5]!=0:
+                slot = 'to_stop'
+                slot = self._get_slot_equivalent_in_ds(slot, ds)
+                slots = {}
+                slots[slot] = ds.slots[slot]
+                ret_da = self.select_info(slots)
+            else:
+                ret_da = DialogueAct()
+                
+        elif sys_da == 'select_time':
+            if belief_features[6]!=0 and belief_features[7]!=0:
+                slot = 'departure_time'
+                slot = self._get_slot_equivalent_in_ds(slot, ds)
+                slots = {}
+                slots[slot] = ds.slots[slot]
+                ret_da = self.select_info(slots)
+            else:
+                ret_da = DialogueAct()
+        elif sys_da == 'select_vehicle':
+            if belief_features[10]!=0 and belief_features[11]!=0:
+                slot = 'vehicle'
+                slots = {}
+                slots[slot] = ds.slots[slot]
+                ret_da = self.select_info(slots)
+            else:
+                ret_da = DialogueAct()
+
+        elif sys_da=='offer':
+            if belief_features[2]==0 or belief_features[4]==0:
+                ret_da = DialogueAct()
+            else:
+                '''---Real interaction with user
+                changed_slots = self.fix_stop_street_slots(changed_slots)
+                res_da = self.get_iconfirm_info(changed_slots)
+                # talk about public transport
+                t_da = self.get_connection_res_da(dialogue_state, last_user_dai_type, slots_being_requested, slots_being_confirmed,
+                                              accepted_slots, changed_slots, has_state_changed)
+                res_da.extend(t_da)
+                ret_da = self.filter_iconfirms(res_da)
+                '''#----intreact with simulator
+                ret_da = self._thanh_offer_route(ds)
+        else:
+            raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
+
+
+        '''previous:
         import pdb
         if sys_da=='request':
             ret_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots, belief_features)
@@ -390,26 +522,11 @@ class PTIENHDCPolicy(DialoguePolicy):
             #print 'implconfirm acts after add request'
             #pdb.set_trace()
         elif sys_da=='offer':
-            '''
-             req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
-            ds.conn_info = conn_info
-            ret_da = iconfirm_da
-            changed_slots = self.fix_stop_street_slots(changed_slots)
-            iconfirm2  = self.get_iconfirm_info(changed_slots)
-            ret_da.extend(iconfirm2)
-            ret_da.extend(self.get_directions(ds, check_conflict=True))
-            #ret_da = self.get_directions(ds, check_conflict=True)
-            ret_da = self.filter_iconfirms(ret_da)
-            '''
-            #pdb.set_trace()
             #=============thanh: changes for evaluating, must remove to run normally======
-            #ret_da = self._thanh_offer_route(ds)
             if belief_features[2]==0 or belief_features[4]==0:
                 ret_da = DialogueAct()
             else:
-            #-----------------------------------------------------------------------------
-                #pass
-                #'''
+                ---Real interaction with user
                 changed_slots = self.fix_stop_street_slots(changed_slots)
                 res_da = self.get_iconfirm_info(changed_slots)
                 # talk about public transport
@@ -417,24 +534,20 @@ class PTIENHDCPolicy(DialoguePolicy):
                                               accepted_slots, changed_slots, has_state_changed)
                 res_da.extend(t_da)
                 ret_da = self.filter_iconfirms(res_da)
-                #'''
+                ----intreact with simulator
+                ret_da = self._thanh_offer_route(ds)
         else:
             raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
         #print 'GP_Sarsa final acts:', ret_da
-        #pdb.set_trace()
+        '''
+
         if len(ret_da)==0:
             print 'GP-Sarsa return empty act?????'
             ret_da = DialogueAct('cant_apply()')
-            #pdb.set_trace()
         res_da = ret_da
-        print '-*final_gp_acts:', res_da
-        '''
-        # implicitly confirm all changed slots
-        res_da = self.get_iconfirm_info(changed_slots)
-        # select between two values for a slot that is not certain
-        res_da.extend(self.select_info(slots_tobe_selected))
-        res_da = self.filter_iconfirms(res_da)
-        '''
+
+        print '-*final_acts:', res_da
+
         return res_da
 
     def get_connection_res_da(self, ds, ludait, slots_being_requested, slots_being_confirmed,
@@ -1760,13 +1873,17 @@ class PTIENHDCPolicy(DialoguePolicy):
 
 #=============================THANH: methods for embe GP-Sarsa================================
     def end_dialogue(self, user_satisfied=False):
+        '''
         if user_satisfied:
             self.gp_sarsa.end_episode(self.success_reward)
         else:
             self.gp_sarsa.end_episode(self.unsuccess_reward)
         self.gp_sarsa.save()
+        '''
 
     def _get_indicators(self, ds, features):
+        return self.places_inferred(ds)#only detect broughbout, city is infered or not
+
         #TODO: HERE , call get slot to be select, confirm two times
         indicators = [0, 0, 0]
         if features[2]>0 and features[4]>0:#offer is applicable
@@ -1792,7 +1909,7 @@ class PTIENHDCPolicy(DialoguePolicy):
             if sum(infers)<4:
                 indicators[0]=0
             #indicators.extend(infers) 
-
+        
         return indicators
 
     def _extract_features(self, ds):
@@ -1842,13 +1959,15 @@ class PTIENHDCPolicy(DialoguePolicy):
                 print '%.3f'%f,
             print ''
             features.extend(fslot)
-        #------indicators features
+        #------indicators features---dont use indicator
+        #'''
         indicators = self._get_indicators(ds, features)
         print '[%s]\t\t:'%'indis',
         for v in indicators:
             print '%.3f'%v,
         print ''     
         features.extend(indicators)
+        #'''
         return np.array(features)
 
     def _extract_features1(self, ds):

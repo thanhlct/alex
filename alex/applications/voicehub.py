@@ -151,10 +151,11 @@ class VoiceHub(Hub):
                         if command.parsed['__name__'] == "incoming_call":
                             self.cfg['Logging']['system_logger'].session_start(command.parsed['remote_uri'])
                             #self.cfg['Logging']['session_logger'].session_start(self.cfg['Logging']['system_logger'].get_session_dir_name())
-                            #THANH:
-                            dir_name = self.cfg['Logging']['system_logger'].get_session_dir_name()
-                            print '===***===log directory: ', dir_name
-                            self.cfg['Logging']['session_logger'].session_start(dir_name)
+                            #THANH, get directory to the log but it not print by the order:
+                            self.dir_name = self.cfg['Logging']['system_logger'].get_session_dir_name()
+                            self.cfg['Logging']['session_logger'].session_start(self.dir_name)
+                            #Thanh:
+                            #dm_commands.send(Command('print_log_dir()', dir_name, 'DM'))
 
                             self.cfg['Logging']['system_logger'].session_system_log('config = ' + unicode(self.cfg))
                             self.cfg['Logging']['session_logger'].config('config = ' + unicode(self.cfg))
@@ -245,6 +246,9 @@ class VoiceHub(Hub):
                                 hangup = False
 
                                 dm_commands.send(Command('new_dialogue()', 'HUB', 'DM'))
+                                #Thanh:
+                                dm_commands.send(Command('print_log_dir()', self.dir_name, 'DM'))
+
                                 m.append('CALL ACCEPTED')
                             
                             m.append('=' * 120)

@@ -74,6 +74,10 @@ class DM(multiprocessing.Process):
                 self.cfg['Logging']['system_logger'].debug(command)
 
             if isinstance(command, Command):
+                #Thanh:
+                if command.parsed['__name__'] == 'print_log_dir':
+                    print '===***===session-log-dir:', command.source
+
                 if command.parsed['__name__'] == 'stop':
                     return True
 
@@ -93,6 +97,7 @@ class DM(multiprocessing.Process):
 
                 if command.parsed['__name__'] == 'new_dialogue':
                     self.dm.new_dialogue()#thanh change???
+
                     self.epilogue_state = None
 
                     self.cfg['Logging']['session_logger'].turn("system")

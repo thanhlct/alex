@@ -284,26 +284,17 @@ class PTIENHDCPolicy(DialoguePolicy):
             dialogue_state["ludait"].reset()
 
         elif fact['user_wants_to_know_the_time']==False and fact['user_wants_to_know_the_weather']==False:
-            #THANH, ask user repeat when chosen uncorrect act
-            res_da = self.get_gp_res_da(dialogue_state, changed_slots, accepted_slots, last_user_dai_type, slots_being_requested, slots_being_confirmed, has_state_changed)
-
-            if res_da.has_dat('cant_apply'):
-                #res_da = DialogueAct("notunderstood()")
-                res_da = DialogueAct("invalid_act()")
-                #if randbool(5):
-                    #res_da.extend(self.get_limited_context_help(dialogue_state))
-                dialogue_state["ludait"].reset()
-
-            if res_da.has_dat('apology'):#for the case has both, from_stop, from_street when from_street is correct
-                if str(res_da).find('inform(stops_conflict="thesame")')>=0: #need to start over, system could not usually got it
-                    dialogue_state.restart()
-                    dialogue_state["ludait"].reset()
-
-            sda = str(res_da)
-            if sda.find('FINAL_DEST')>=0 and sda.count('inform')==1 and sda.find('inform(walk_to="FINAL_DEST")')>=0:
-                res_da.extend(DialogueAct('say(text="Your trip takes only five minutes")'))
-
-            print '-**final_acts:', res_da
+            #THANH, ask system repeat itself when chosen uncorrect act
+            res_da = None
+            repeated_count = 0
+            while res_da is None or res_da.has_dat('cant_apply'):
+                if res_da is not None: print '---GP-Sarsa choose: something wrong, cant_apply'
+                res_da = self.get_gp_res_da(dialogue_state, changed_slots, accepted_slots, last_user_dai_type, slots_being_requested, slots_being_confirmed, has_state_changed)
+                repeated_count +=1
+            if repeated_count >=1000:
+                print 'Choo 1000 times could find a act'
+                import sys
+                sys.exit()
 
         elif fact['there_is_something_to_be_confirmed']:#TODO: THANH
             # implicitly confirm all changed slots
@@ -390,26 +381,11 @@ class PTIENHDCPolicy(DialoguePolicy):
             #print 'implconfirm acts after add request'
             #pdb.set_trace()
         elif sys_da=='offer':
-            '''
-             req_da, iconfirm_da, conn_info = self.gather_connection_info(ds, accepted_slots)
-            ds.conn_info = conn_info
-            ret_da = iconfirm_da
-            changed_slots = self.fix_stop_street_slots(changed_slots)
-            iconfirm2  = self.get_iconfirm_info(changed_slots)
-            ret_da.extend(iconfirm2)
-            ret_da.extend(self.get_directions(ds, check_conflict=True))
-            #ret_da = self.get_directions(ds, check_conflict=True)
-            ret_da = self.filter_iconfirms(ret_da)
-            '''
-            #pdb.set_trace()
             #=============thanh: changes for evaluating, must remove to run normally======
-            #ret_da = self._thanh_offer_route(ds)
             if belief_features[2]==0 or belief_features[4]==0:
                 ret_da = DialogueAct()
             else:
-            #-----------------------------------------------------------------------------
-                #pass
-                #'''
+                '''---Real interaction with user
                 changed_slots = self.fix_stop_street_slots(changed_slots)
                 res_da = self.get_iconfirm_info(changed_slots)
                 # talk about public transport
@@ -417,24 +393,17 @@ class PTIENHDCPolicy(DialoguePolicy):
                                               accepted_slots, changed_slots, has_state_changed)
                 res_da.extend(t_da)
                 ret_da = self.filter_iconfirms(res_da)
-                #'''
+                '''#----intreact with simulator
+                ret_da = self._thanh_offer_route(ds)
         else:
             raise NotImplementedError("Not implement handler for the GP-Sarsa [sys_da=%s]"%sys_da)
         #print 'GP_Sarsa final acts:', ret_da
-        #pdb.set_trace()
         if len(ret_da)==0:
             print 'GP-Sarsa return empty act?????'
             ret_da = DialogueAct('cant_apply()')
-            #pdb.set_trace()
         res_da = ret_da
-        print '-*final_gp_acts:', res_da
-        '''
-        # implicitly confirm all changed slots
-        res_da = self.get_iconfirm_info(changed_slots)
-        # select between two values for a slot that is not certain
-        res_da.extend(self.select_info(slots_tobe_selected))
-        res_da = self.filter_iconfirms(res_da)
-        '''
+        print '-*final_acts:', res_da
+
         return res_da
 
     def get_connection_res_da(self, ds, ludait, slots_being_requested, slots_being_confirmed,
@@ -1768,6 +1737,7 @@ class PTIENHDCPolicy(DialoguePolicy):
 
     def _get_indicators(self, ds, features):
         #TODO: HERE , call get slot to be select, confirm two times
+        return self.places_inferred(ds)#only indicator about infer city, street...
         indicators = [0, 0, 0]
         if features[2]>0 and features[4]>0:#offer is applicable
             indicators[0] = 1

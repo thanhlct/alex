@@ -277,8 +277,8 @@ class SSLTCPServer(SocketServer.TCPServer):
         text = ''
         i = 1
         for sent in sents.split('\t'):
-            text += '<p>' + sent + '</p>\n<p></p>'
-            break
+            #text += '<p>' + sent + '</p>\n<p></p>'
+            #break
             text += '<p><b>- Stage %d:</b> '%i + sent + '</p>\n'
             i +=1
             #Thanh: Get only main task

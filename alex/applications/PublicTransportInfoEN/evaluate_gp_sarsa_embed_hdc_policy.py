@@ -353,7 +353,8 @@ class PTIENHDCPolicy(DialoguePolicy):
             #pdb.set_trace()
             if len(ret_da)==0:
                 print 'GP-Sarsa return empty act?????'
-                ret_da = DialogueAct('cant_apply()')
+                #ret_da = DialogueAct('cant_apply()')
+                ret_da = DialogueAct("notunderstood()")
                 #pdb.set_trace()
             res_da = ret_da
         elif fact['there_is_something_to_be_selected']:#TODO: THANH

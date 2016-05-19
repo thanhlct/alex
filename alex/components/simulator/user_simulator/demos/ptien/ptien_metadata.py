@@ -128,7 +128,13 @@ config = {
     'user_simulator':{
         'SimpleUserSimulator':{
             'debug': True,
-            'patience_level':6,#minimum 1,the number of repeated ask the same thing to get angry and hang up, set to 0 mean never hang up
+            'patience_level':8,#minimum 1,the number of repeated ask the same thing to get angry and hang up, set to 0 mean never hang up
+            'patience_levels':{
+                4: 0.5,
+                7: 0.2,
+                3: 0.3,
+                #2: 0.2,
+            },
             'out_of_patience_act':'hangup()',
             'metadata':{
             'slots': ['from_stop', 'to_stop', 'from_city', 'to_city', 'from_street', 'to_street',
@@ -356,8 +362,8 @@ config = {
                 'request':[{'return_acts':['inform'],#return acts canbe multiple act
                             'inform_answer_types':{
                                 'direct_answer':0.7,
-                                'over_answer':0.25,
-                                'complete_answer':0.05,
+                                'over_answer':0.2,
+                                'complete_answer':0.1,
                                 },
                             'inform_overridden_properties':{
                                 #'use_slot_sequence': True,#will be error someday when system ask a slot which is absen in the current goal
@@ -376,15 +382,17 @@ config = {
                             #can we change to return_acts, what is different to keep booth? should maintain both for short config and clear distuiguish between two cases
                             'ordered_return_acts':[
                                 {   'case1':{'return_acts':['affirm'],
-                                        'active_prob':0.5
+                                        'active_prob':0.7, #0.5
                                     },
                                     'case2':{'return_acts':['affirm', 'inform'],
-                                        'active_prob':0.5,
+                                        'active_prob':0.3,#0.5
                                         'inform_answer_types':{
-                                            'over_answer':1.0
+                                            'over_answer':0.8,
+                                            'complete_answer': 0.2,
                                         },
                                         'inform_overridden_properties':{
                                             'slot_from': 'none',#should be none - nowhere, dont take slot form any where
+                                            'accept_used_slots': True,
                                         },
                                     },
                                 },#end of first priority answer
@@ -563,8 +571,21 @@ config = {
                             },
                         },
                 ],
-                'notunderstood':[{'return_acts':['oog'],
-                                    'active_prob':1.0,
+                'notunderstood':[
+                        {   'return_acts':['repeat'],
+                            'active_prob': 0.4,
+                        },
+                        {   'return_acts':['repeat', 'inform'],
+                            'active_prob': 0.6,
+                            'inform_answer_types':{
+                                'direct_answer': 0.0,
+                                'over_answer': 0.4,
+                                'complete_answer':0.6,
+                            },
+                            'inform_overridden_properties':{
+                                'slot_from': 'none',
+                                'accept_used_slots': True,
+                            },
                         },
                 ],
                 'irepeat':[{'return_acts':['oog'],
@@ -582,13 +603,13 @@ config = {
                         },
                 ],
                 'hello':[{'return_acts':['hello'],
-                        'active_prob':0.3,
+                        'active_prob':0.3,#0.1
                         },
                         {'return_acts':['hello', 'inform'],
-                        'active_prob':0.7,
+                        'active_prob':0.7,#0.9
                         'inform_answer_types':{
-                                'over_answer': 0.8,
-                                'complete_answer': 0.2,
+                                'over_answer': 0.8,#0.4
+                                'complete_answer': 0.2,#0.6
                             },
                         'inform_overridden_properties':{
                                 'slot_from': 'none',

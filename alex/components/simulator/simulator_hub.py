@@ -118,7 +118,7 @@ class SimulatorHub(Hub):
             self.cfg['Logging']['session_logger'].slu("user", '*', nbest_list, confnet=confusion_net)
 
             hyps = SLUHyp(confusion_net, asr_hyp=None)#DM
-            print '---SLUHyp to DM:\n', hyps.hyp
+            #print '---SLUHyp to DM:\n', hyps.hyp
             dm.da_in(hyps.hyp,  utterance=None)
             
             turn_index +=1
@@ -290,8 +290,11 @@ def delete_file(file_path):
     if os.path.exists(file_path):
         os.remove(file_path)
 
-#def repeated_evaluation(config, repeat_number=10, episode=1000, split=20)
-def repeated_evaluation(config, repeat_number=10, episode=1000, split=20):
+#def repeated_evaluation(config, repeat_number=10, episode=1000, split=20):
+#def repeated_evaluation(config, repeat_number=3, episode=1000, split=1000):
+#def repeated_evaluation(config, repeat_number=20, episode=100, split=5):
+def repeated_evaluation(config, repeat_number=5, episode=1000, split=20):
+#def repeated_evaluation(config, repeat_number=1, episode=1, split=1):
     import numpy as np
     d = episode/split
     success = np.zeros((d, repeat_number))
@@ -300,12 +303,15 @@ def repeated_evaluation(config, repeat_number=10, episode=1000, split=20):
     for r in range(repeat_number):
         print '=============repeated', r, '========='
         delete_file('gp_sara.params.pkl')
+        #delete_file('gp_sara.gasic.params.pkl')
         for i in range(d):
             evaluate_dm(config, split)
             success[i, r] =  success_rate
             reward[i, r] =  mean_total_reward
             turn[i, r] =  mean_turn_number
 
+    print '!!!!!save to the file'
+    sys.stderr.write('!!!!!!Finished copy the command to write files\n')
     pdb.set_trace()
     np.savetxt('success.csv', success, delimiter=',', fmt='%f')
     np.savetxt('reward.csv', reward, delimiter=',', fmt='%f')
@@ -333,13 +339,19 @@ if __name__ == '__main__':
 
     if args.configs is None:
         args.configs = ['./ptien_configs/ptien.cfg', './ptien_configs/ptien_hdc_slu.cfg','./user_simulator/demos/ptien/simulator.cfg', './user_simulator/demos/ptien/ptien_metadata.py', './asr_simulator/demos/ptien/config_asr_simulator.py', './ptien_configs/config_gp_sarsa.py']
-        #TODO Remove the confir for gp-sarsa to uses the handcrafted policy
+        #TODO Remove suitablely
         #args.configs.remove('./ptien_configs/config_gp_sarsa.py')
+        #args.configs.append('./ptien_configs/config_full_gp_sarsa.py')
+        #args.configs.append('./ptien_configs/config_gasic_gp_sarsa.py')
+        #args.configs.append('./ptien_configs/config_gasic_full_gp_sarsa.py')
+
     cfg = Config.load_configs(args.configs, log=False)
     initilize(cfg)
 
     #shub = SimulatorHub(cfg)
 
+    #import pdb
+    #pdb.set_trace()
     #shub.run()
     #evaluate_dm(cfg)
     repeated_evaluation(cfg)

@@ -878,7 +878,7 @@ class PTIENHDCSLU(SLUInterface):
             cn.add_merge(1.0, DialogueActItem("hello"))
 
         if dai.any_word_in("bye byebye seeya goodbye") or \
-                dai.any_phrase_in(['good bye', 'take baths', 'see you', 'see ya' 'nothing else', 'no further help needed', ]) or \
+                dai.any_phrase_in(['good bye', 'take baths', 'see you', 'see ya' 'nothing else', 'no further help needed', 'that would be all', 'no thank you']) or \
                 (dai.any_phrase_in(['that is', 'that was', "that's", ]) and dai.any_phrase_in(['all', 'it', ])):
 
             cn.add_merge(1.0, DialogueActItem("bye"))

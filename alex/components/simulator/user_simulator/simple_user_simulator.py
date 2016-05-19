@@ -53,6 +53,8 @@ class SimpleUserSimulator(UserSimulator):
         if 'patience_level' in self.config.keys():
             self.patience_level = self.config['patience_level']
 
+        self.last_user_da = None
+
     def _get_dict_distribution(self, lst_dict):
         '''Get dict distribution for a list of dictionary or a dictionary of dictionary
         
@@ -83,6 +85,14 @@ class SimpleUserSimulator(UserSimulator):
         self.patience_history= {}
 
         self.system_logger.info("SimpleUserSimulator: GOAL: %s"%self.goal)
+ 
+        #Sample patience level, since different user will have a different level
+        if 'patience_levels' in self.config.keys():
+            self.patience_level = sample_from_dict(self.config['patience_levels'])
+            print '---Patience - level: ', self.patience_level
+
+        self.last_user_da = None
+       
 
     def _build_slot_level(self):
         '''Return dict of slot level.
@@ -278,11 +288,13 @@ class SimpleUserSimulator(UserSimulator):
 
         turn['user_da']= das
         self.turns.append(turn)
+
+        self.last_user_da = das[0].dais
       
         das_str = ''
-        for da in das:
-            das_str += str(da)
-        self.system_logger.info('SimpleUserSimulator:da_out: %s'%das_str)
+        #for da in das:
+            #das_str += str(da)
+        #self.system_logger.info('SimpleUserSimulator:da_out: %s'%das_str)
         return das
 
     def _zero_act_return(self):
@@ -383,6 +395,11 @@ class SimpleUserSimulator(UserSimulator):
         new_items = []
         first_act = True
         for act_out in answer['return_acts']:#for reply without ordered answer
+            #New for repeat
+            if act_out == 'repeat':
+                da_items.extend(self.last_user_da)#add previous act, may add more if we use inform in return_acts
+                continue
+            
             answer_types = get_dict_value(answer, act_out + '_answer_types')
             answer_type = None
             if answer_types is not None:
@@ -513,8 +530,8 @@ class SimpleUserSimulator(UserSimulator):
             da_items.append(DialogueActItem(act_out))
         
         if len(combined_slots)==0 and len(da_items)==0 and not act_without_slot:
-            pass
-            #print 'Not building act=%s since it requires slots and values but we cant find any slot, value for it'%act_out
+            #pass
+            print 'Not building act=%s since it requires slots and values but we cant find any slot, value for it'%act_out
             #raise RuntimeError('Cant find any slot, value for the given dialogue act, %s'%act_out)
         return da_items
 

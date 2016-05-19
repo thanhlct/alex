@@ -340,7 +340,7 @@ class ApproximateEpisodicGPSarsa:
         mean = np.dot(cov_ba.T, self.means)[0, 0]
         variance = self.kernel((b,a), (b,a))- np.dot(np.dot(cov_ba.T, self.C), cov_ba)#TODO: Choose the variance bigest to do in random action, to explore the most unstable part
         variance = variance[0,0]
-        print '---action=', a, '-> Q(b, a) is sampling from N(%f, %f)'% (mean, variance)
+        print '---action=', a, '-> Q(b, a) is sampling from N(%f, %f)'% (mean, self.variance_scale*variance)
         #pdb.set_trace()
         if variance <0:
             #TODO:Problem: remove, fix
