@@ -3,9 +3,7 @@
 
 
 """
-Generate reply/confirm CrowdFlower tasks for the PTIEN domain.
-
-Usage: ./generate_reply_tasks.py [--filter-threshold N] input.tsv > output.tsv
+Generate NLG reply/confirm/apologize/request CrowdFlower tasks for the PTIEN domain.
 """
 
 
@@ -18,6 +16,8 @@ import re
 import sys
 import random
 import csv
+
+from util import *
 
 # Start IPdb on error in interactive mode
 from tgen.debug import exc_info_hook
@@ -77,27 +77,14 @@ STOPS = ['Astor Place',
 WORD_FOR_NUMBER = ['zero', 'one', 'two', 'three', 'four', 'five', 'six',
                    'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve']
 
+MINUTE_VALUES = [(0.16, '0:10', 'ten'), (0.25, '0:15', 'fifteen'),
+                 (0.33, '0:20', 'twenty'), (0.5, '0:30', 'thirty')]
+
 BUS_LINES = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14, 15, 20, 21, 22, 23, 31,
              34, 35, 42, 50, 57, 60, 66, 72, 79, 86, 96, 98, 100, 101, 102,
              103, 104, 106, 116]
 
-NO_CONNECTION_PROB = 0.1
-
-
-class DataLine(object):
-
-    def __init__(self, dat=None, abstr_utt=None, abstr_da=None, utt=None, da=None):
-        self.dat = dat
-        self.abstr_utt = abstr_utt
-        self.abstr_da = abstr_da
-        self.utt = utt
-        self.da = da
-
-    def as_tuple(self):
-        return (self.dat, self.abstr_utt, self.abstr_da, self.utt, self.da)
-
-    def __unicode__(self):
-        return "\t".join(self.as_tuple())
+ACK_SLOTS_REGEX = '^(from|to|departure_time|arrival_time|time|ampm|vehicle|alternative)'
 
 
 def word_for_ampm(hour, ampm):
@@ -111,15 +98,23 @@ def word_for_ampm(hour, ampm):
     return 'evening'
 
 
+def random_hour():
+    """Return random hour + AM/PM info (7am - 11pm)."""
+    hr = random.choice(range(7, 23))
+    ampm = 'am' if hr < 12 else 'pm'
+    hr %= 12
+    if hr == 0:
+        hr = 12
+    return hr, ampm
+
+
 def deabstract(utt, dais):
     """De-abstract an utterance and a list of corresponding DAIs, so that
     a specific answer is provided.
     """
     # prepare some data to be used
     from_stop, to_stop = random.sample(STOPS, 2)
-    time = random.choice(range(7, 23))
-    ampm = 'am' if time < 12 else 'pm'
-    time %= 12
+    time, ampm = random_hour()
     vehicle = random.choice(['subway', 'bus'])
 
     dais_out = []  # create a completely new structure, so that we keep the abstract original
@@ -141,13 +136,22 @@ def deabstract(utt, dais):
             dai_out.value = vehicle
             utt_r = re.sub(r'\*VEHICLE', vehicle, utt)
         elif 'time' in dai.name and dai.dat == 'inform':
+            if re.search(r'\*TIME', utt):
+                dai_out.value = 'now'
+                utt_r = re.sub(r'\*TIME', 'now', utt)
             if re.search(r'\*NUMBER an hour', utt):
-                time = 0.5
                 dai_out.value = '0:30'
                 utt_r = re.sub(r'\*NUMBER', 'half', utt)
+            elif re.search(r'\*NUMBER minutes', utt):
+                time, hr_val, num_word = random.choice(MINUTE_VALUES)
+                dai_out.value = hr_val
+                utt_r = re.sub(r'\*NUMBER', num_word, utt)
+            elif re.search(r'\*NUMBER \*NUMBER', utt):
+                dai_out.value = unicode(time) + ':30'
+                utt_r = re.sub(r'\*NUMBER \*NUMBER', WORD_FOR_NUMBER[time] + ' thirty', utt)
             else:
                 if 'time_rel' in dai.name:
-                    time %= 5
+                    time = random.randint(0, 4)
                 dai_out.value = unicode(time) + ':00'
                 utt_r = re.sub(r'\*NUMBER', WORD_FOR_NUMBER[time], utt)
         elif 'ampm' in dai.name:
@@ -188,6 +192,10 @@ def normalize_da(da):
     for dai in dais:
         dai.name = re.sub('_street$', '_stop', dai.name)
 
+    # default to departure time
+    for dai in dais:
+        dai.name = re.sub('^time', 'departure_time', dai.name)
+
     return dais
 
 
@@ -196,14 +204,12 @@ def generate_ack(ack_type, utt, dais):
 
     ret = DataLine(dat=ack_type, abstr_utt=utt, abstr_da='&'.join([unicode(dai) for dai in dais]))
 
-    utt, dais = deabstract(utt, [
-            dai for dai in dais
-            if re.match('^(from|to|departure_time|arrival_time|ampm|vehicle|alternative)',
-                        dai.name)
-            ])
+    utt, dais = deabstract(utt, [dai for dai in dais
+                                 if re.match(ACK_SLOTS_REGEX, dai.name) and
+                                 dai.dat in ['confirm', 'inform']])
     dais_str = ', '.join([dai.name + '=' + dai.value for dai in dais])
     if ack_type == 'apologize':
-        dais_str = '*=notfound, ' + dais_str;
+        dais_str = '*=notfound, ' + dais_str
 
     ret.utt = utt
     ret.da = dais_str
@@ -270,19 +276,20 @@ def generate_reply(utt, dais):
     # offer additional information
     else:
         dais_str = ''
-        if any([dai.name == 'distance' for dai in dais]):
+        if any([dai.name == 'distance' and dai.dat == 'request' for dai in dais]):
             dais_str += ', distance=%3.1f miles' % (random.random() * 12)
-        if any([dai.name == 'num_transfers' for dai in dais]):
+        if any([dai.name == 'num_transfers' and dai.dat == 'request' for dai in dais]):
             dais_str += ', num_transfers=%d' % random.choice(range(0, 3))
-        if any([dai.name == 'duration' for dai in dais]):
+        if any([dai.name == 'duration' and dai.dat == 'request' for dai in dais]):
             dais_str += ', duration=%d minutes' % random.choice(range(10, 80))
-        if any([dai.name == 'arrival_time' for dai in dais]):
-            hr = random.choice(range(7, 23))
-            ampm = 'am' if hr < 12 else 'pm'
-            hr %= 12
+        if any([dai.name == 'departure_time' and dai.dat == 'request' for dai in dais]):
+            hr, ampm = random_hour()
+            min = random.choice(range(60))
+            dais_str += ', departure_time=%d:%02d%s' % (hr, min, ampm)
+        if any([dai.name == 'arrival_time' and dai.dat == 'request' for dai in dais]):  # arrival_time_rel does not occur
+            hr, ampm = random_hour()
             min = random.choice(range(60))
             dais_str += ', arrival_time=%d:%02d%s' % (hr, min, ampm)
-
         if dais_str == '':
             raise NotImplementedError('Cannot generate a reply for: ' + unicode(dais))
 
@@ -307,11 +314,7 @@ def generate_request(utt, dais):
 
     dais_str = dais_str[2:]
 
-    utt, _ = deabstract(utt, [
-            dai for dai in dais
-            if re.match('^(from|to|departure_time|arrival_time|ampm|vehicle|alternative)',
-                        dai.name)
-            ])
+    utt, _ = deabstract(utt, [dai for dai in dais if re.match(ACK_SLOTS_REGEX, dai.name)])
 
     ret.utt = utt
     ret.da = dais_str
@@ -342,9 +345,9 @@ def process_utt(utt, da):
         return ret
 
     # check if we should generate a confirmation task, and do it
-    if any([dai.dat in ['inform', 'confirm'] and
-            re.match('^(from|to|departure_time|arrival_time|vehicle|alternative)', dai.name)
+    if any([dai.dat in ['inform', 'confirm'] and re.match(ACK_SLOTS_REGEX, dai.name)
             for dai in dais]):
+
         ret['confirm'] = generate_ack('confirm', utt, dais)
 
         if not any([dai.dat == 'request' for dai in dais]):
@@ -368,12 +371,16 @@ def process_utt(utt, da):
     return ret.values()
 
 
-def main(input_file, filter_threshold):
+def main(args):
 
-    headers = ['type', 'abstr_utt', 'abstr_da', 'utt', 'da']
     data = []
+    good_toks, good_types = 0, 0  # good contexts, useful for tasks
+    fthr_toks, fthr_types = 0, 0  # filtered because of threshold
+    fslt_toks, fslt_types = 0, 0  # filtered as they only contain slots
+    frep_toks, frep_types = 0, 0  # filtered because no reply can be generated
+    finished = {}
 
-    with codecs.open(input_file, "r", 'UTF-8') as fh:
+    with codecs.open(args.input_file, "r", 'UTF-8') as fh:
         for line in fh:
             print >> sys.stderr, 'Processing: ', line.strip()
 
@@ -385,33 +392,81 @@ def main(input_file, filter_threshold):
             da = DialogueAct(da_str=da)
             occ_num = int(occ_num)
 
-            if occ_num < filter_threshold:
+            if occ_num < args.filter_threshold:
                 print >> sys.stderr, 'Input "%s" has only %d occurrences, skipping' % (utt, occ_num)
+                fthr_toks += occ_num
+                fthr_types += 1
                 continue
 
             if re.match(r'^(\*[A-Z_]+)(\s+\*[A-Z_]+)*$', utt):
                 print >> sys.stderr, 'Input "%s" only contains slots, skipping' % utt
+                fslt_toks += occ_num
+                fslt_types += 1
                 continue
 
             try:
                 ret = process_utt(utt, da)
+                if not ret:
+                    frep_toks += occ_num
+                    frep_types += 1
+                else:
+                    good_toks += occ_num
+                    good_types += 1
                 print >> sys.stderr, 'Result:', "\n".join(unicode(line) for line in ret)
                 print >> sys.stderr, ''
+                if args.occ_nums:
+                    for ret_line in ret:
+                        ret_line.occ_num = occ_num
                 data.extend(ret)
             except NotImplementedError as e:
+                frep_toks += occ_num
+                frep_types += 1
                 print >> sys.stderr, 'Error:', e
 
-    with codecs.getwriter('utf-8')(sys.stdout) as fh:
-        csvwrite = csv.writer(fh, delimiter=b"\t")
-        csvwrite.writerow(headers)
-        for line in data:
-            csvwrite.writerow(line.as_tuple())
+    if args.load_finished:
+        with codecs.open(args.load_finished, "r", 'UTF-8') as fh:
+            csvread = csv.reader(fh, delimiter=str(args.finished_csv_delim), quotechar=b'"')
+            columns = DataLine.get_columns_from_header(csvread.next())
+            for row in csvread:
+                finished_line = DataLine.from_csv_line(row, columns)
+                finished[finished_line.signature] = finished_line
 
+    written = {}
+    with codecs.getwriter('utf-8')(sys.stdout) as fh:
+        # starting with the header
+        csvwrite = csv.writer(fh, delimiter=b"\t", lineterminator="\n")
+        csvwrite.writerow(DataLine.get_headers(args.occ_nums))
+        for line in data:
+            if line.signature in written:  # some lines may be duplicate, skip them
+                print >> sys.stderr, 'Duplicate line:', line.signature
+                continue
+            # skip finished results (if they are loaded and if they should be skipped)
+            if line.signature in finished:
+                if finished[line.signature].slots != line.slots:
+                    print >> sys.stderr, ('Slots changed for ', line.signature,
+                                          '-- ignoring finished.')
+                    csvwrite.writerow(line.as_tuple(args.occ_nums))
+                elif not args.skip_finished:
+                    finished[line.signature].occ_num = line.occ_num
+                    csvwrite.writerow(finished[line.signature].as_tuple(args.occ_nums))
+            # default case: not found among finished
+            else:
+                csvwrite.writerow(line.as_tuple(args.occ_nums))
+
+            written[line.signature] = line
+
+    print >> sys.stderr, ("\n\nGood: %d / %d\nThreshold: %d / %d\nSlots: %d / %d\nReply: %d / %d" %
+                          (good_toks, good_types, fthr_toks, fthr_types, fslt_toks, fslt_types,
+                           frep_toks, frep_types))
 
 if __name__ == '__main__':
     ap = ArgumentParser()
     ap.add_argument('-f', '--filter-threshold', type=int, default=1)
+    ap.add_argument('-l', '--load-finished', type=str, default='')
+    ap.add_argument('-s', '--skip-finished', action='store_true')
+    ap.add_argument('-d', '--finished-csv-delim', type=str, default="\t")
+    ap.add_argument('-o', '--occ-nums', action='store_true')
     ap.add_argument('input_file')
     random.seed(0)
     args = ap.parse_args()
-    main(input_file=args.input_file, filter_threshold=args.filter_threshold)
+    main(args)
