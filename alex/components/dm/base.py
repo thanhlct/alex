@@ -200,6 +200,7 @@ class DialogueManager(object):
         """Produces output dialogue act."""
 
         self.last_system_dialogue_act = self.policy.get_da(self.dialogue_state)
+
         return self.last_system_dialogue_act
 
     def set_final_reward(self, satisfied):

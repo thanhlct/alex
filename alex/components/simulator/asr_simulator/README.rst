@@ -202,7 +202,3 @@ License
 -------
 This code is released under the APACHE 2.0 license unless the code says otherwise and its license does not allow re-licensing.
 The full wording of the APACHE 2.0 license can be found in the LICENSE-APACHE-2.0.TXT.
-
-Contacts
----------------
-*thanhlct@gmail.com*
